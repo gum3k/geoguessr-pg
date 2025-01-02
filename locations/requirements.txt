@@ -1,0 +1,5 @@
+googlemaps
+pandas
+matplotlib
+requests 
+beautifulsoup4
