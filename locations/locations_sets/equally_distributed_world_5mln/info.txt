@@ -1,0 +1,22 @@
+Map Name: equally_distributed_world_5mln
+Map Directory: locations_sets/equally_distributed_world_5mln
+Points Generated: 1536107
+Street View Locations Found: 122976
+
+Map Generation Parameters:
+BOUNDS: (-90.0, -180.0, 90.0, 180.0)
+POINT_DEGREE_BUFFER: 0.2 degrees
+SAMPLES: 5000000
+COVERAGE_SEARCH_RADIUS: 7000 meters
+MAX_REQUESTS_PER_SECOND: 490
+RETRY_JITTER: 0.1
+RETRIES: 5
+
+Paths and Flags:
+MAPS_DIRECTORY: locations_sets/
+POINTS_LOAD_MAP_PATH: None
+ONLY_GENERATE_POINTS: False
+UNOFFICIAL_COVERAGE: False
+LOGGING: True
+VISUALIZE_LOCATIONS: True
+VISUALIZE_POINTS: False

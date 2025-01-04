@@ -1,8 +1,0 @@
-#street-view {
-    height: 500px;
-    width: 800px;
-}
-
-a[href*="maps.google.com"] {
-    display: none !important; 
-}

@@ -1,0 +1,5 @@
+shapely
+tqdm
+geopandas
+aiohttp
+folium
