@@ -130,7 +130,6 @@ Tanzania
 Thailand
 The Bahamas
 Tunisia
-Turks and Caicos Islands
 Turkey
 Uganda
 Ukraine
@@ -141,4 +140,3 @@ United States Minor Outlying Islands
 United States Virgin Islands
 Uruguay
 Vanuatu
-Vietnam

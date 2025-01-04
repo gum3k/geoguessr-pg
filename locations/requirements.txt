@@ -3,3 +3,7 @@ pandas
 matplotlib
 requests 
 beautifulsoup4
+tqdm
+rtree
+aiohttp
+asyncio
