@@ -1,4 +1,4 @@
-.venv
-venv
 apikey.txt
-__pycache__
+/locations/.venv
+/locations/venv
+/locations/__pycache__
