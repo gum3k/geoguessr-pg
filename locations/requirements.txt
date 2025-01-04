@@ -1,9 +1,5 @@
-googlemaps
-pandas
-matplotlib
-requests 
-beautifulsoup4
+shapely
 tqdm
-rtree
+geopandas
 aiohttp
-asyncio
+folium
