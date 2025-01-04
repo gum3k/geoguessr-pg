@@ -1,29 +1,19 @@
-<!-- 
- THIS FILE IS IGNORED BY GIT
- TO UNIGNORE IT RUN:
- git update-index --no-assume-unchanged index.html 
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>geoguessr test</title>
+  <title>GeoGuessr</title>
   <link rel="stylesheet" type="text/css" href="style.css">
-  </head>
-
+</head>
 <body>
-    <h1>random place street view</h1>
+    <h1>GeoGuessr</h1>
+    
     <div id="street-view"></div>
-    <button id="random-location">draw a new place</button>
-  
-dsadasd
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBObjPDqUwbBiaL-z61tccf7Jkyz_4EqrY&callback=initMap">
-    </script>
-    <script
-        src="googleapi.js">
-    </script>
+    <button id="random-location">New Location</button>
+
+    <script src="apikey.js"></script> 
+    <script async defer id="google-map-script"></script>
+    <script src="googleapi.js"></script>
 </body>
 </html>
