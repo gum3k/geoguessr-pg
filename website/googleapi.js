@@ -1,46 +1,80 @@
 let panorama;
 let streetViewService;
-const STREETVIEW_MAX_DISTANCE = 100;
+const MAP_NAME = "equally_distributed_world_5mln";
+const LOCATIONS_PATH = `../locations/locations_sets/${MAP_NAME}/locations.csv`;
+let locations = [];
+
 
 function initMap() {
     streetViewService = new google.maps.StreetViewService();
-    findValidStreetView();
+
+    loadLocations()
+        .then(() => {
+            console.log("Locations loaded successfully.");
+            console.log(`Total locations loaded: ${locations.length}`); 
+            drawRandomPlace();
+        })
+        .catch(err => console.error("Error loading locations:", err));
+
+    document.getElementById("random-location").addEventListener("click", drawRandomPlace);
 }
 
-function getRandomCoordinates() {
-    const lat = Math.random() * 180 - 90; 
-    const lng = Math.random() * 360 - 180; 
-    return { lat, lng };
-}
-
-function findValidStreetView() {
-    const coords = getRandomCoordinates();
-
-    streetViewService.getPanorama({
-        location: coords,
-        radius: STREETVIEW_MAX_DISTANCE
-    }, (data, status) => {
-        if (status === google.maps.StreetViewStatus.OK) {
-            panorama = new google.maps.StreetViewPanorama(
-                document.getElementById('street-view'), {
-                position: data.location.latLng,
-                pov: {
-                    heading: 34,
-                    pitch: 10
-                },
-                visible: true,
-                addressControl: false
-            });
-
-        } else {
-            findValidStreetView();
+async function loadLocations() {
+    try {
+        const response = await fetch(LOCATIONS_PATH);
+        if (!response.ok) {
+            throw new Error(`Failed to load locations from ${LOCATIONS_PATH}: ${response.statusText}`);
         }
-    });
+
+        const csvText = await response.text();
+        parseCSV(csvText);
+    } catch (err) {
+        console.error("Error fetching locations:", err);
+    }
 }
 
-function reloadRandomLocation() {
-    findValidStreetView();
+function parseCSV(csvText) {
+    const rows = csvText.split("\n").slice(1);
+    locations = rows
+        .map(row => {
+            const [lat, lng] = row.split(",").map(Number);
+            return { lat, lng };
+        })
+        .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng)); // Filter invalid rows
+
+    console.log(`Parsed ${locations.length} valid locations.`);
 }
 
-document.getElementById('random-location').addEventListener('click', reloadRandomLocation);
+function getRandomLocation() {
+    if (locations.length === 0) {
+        console.error("No locations available. Check your CSV file.");
+        return { lat: 0, lng: 0 };
+    }
 
+    const randomIndex = Math.floor(Math.random() * locations.length);
+    const randomLocation = locations[randomIndex];
+
+    console.log(`Chosen location index: ${randomIndex}`);
+
+    return randomLocation;
+}
+
+// Display a random place
+function drawRandomPlace() {
+    const coords = getRandomLocation();
+
+    panorama = new google.maps.StreetViewPanorama(
+        document.getElementById("street-view"),
+        {
+            position: coords,
+            pov: {
+                heading: 34,
+                pitch: 10
+            },
+            visible: true,
+            addressControl: false
+        }
+    );
+
+    console.log(`Displayed location: Latitude ${coords.lat}, Longitude ${coords.lng}`);
+}
