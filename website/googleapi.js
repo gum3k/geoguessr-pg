@@ -4,7 +4,7 @@ const MAP_NAME = "equally_distributed_world_5mln";
 const LOCATIONS_PATH = `../locations/locations_sets/${MAP_NAME}/locations.csv`;
 let locations = [];
 
-// Initialize Google Maps and fetch locations
+
 function initMap() {
     streetViewService = new google.maps.StreetViewService();
 
@@ -19,7 +19,6 @@ function initMap() {
     document.getElementById("random-location").addEventListener("click", drawRandomPlace);
 }
 
-// Fetch and parse the CSV file
 async function loadLocations() {
     try {
         const response = await fetch(LOCATIONS_PATH);
@@ -34,7 +33,6 @@ async function loadLocations() {
     }
 }
 
-// Parse CSV data
 function parseCSV(csvText) {
     const rows = csvText.split("\n").slice(1);
     locations = rows
@@ -42,16 +40,15 @@ function parseCSV(csvText) {
             const [lat, lng] = row.split(",").map(Number);
             return { lat, lng };
         })
-        .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng)); // Filter out invalid rows
+        .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng)); // Filter invalid rows
 
     console.log(`Parsed ${locations.length} valid locations.`);
 }
 
-// Get a random location from the loaded locations
-function getRandomCoordinates() {
+function getRandomLocation() {
     if (locations.length === 0) {
         console.error("No locations available. Check your CSV file.");
-        return { lat: 0, lng: 0 }; // Default to the equator if no locations are found
+        return { lat: 0, lng: 0 };
     }
 
     const randomIndex = Math.floor(Math.random() * locations.length);
@@ -62,11 +59,10 @@ function getRandomCoordinates() {
     return randomLocation;
 }
 
-// Display a random place on the map
+// Display a random place
 function drawRandomPlace() {
-    const coords = getRandomCoordinates();
+    const coords = getRandomLocation();
 
-    // Directly display the location on the map
     panorama = new google.maps.StreetViewPanorama(
         document.getElementById("street-view"),
         {

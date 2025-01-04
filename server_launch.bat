@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Check if apikey.txt exists; if not, create it with a placeholder
+rem Check if apikey.txt exists, if not, create it with a default API key - gum3k's API Key
 if not exist apikey.txt (
     echo AIzaSyBrI_bZTLQhViRpIPQW5r9fwlgqs80Jz9A > apikey.txt
     echo U got blessed with gum3k's API Key, use it wisely.
@@ -10,7 +10,7 @@ if not exist apikey.txt (
 rem Read the current API key from apikey.txt
 set /p API_KEY=<apikey.txt
 
-rem Prompt the user and display the current API key
+rem Display the current API key and ask the user if they want to change it
 echo Your current API key is: !API_KEY!
 set /p new_api_key="Press Enter to start or type a new API key: "
 
@@ -25,7 +25,7 @@ if not "!new_api_key!"=="" (
 
 rem Start the Python HTTP server
 echo Starting the Python HTTP server...
-start python website/server.py
+start python -m http.server 8000
 
 rem Launch the website in the browser
 start http://localhost:8000/website/
