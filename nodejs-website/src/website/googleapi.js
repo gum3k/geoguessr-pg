@@ -1,7 +1,7 @@
 let panorama;
 let streetViewService;
 const MAP_NAME = "equally_distributed_world_5mln";
-const LOCATIONS_PATH = `../locations/locations_sets/${MAP_NAME}/locations.csv`;
+const LOCATIONS_PATH = `../../../locations/locations_sets/${MAP_NAME}/locations.csv`;
 let locations = [];
 
 
@@ -16,7 +16,7 @@ function initMap() {
         })
         .catch(err => console.error("Error loading locations:", err));
 
-    document.getElementById("random-location").addEventListener("click", drawRandomPlace);
+        document.getElementById("random-location").addEventListener("click", drawRandomPlace, { passive: true });
 }
 
 async function loadLocations() {
@@ -59,22 +59,24 @@ function getRandomLocation() {
     return randomLocation;
 }
 
-// Display a random place
 function drawRandomPlace() {
     const coords = getRandomLocation();
 
-    panorama = new google.maps.StreetViewPanorama(
-        document.getElementById("street-view"),
-        {
-            position: coords,
-            pov: {
-                heading: 34,
-                pitch: 10
-            },
-            visible: true,
-            addressControl: false
-        }
-    );
+    // Use requestAnimationFrame to defer the execution to the next frame
+    requestAnimationFrame(() => {
+        panorama = new google.maps.StreetViewPanorama(
+            document.getElementById("street-view"),
+            {
+                position: coords,
+                pov: {
+                    heading: 34,
+                    pitch: 10
+                },
+                visible: true,
+                addressControl: false
+            }
+        );
 
-    console.log(`Displayed location: Latitude ${coords.lat}, Longitude ${coords.lng}`);
+        console.log(`Displayed location: Latitude ${coords.lat}, Longitude ${coords.lng}`);
+    });
 }
