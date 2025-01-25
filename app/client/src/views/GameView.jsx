@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useApiKey from "../hooks/useApiKey";
 import useLocations from "../hooks/useLocations";
 import { fetchLocations } from "../utils/fetchLocations";
-import { useNavigate } from "react-router-dom";
 import MapComponent from "../components/pages/game/MapComponent";
 import StreetViewComponent from "../components/pages/game/StreetViewComponent";
 import GuessSummary from "../components/pages/game/GuessSummary";
+import NerdzikComponent from "../components/theme/NerdzikComponent";
 
 const GameView = () => {
   const { state } = useLocation(); // Retrieve state from navigation (contains rounds)

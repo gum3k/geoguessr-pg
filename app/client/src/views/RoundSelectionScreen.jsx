@@ -6,6 +6,7 @@ import MovingImageComponent from '../components/theme/MovingImageComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
+import { fetchLocations } from '../utils/fetchLocations';
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
@@ -14,10 +15,9 @@ const RoundSelectionScreen = () => {
   const navigate = useNavigate();
 
   const startGame = async () => {
-    const locations = await fetchLocations(rounds); // Pobranie lokalizacji na podstawie liczby rund
+    const locations = await fetchLocations(rounds);
     console.log('Fetched Locations:', locations);
 
-    // Przekazanie danych do GameView
     navigate('/game', {
       state: {
         rounds

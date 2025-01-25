@@ -39,26 +39,25 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
 
   const mapContainerStyles = {
     ...containerStyle,
-    width: isMapHovered || isButtonHovered ? "700px" : "300px", // Zmiana w zależności od stanu hover
-    height: isMapHovered || isButtonHovered ? "500px" : "216px", // Zmiana w zależności od stanu hover
-    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, // Zmiana w zależności od stanu hover
+    width: isMapHovered || isButtonHovered ? "700px" : "300px", 
+    height: isMapHovered || isButtonHovered ? "500px" : "216px", 
+    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, 
   };
 
   const mapOptions = {
     minZoom: 2,
     restriction: {
       latLngBounds: {
-        north: 85, // Górna granica (maksymalna szerokość geograficzna północ)
-        south: -85, // Dolna granica (maksymalna szerokość geograficzna południe)
-        west: -180, // Lewa granica (zachodnia długość geograficzna)
-        east: 180 // Prawa granica (wschodnia długość geograficzna)
+        north: 85, 
+        west: -180,
+        east: 180 
       },
       strictBounds: true, 
     },
     
-    streetViewControl: false, // Usuwa ludzika Street View
-    mapTypeControl: false, // Usuwa przełącznik mapy/satelity
-    fullscreenControl: false, // Usuwa przycisk pełnoekranowy
+    streetViewControl: false, 
+    mapTypeControl: false, 
+    fullscreenControl: false, 
   };
 
   useEffect(() => {

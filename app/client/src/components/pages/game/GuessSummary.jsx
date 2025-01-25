@@ -44,13 +44,19 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
           <Marker
             position={playerLocation}
             icon={{
-              url: "usericon.png", // URL obrazu
-              scaledSize: new window.google.maps.Size(40, 40), // Rozmiar ikony
+              url: "usericon.png",
+              scaledSize: new window.google.maps.Size(40, 40), 
             }}
           />
 
           {/* Marker for the actual location */}
-          <Marker position={targetLocation} label="Actual Location" />
+          <Marker
+            position={targetLocation}
+            icon={{
+              url: "locationicon.png",
+              scaledSize: new window.google.maps.Size(40, 40), 
+            }}
+          />
 
           {/* Line between guess and actual location */}
           <Polyline
