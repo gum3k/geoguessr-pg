@@ -1,10 +1,11 @@
 FOR CLIENT
 cd app/client
-call npm install
+npm config set legacy-peer-deps true
+npm install
 npm start
 
 FOR SERVER
 cd app/server
-call npm install
+npm install
 npm run dev
 
