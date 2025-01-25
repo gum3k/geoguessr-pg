@@ -5,7 +5,7 @@ const StartingScreen = () => {
   const navigate = useNavigate(); // This hook allows navigation programmatically
 
   const startRound = () => {
-    navigate('/location'); // Navigate to the location view
+    navigate('/game'); // Navigate to the location view
   };
 
   return (
