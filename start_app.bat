@@ -26,6 +26,7 @@ if not "!new_api_key!"=="" (
 echo WAIT FOR THE DEPENDENCIES TO INSTALL AND FOR THE APP TO START, http://localhost:3000/ WILL OPEN AUTOMATICALLY
 echo Installing dependencies...
 cd app/client
+call npm config set legacy-peer-deps true
 call npm install
 cd ../server
 call npm install
