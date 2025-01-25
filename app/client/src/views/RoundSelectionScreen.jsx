@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchLocations } from '../utils/fetchLocations';
 import NavigationComponent from '../components/NavigationComponent';
 import ContainerComponent from '../components/ContainerComponent'; 
 import MovingImageComponent from '../components/MovingImageComponent'; 
@@ -13,17 +14,20 @@ const RoundSelectionScreen = () => {
   const [roundTime, setRoundTime] = useState(0);
   const navigate = useNavigate();
 
-  const startGame = () => {
-    console.log(`Selected rounds: ${rounds}`);
-    navigate('/game');
+  const startGame = async () => {
+    const locations = await fetchLocations(rounds); // Pobranie lokalizacji na podstawie liczby rund
+    console.log('Fetched Locations:', locations);
+
+    // Przekazanie danych do GameView
+    navigate('/game', {
+      state: {
+        rounds
+      },
+    });
   };
 
   const handleModeSelect = (mode) => {
     setSelectedMode(mode); 
-  };
-
-  const handleSliderChange = (e) => {
-    setRounds(e.target.value);
   };
 
   const formatTime = (seconds) => {
@@ -43,7 +47,7 @@ const RoundSelectionScreen = () => {
           min={1}
           max={9}
           value={rounds}
-          onChange={(e) => setRounds(e.target.value)}
+          onChange={(e) => setRounds(Number(e.target.value))}
           label={'Rounds: ' + rounds}
         />
         <SliderComponent
