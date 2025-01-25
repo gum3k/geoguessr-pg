@@ -6,7 +6,7 @@ const ContainerComponent = ({ children }) => {
       position: 'relative',
       height: '100vh',
       width: '100%',
-      background: 'linear-gradient(to bottom, green, blue)', // Tło gradientowe
+      background: 'linear-gradient(to bottom, green, blue)', 
       overflow: 'hidden',
     },
   };

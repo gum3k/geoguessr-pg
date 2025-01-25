@@ -25,10 +25,10 @@ const MovingImageComponent = () => {
       top: 0;
     }
     50% {
-      top: calc(100vh - 200px); /* Bounce near the bottom */
+      top: calc(100vh - 200px); 
     }
     100% {
-      top: 0; /* Return to the top */
+      top: 0; 
     }
   }
   `;
