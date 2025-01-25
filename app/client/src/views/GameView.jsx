@@ -3,9 +3,9 @@ import useApiKey from "../hooks/useApiKey";
 import useLocations from "../hooks/useLocations";
 import { fetchLocations } from "../utils/fetchLocations";
 import { useNavigate } from "react-router-dom";
-import MapComponent from "../components/MapComponent";
-import StreetViewComponent from "../components/StreetViewComponent";
-import GuessSummary from "../components/GuessSummary";
+import MapComponent from "../pages/game/MapComponent";
+import StreetViewComponent from "../pages/game/StreetViewComponent";
+import GuessSummary from "../pages/game/GuessSummary";
 
 const GameView = () => {
   const [apiKey] = useApiKey(); // Hook do pobierania klucza API
