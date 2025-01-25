@@ -3,8 +3,26 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 import useApiKey from "../hooks/useApiKey";
 
 const containerStyle = {
-  width: "100%",
-  height: "400px",
+  transition: "width 0.3s ease, height 0.3s ease",
+  position: "absolute",
+  bottom: "30px",
+  right: "10px",
+  zIndex: 10,
+  cursor: "pointer",
+};
+
+const buttonStyle = {
+  position: "absolute",
+  bottom: "10px",
+  right: "10px",
+  zIndex: 20,
+  padding: "10px 20px",
+  backgroundColor: "#007bff",
+  color: "white",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer",
+  transition: "opacity 0.3s ease",
 };
 
 const center = {
@@ -12,13 +30,22 @@ const center = {
   lng: 0,
 };
 
-const MapComponent = ({ onLocationSelect }) => {
+const MapComponent = ({ onLocationSelect, handleGuess }) => {
   const [apiKey] = useApiKey();
-  const [isLoaded, setIsLoaded] = useState(false); // Stan do śledzenia, czy mapa jest załadowana
+  const [isLoaded, setIsLoaded] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isMapHovered, setIsMapHovered] = useState(false);
+
+  const mapContainerStyles = {
+    ...containerStyle,
+    width: isMapHovered || isButtonHovered ? "700px" : "300px", // Zmiana w zależności od stanu hover
+    height: isMapHovered || isButtonHovered ? "500px" : "216px", // Zmiana w zależności od stanu hover
+    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, // Zmiana w zależności od stanu hover
+  };
 
   useEffect(() => {
-    if (!apiKey) return; // Jeśli klucz API jeszcze nie jest dostępny, nic nie rób
+    if (!apiKey) return;
 
     const loadGoogleMapsScript = () => {
       if (!window.google || !window.google.maps) {
@@ -29,17 +56,16 @@ const MapComponent = ({ onLocationSelect }) => {
         document.head.appendChild(script);
 
         script.onload = () => {
-          setIsLoaded(true); // Zmieniamy stan na załadowany po załadowaniu skryptu
+          setIsLoaded(true);
         };
       } else {
-        setIsLoaded(true); // Jeśli Google Maps już jest załadowane, od razu ustawiamy stan na true
+        setIsLoaded(true);
       }
     };
 
-    loadGoogleMapsScript(); // Ładuj skrypt po zmianie apiKey
+    loadGoogleMapsScript();
 
     return () => {
-      // Czyścimy skrypt w przypadku zmiany komponentu (opcjonalnie)
       const scripts = document.querySelectorAll("script[src^='https://maps.googleapis.com/maps/api/js']");
       scripts.forEach((script) => script.remove());
     };
@@ -52,17 +78,39 @@ const MapComponent = ({ onLocationSelect }) => {
     onLocationSelect({ lat, lng });
   };
 
-  if (!isLoaded) return <p>Loading map ...</p>; // Zwracamy komunikat o ładowaniu mapy
+  if (!isLoaded) return <p>Loading map ...</p>;
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={2}
-      onClick={handleMapClick}
-    >
-      {selectedLocation && <Marker position={selectedLocation} />}
-    </GoogleMap>
+    <div>
+      {/* Kontener dla mapy */}
+      <div
+        className="map-container"
+        style={mapContainerStyles}
+        onMouseEnter={() => setIsMapHovered(true)}
+        onMouseLeave={() => setIsMapHovered(false)}
+      >
+        <GoogleMap
+          mapContainerStyle={mapContainerStyles}
+          center={center}
+          zoom={2}
+          onClick={handleMapClick}
+        >
+          {selectedLocation && <Marker position={selectedLocation} />}
+        </GoogleMap>
+      </div>
+
+      {/* Przycisk New Location pojawia się tylko po najechaniu na mapę */}
+      {isMapHovered || isButtonHovered ? (
+        <button
+          style={buttonStyle}
+          onClick={handleGuess} // Wywołanie przekazanej funkcji
+          onMouseEnter={() => setIsButtonHovered(true)}
+          onMouseLeave={() => setIsButtonHovered(false)}
+        >
+          Guess Location
+        </button>
+      ) : null}
+    </div>
   );
 };
 

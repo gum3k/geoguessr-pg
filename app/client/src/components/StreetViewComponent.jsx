@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 const StreetViewComponent = ({ location, apiKey }) => {
   useEffect(() => {
-    if (!location) return; // Nie wyświetlaj mapy, jeśli nie ma lokalizacji
+    if (!location) return;
 
     const initMap = () => {
       const panorama = new window.google.maps.StreetViewPanorama(
@@ -19,7 +19,6 @@ const StreetViewComponent = ({ location, apiKey }) => {
       );
     };
 
-    // Ładowanie API Google Maps, jeśli nie jest załadowane
     if (!window.google || !window.google.maps) {
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
@@ -27,11 +26,11 @@ const StreetViewComponent = ({ location, apiKey }) => {
       script.defer = true;
       document.head.appendChild(script);
     } else {
-      initMap(); // Jeśli API już jest załadowane, od razu uruchom initMap
+      initMap();
     }
   }, [location, apiKey]);
 
-  return <div id="street-view" style={{ height: "500px", width: "800px" }}></div>;
+  return <div id="street-view" style={{ height: "100vh", width: "100%" }}></div>;
 };
 
 export default StreetViewComponent;
