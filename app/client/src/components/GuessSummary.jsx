@@ -1,28 +1,26 @@
 import React from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
+import ContainerComponent from '../components/ContainerComponent';
+import RoundButtonComponent from './RoundButtonComponent';
 
 const mapContainerStyle = {
   width: "100%",
-  height: "400px",
+  height: "100%",
   borderRadius: "10px",
   overflow: "hidden",
 };
 
 const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation }) => {
   return (
-    <div className="guess-summary">
-      <h2 className="text-xl font-bold mb-4">Guess Summary</h2>
-      <p className="mb-2">Points Earned: <span className="font-semibold">{points}</span></p>
-      <p className="mb-2">Distance Difference: <span className="font-semibold">{distance.toFixed(2)} km</span></p>
-
-      <div className="map-wrapper mt-4">
+    <ContainerComponent>
+      <div className="map-wrapper mt-4" style={{ position: "relative", height: "100vh", backgroundColor: "white" }}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={{
             lat: (playerLocation.lat + targetLocation.lat) / 2,
             lng: (playerLocation.lng + targetLocation.lng) / 2,
           }}
-          zoom={2}
+          zoom={4}
         >
           {/* Marker for the guess location */}
           <Marker position={playerLocation} label="Your Guess" />
@@ -40,12 +38,42 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             }}
           />
         </GoogleMap>
-      </div>
-      <button onClick={handleRandomLocation}>
-        Next Round
-      </button>
 
-    </div>
+        {/* Bottom bar with gradient background */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            background: "linear-gradient(to right, #00aaff, #0055ff)",
+            padding: "20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            zIndex: 2,
+            borderRadius: "10px 10px 0 0", // Rounded corners at the top of the bar
+          }}
+        >
+{/* Points and Distance */}
+<div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
+  {/* Points Earned section */}
+  <div style={{ textAlign: "center", marginRight: "20px" }}>
+    <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
+    <p style={{ margin: 0, fontSize: "32px" }}>{points}</p>
+  </div>
+
+  {/* Distance Difference section */}
+  <div style={{ textAlign: "center", marginLeft: "20px" }}>
+    <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
+    <p style={{ margin: 0, fontSize: "32px" }}>{distance.toFixed(2)} km</p>
+  </div>
+</div>
+
+<RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round"/>
+        </div>
+      </div>
+    </ContainerComponent>
   );
 };
 
