@@ -11,21 +11,21 @@ To get started with this project, follow these steps:
    cd geoguessr-pg
    ```
 
-2. Start the server by double-clicking `start_server.bat` or running it from the command line:
+2. Start the app by double-clicking `start_app.bat` or running it from the command line:
    ```sh
-   start_server.bat
+   start_app.bat
    ```
 
 3. Enter Your Valid Google Cloud API Key. It will be used for:
    - Maps JavaScript API: Used to load locations on the website.
    - Street View Static API: Used during map generation to check for Street View coverage.
 
-4. If you want to stop the server, simply press `Ctrl + C` or close the cmd window.
+4. If you want to stop the app, simply press `Ctrl + C` or close the cmd window.
 
 
 ## Usage
 
-Once the server is running, you can access the application at http://localhost:3000.
+Once the app is running, you can access the application at http://localhost:3000.
 
 ## Important Notes
 
@@ -35,13 +35,13 @@ Once the server is running, you can access the application at http://localhost:3
 
 ---
 
-Enjoy the smooth setup and let the server work its magic! ✨
+Enjoy the smooth setup and let the app work its magic! ✨
 
 ## Components
 
 ### Node.js Website
 
-The Node.js website initializes a server and sets up routes for handling requests. It includes scripts for loading the Google Maps API key and handling interactions with the Google Maps API.
+The Node.js website initializes an app and sets up routes for handling requests. It includes scripts for loading the Google Maps API key and handling interactions with the Google Maps API.
 
 ### Map Generator
 

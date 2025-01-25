@@ -23,11 +23,18 @@ if not "!new_api_key!"=="" (
     echo API Key remains unchanged.
 )
 
+echo WAIT FOR THE DEPENDENCIES TO INSTALL AND FOR THE APP TO START, http://localhost:3000/ WILL OPEN AUTOMATICALLY
 echo Installing dependencies...
-cd nodejs-website
+cd app/client
+call npm install
+cd ../server
 call npm install
 echo Starting the Node.js server...
-start http://localhost:3000
+start cmd /k "npm run dev"
+echo Starting the client...
+cd ../client
+start cmd /k "npm start"
+
 echo:
 echo ############################################
 echo ############################################
@@ -37,6 +44,5 @@ echo:
 echo ############################################
 echo ############################################
 echo:
-call npm start
 
 pause
