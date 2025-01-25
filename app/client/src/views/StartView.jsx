@@ -6,7 +6,7 @@ import MovingImageComponent from '../theme/MovingImageComponent';
 import ContentComponent from '../theme/ContentComponent'; 
 import BasicButtonComponent from '../theme/BasicButtonComponent';
 
-const RoundStartView = () => {
+const StartView = () => {
   const navigate = useNavigate();
 
   const startRound = () => {
@@ -28,4 +28,4 @@ const RoundStartView = () => {
   );
 };
 
-export default RoundStartView;
+export default StartView;
