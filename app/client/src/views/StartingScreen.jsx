@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavigationComponent from '../components/NavigationComponent';
-import ContainerComponent from '../components/ContainerComponent'; 
-import MovingImageComponent from '../components/MovingImageComponent'; 
-import ContentComponent from '../components/ContentComponent'; 
-import BasicButtonComponent from '../components/BasicButtonComponent';
+import NavigationComponent from '../components/theme/NavigationComponent';
+import ContainerComponent from '../components/theme/ContainerComponent'; 
+import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContentComponent from '../components/theme/ContentComponent'; 
+import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 
 const StartingScreen = () => {
   const navigate = useNavigate();

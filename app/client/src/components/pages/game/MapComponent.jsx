@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import useApiKey from "../hooks/useApiKey";
+import useApiKey from "../../../hooks/useApiKey";
 
 const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",

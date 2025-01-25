@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchLocations } from '../utils/fetchLocations';
-import NavigationComponent from '../components/NavigationComponent';
-import ContainerComponent from '../components/ContainerComponent'; 
-import MovingImageComponent from '../components/MovingImageComponent'; 
-import ContentComponent from '../components/ContentComponent'; 
-import BasicButtonComponent from '../components/BasicButtonComponent';
-import SliderComponent from '../components/SliderComponent';
+import NavigationComponent from '../components/theme/NavigationComponent';
+import ContainerComponent from '../components/theme/ContainerComponent'; 
+import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContentComponent from '../components/theme/ContentComponent'; 
+import BasicButtonComponent from '../components/theme/BasicButtonComponent';
+import SliderComponent from '../components/pages/settings/SliderComponent';
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);

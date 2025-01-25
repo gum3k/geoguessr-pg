@@ -1,6 +1,6 @@
 import React from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
-import ContainerComponent from '../components/ContainerComponent';
+import ContainerComponent from '../../theme/ContainerComponent';
 import RoundButtonComponent from './RoundButtonComponent';
 
 const mapContainerStyle = {
