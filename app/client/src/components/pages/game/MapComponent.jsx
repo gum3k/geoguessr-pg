@@ -48,7 +48,8 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     minZoom: 2,
     restriction: {
       latLngBounds: {
-        north: 85, 
+        north: 85,
+        south: -85, 
         west: -180,
         east: 180 
       },

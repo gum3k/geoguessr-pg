@@ -63,14 +63,24 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             path={[playerLocation, targetLocation]}
             options={{
               strokeColor: "#FF0000",
-              strokeOpacity: 0.8,
+              strokeOpacity: 0,
               strokeWeight: 2,
+              icons: [
+                {
+                  icon: {
+                    path: "M 0,-1 0,1", 
+                    strokeOpacity: 0.8,
+                    scale: 4,
+                  },
+                  offset: "0%",
+                  repeat: "20px", 
+ 
+                }
+              ],
             }}
           />
         </GoogleMap>
         
-        
-
         {/* Bottom bar with gradient background */}
         <div
           style={{
