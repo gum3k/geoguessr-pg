@@ -1,0 +1,14 @@
+npm init -y
+npm i express
+npm i nodemon -D
+
+npm config set legacy-peer-deps true
+npx create-react-app client
+
+#client
+npm i ajv
+npm start
+
+#server
+npm i dotenv
+npm run dev

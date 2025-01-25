@@ -1,0 +1,58 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const router = express.Router();
+
+// API route to fetch API key
+router.get('/apikey', (req, res) => {
+  const apiKeyPath = process.env.API_KEY_PATH || path.join(__dirname, '..', '..', 'apikey.txt');
+
+  fs.readFile(apiKeyPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading API key:', err);
+      return res.status(500).json({ error: 'Failed to read API key' });
+    }
+    res.json({ apiKey: data.trim() });
+  });
+});
+
+// Serve all locations as CSV
+router.get('/locations', (req, res) => {
+  const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', 'equally_distributed_world_5mln', 'locations.csv');
+
+  fs.readFile(locationsPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading locations:', err);
+      return res.status(500).json({ error: 'Failed to read locations file' });
+    }
+    res.type('text/csv').send(data);
+  });
+});
+
+// API route to fetch random locations
+router.get('/locations/random', (req, res) => {
+  const count = parseInt(req.query.count, 10) || 1; // Default to 1 location
+  const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', 'equally_distributed_world_5mln', 'locations.csv');
+
+  fs.readFile(locationsPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading locations:', err);
+      return res.status(500).json({ error: 'Failed to read locations file' });
+    }
+
+    const rows = data.trim().split('\n').slice(1); // Skip header row
+    const randomLocations = [];
+
+    for (let i = 0; i < count; i++) {
+      const randomIndex = Math.floor(Math.random() * rows.length);
+      const [lat, lng] = rows[randomIndex].split(',').map(Number);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        randomLocations.push({ lat, lng });
+      }
+    }
+
+    res.json(randomLocations);
+  });
+});
+
+module.exports = router;
