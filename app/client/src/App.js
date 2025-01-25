@@ -1,17 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import StartingScreen from './views/StartingScreen';
 import GameView from './views/GameView';
-import StartView from './views/StartView';
-import SettingsView from './views/SettingsView';
+import RoundSelectionScreen from './views/RoundSelectionScreen';
 
 const App = () => {
   return (
     <Router>
       <Routes>
         {/* Define the routes */}
-        <Route path="/" element={<StartView />} />
+        <Route path="/" element={<StartingScreen />} />
         <Route path="/game" element={<GameView />} />
-        <Route path="/gamesettings" element={<SettingsView/>}/>
+        <Route path="/gamesettings" element={<RoundSelectionScreen/>}/>
       </Routes>
     </Router>
   );

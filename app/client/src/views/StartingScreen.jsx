@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavigationComponent from '../theme/NavigationComponent';
-import ContainerComponent from '../theme/ContainerComponent'; 
-import MovingImageComponent from '../theme/MovingImageComponent'; 
-import ContentComponent from '../theme/ContentComponent'; 
-import BasicButtonComponent from '../theme/BasicButtonComponent';
+import NavigationComponent from '../components/theme/NavigationComponent';
+import ContainerComponent from '../components/theme/ContainerComponent'; 
+import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContentComponent from '../components/theme/ContentComponent'; 
+import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 
-const StartView = () => {
+const StartingScreen = () => {
   const navigate = useNavigate();
 
   const startRound = () => {
@@ -28,4 +28,4 @@ const StartView = () => {
   );
 };
 
-export default StartView;
+export default StartingScreen;

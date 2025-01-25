@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavigationComponent from '../theme/NavigationComponent';
-import ContainerComponent from '../theme/ContainerComponent'; 
-import MovingImageComponent from '../theme/MovingImageComponent'; 
-import ContentComponent from '../theme/ContentComponent'; 
-import BasicButtonComponent from '../theme/BasicButtonComponent';
-import SliderComponent from '../pages/settings/SliderComponent';
+import NavigationComponent from '../components/theme/NavigationComponent';
+import ContainerComponent from '../components/theme/ContainerComponent'; 
+import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContentComponent from '../components/theme/ContentComponent'; 
+import BasicButtonComponent from '../components/theme/BasicButtonComponent';
+import SliderComponent from '../components/pages/settings/SliderComponent';
 
-const SettingsView = () => {
+const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
@@ -141,4 +141,4 @@ const styles = {
 
 
 
-export default SettingsView;
+export default RoundSelectionScreen;
