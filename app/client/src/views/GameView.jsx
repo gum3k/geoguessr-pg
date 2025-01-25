@@ -6,6 +6,7 @@ import { fetchLocations } from "../utils/fetchLocations";
 import MapComponent from "../components/MapComponent";
 import StreetViewComponent from "../components/StreetViewComponent";
 import GuessSummary from "../components/GuessSummary";
+import NerdzikComponent from "../components/NerdzikComponent";
 
 const GameView = () => {
   const { state } = useLocation(); // Retrieve state from navigation (contains rounds)
@@ -18,6 +19,7 @@ const GameView = () => {
   const [distance, setDistance] = useState(null); // Distance between locations
   const [showSummary, setShowSummary] = useState(false); // Toggle summary visibility
   const navigate = useNavigate(); // Navigation hook
+  
 
   const calculateDistance = (loc1, loc2) => {
     const R = 6371; // Earth's radius in kilometers
@@ -37,7 +39,8 @@ const GameView = () => {
     const currentLocation = locations[currentLocationIndex];
     const distance = calculateDistance(location, currentLocation);
     setDistance(Math.round(distance));
-    const points = Math.max(0, Math.round(5000 - distance));
+    const e = 2.718281828459045;
+    const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 14916.862)));
     setScore(points);
     setPlayerLocation(location);
     setActuallLocation(currentLocation);
@@ -77,6 +80,17 @@ const GameView = () => {
 
   return (
     <div style={{ position: "relative", height: "100vh" }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "10px",
+          opacity: 0.5, // Semi-transparent
+          zIndex: 10, // Ensure it appears above other elements
+        }}
+      >
+        <NerdzikComponent height="100px" />
+      </div>
       {/* Conditional rendering for Street View and Map */}
       {!showSummary && (
         <>

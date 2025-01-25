@@ -6,15 +6,15 @@ const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",
   position: "absolute",
   bottom: "30px",
-  right: "10px",
+  right: "30px",
   zIndex: 10,
   cursor: "pointer",
 };
 
 const buttonStyle = {
   position: "absolute",
-  bottom: "10px",
-  right: "10px",
+  bottom: "15px",
+  right: "61px",
   zIndex: 20,
   padding: "10px 20px",
   backgroundColor: "#007bff",
@@ -42,6 +42,23 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     width: isMapHovered || isButtonHovered ? "700px" : "300px", // Zmiana w zależności od stanu hover
     height: isMapHovered || isButtonHovered ? "500px" : "216px", // Zmiana w zależności od stanu hover
     opacity: isMapHovered || isButtonHovered ? 1 : 0.8, // Zmiana w zależności od stanu hover
+  };
+
+  const mapOptions = {
+    minZoom: 2,
+    restriction: {
+      latLngBounds: {
+        north: 85, // Górna granica (maksymalna szerokość geograficzna północ)
+        south: -85, // Dolna granica (maksymalna szerokość geograficzna południe)
+        west: -180, // Lewa granica (zachodnia długość geograficzna)
+        east: 180 // Prawa granica (wschodnia długość geograficzna)
+      },
+      strictBounds: true, 
+    },
+    
+    streetViewControl: false, // Usuwa ludzika Street View
+    mapTypeControl: false, // Usuwa przełącznik mapy/satelity
+    fullscreenControl: false, // Usuwa przycisk pełnoekranowy
   };
 
   useEffect(() => {
@@ -94,6 +111,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
           center={center}
           zoom={2}
           onClick={handleMapClick}
+          options={mapOptions}
         >
           {selectedLocation && <Marker position={selectedLocation} />}
         </GoogleMap>

@@ -10,6 +10,23 @@ const mapContainerStyle = {
   overflow: "hidden",
 };
 
+const mapOptions = {
+  minZoom: 2,
+  restriction: {
+    latLngBounds: {
+      north: 85, 
+      south: -85, 
+      west: -180, 
+      east: 180 
+    },
+    strictBounds: true, 
+  },
+  
+  streetViewControl: false, 
+  mapTypeControl: false, 
+  fullscreenControl: false, 
+};
+
 const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation }) => {
   return (
     <ContainerComponent>
@@ -21,9 +38,16 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             lng: (playerLocation.lng + targetLocation.lng) / 2,
           }}
           zoom={4}
+          options={mapOptions}
         >
           {/* Marker for the guess location */}
-          <Marker position={playerLocation} label="Your Guess" />
+          <Marker
+            position={playerLocation}
+            icon={{
+              url: "usericon.png", // URL obrazu
+              scaledSize: new window.google.maps.Size(40, 40), // Rozmiar ikony
+            }}
+          />
 
           {/* Marker for the actual location */}
           <Marker position={targetLocation} label="Actual Location" />
@@ -38,6 +62,8 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             }}
           />
         </GoogleMap>
+        
+        
 
         {/* Bottom bar with gradient background */}
         <div

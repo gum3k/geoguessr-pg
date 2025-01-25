@@ -11,7 +11,9 @@ const StreetViewComponent = ({ location, apiKey }) => {
           position: location,
           pov: { heading: 34, pitch: 10 },
           visible: true,
+          disableDefaultUI: false,
           addressControl: false,
+          showRoadLabels: false
         }
       );
       console.log(
@@ -24,6 +26,7 @@ const StreetViewComponent = ({ location, apiKey }) => {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
       script.async = true;
       script.defer = true;
+      script.onload = initMap; 
       document.head.appendChild(script);
     } else {
       initMap();
