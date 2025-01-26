@@ -8,14 +8,14 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
 
     const interval = setInterval(() => {
       setTimeLeft((prevTime) => {
-        const newTime = prevTime - 1;
+        const newTime = prevTime - 0.1;
         handleTimer(newTime);
         if (newTime === 0) {
           setTimeLeft(initialTime);
         }
         return newTime;
       });
-    }, 1000);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [timeLeft, initialTime, handleTimer, isPaused]);
@@ -26,9 +26,12 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+    const remainingSeconds = Math.floor(seconds % 60);
+    const tenthsOfSecond = Math.floor((seconds % 1) * 10);
+  
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}:${tenthsOfSecond}`;
   };
+  
 
   const getTimeColor = () => {
     const percentageLeft = (timeLeft / initialTime) * 100;
@@ -62,9 +65,9 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
         <div
           style={{
             height: "100%",
-            width: `${(timeLeft / initialTime) * 100}%`,
+            width: `${(timeLeft) / (initialTime) * 100}%`,
             backgroundColor: getTimeColor(),
-            transition: "width 1s linear",
+            transition: "width 0.1s linear",
           }}
         />
       </div>
