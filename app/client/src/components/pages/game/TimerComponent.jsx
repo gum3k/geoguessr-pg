@@ -10,13 +10,13 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
       setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
         handleTimer(newTime);
-        if(newTime === 0){
-            setTimeLeft(initialTime);
+        if (newTime === 0) {
+          setTimeLeft(initialTime);
         }
         return newTime;
       });
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [timeLeft, initialTime, handleTimer, isPaused]);
 
@@ -32,7 +32,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
 
   const getTimeColor = () => {
     const percentageLeft = (timeLeft / initialTime) * 100;
-    
+
     if (percentageLeft > 50 || initialTime === 0) {
       return "green";
     } else if (percentageLeft > 15) {
@@ -43,7 +43,8 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
   };
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
+      {/* progress bar */}
       <div
         style={{
           width: "100%",
@@ -55,6 +56,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
           top: 0,
           left: 0,
           marginBottom: "10px",
+          zIndex: 1,
         }}
       >
         <div
@@ -67,12 +69,17 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
         />
       </div>
 
+      {/* text */}
       <div
         style={{
+          position: "absolute", 
+          marginTop: "20px",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
           fontSize: "2.2rem",
-          textAlign: "center",
           color: "white",
           textShadow: `-2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black, 0px 0px 6px black`,
+          zIndex: 2,
         }}
       >
         {initialTime === 0 ? (

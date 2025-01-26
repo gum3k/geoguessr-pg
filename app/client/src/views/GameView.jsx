@@ -147,7 +147,7 @@ const GameView = () => {
         style={{position: "absolute", top: "10px", left: "10px", zIndex: 10,}}>
         <NerdzikComponent height="100px" />
       </div>
-      {/* Conditional rendering for Street View and Map */}
+      {/* conditional rendering for Street View and Map */}
       {!showSummary && !timeUp && (
         <>
           <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode}/>
@@ -158,7 +158,7 @@ const GameView = () => {
         </>
       )}
  
-      {/* Display GuessSummary */}
+      {/* display summaries */}
       {(showSummary || timeUp) && !showSummaryEnd && (
         <GuessSummary
           playerLocation={playerLocation}

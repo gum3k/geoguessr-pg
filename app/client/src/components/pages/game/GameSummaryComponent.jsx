@@ -1,7 +1,7 @@
 import React from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from '../../theme/ContainerComponent';
-import RoundButtonComponent from './RoundButtonComponent';
+import RoundButtonComponent from '../../theme/RoundButtonComponent';
 import { useNavigate } from 'react-router-dom';
 
 const mapContainerStyle = {
@@ -49,7 +49,7 @@ const GameSummaryComponent = ({ roundInfo }) => {
           zoom={4}
           options={mapOptions}
         >
-          {/* Rysowanie markerów i linii dla wszystkich rund */}
+          {/* rysowanie markerów i linii dla wszystkich rund */}
           {roundInfo.map((round, index) => (
             <React.Fragment key={index}>
               {round.playerLocation && (
@@ -81,7 +81,7 @@ const GameSummaryComponent = ({ roundInfo }) => {
           ))}
         </GoogleMap>
 
-        {/* Bottom bar with gradient background */}
+        {/* bottom bar */}
         <div
           style={{
             position: "absolute",
@@ -97,9 +97,8 @@ const GameSummaryComponent = ({ roundInfo }) => {
             borderRadius: "10px 10px 0 0", // rounded corners
           }}
         >
-          {/* Points*/}
+          {/* points*/}
           <div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
-            {/* Total Points Earned section */}
             <div style={{ textAlign: "center", marginRight: "20px" }}>
               <p style={{ margin: 0, fontSize: "28px" }}>Total Points Earned</p>
               <p style={{ margin: 0, fontSize: "32px" }}>{totalPoints}</p>

@@ -1,7 +1,7 @@
 import React from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from '../../theme/ContainerComponent';
-import RoundButtonComponent from './RoundButtonComponent';
+import RoundButtonComponent from '../../theme/RoundButtonComponent';
 
 const mapContainerStyle = {
   width: "100%",
@@ -46,7 +46,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
           zoom={4}
           options={mapOptions}
         >
-          {/* Marker for the guess location */}
+          {/* marker for the guess location */}
           {playerLocation && (
             <Marker
               position={playerLocation}
@@ -57,7 +57,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             />
           )}
 
-          {/* Marker for the actual location */}
+          {/* marker for the actual location */}
           {}
           <Marker
             position={targetLocation}
@@ -67,7 +67,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             }}
           />
 
-          {/* Line between guess and actual location */}
+          {/* line between guess and actual location */}
           <Polyline
             path={[playerLocation, targetLocation]}
             options={{
@@ -90,7 +90,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
           />
         </GoogleMap>
         
-        {/* Bottom bar with gradient background */}
+        {/* bottom bar */}
         <div
           style={{
             position: "absolute",
@@ -106,15 +106,13 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             borderRadius: "10px 10px 0 0", // rounded corners
           }}
         >
-        {/* Points and Distance */}
+        {/* points and distance */}
         <div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
-          {/* Points Earned section */}
           <div style={{ textAlign: "center", marginRight: "20px" }}>
             <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
             <p style={{ margin: 0, fontSize: "32px" }}>{points !== null ? points : "0"}</p>
           </div>
 
-          {/* Distance Difference section */}
           <div style={{ textAlign: "center", marginLeft: "20px" }}>
             <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
             <p style={{ margin: 0, fontSize: "32px" }}>

@@ -18,11 +18,9 @@ const StartingScreen = () => {
       <NavigationComponent />
       <MovingImageComponent></MovingImageComponent>
       <ContentComponent>
-        <h2>Welcome to the Game!</h2>
-        <p>Click below to start a new round</p>
-        <BasicButtonComponent onClick={startRound}>
-          Start Round
-        </BasicButtonComponent>
+        <h2>Welcome to the location guessing game!</h2>
+        <p>Click below to start a new game</p>
+        <BasicButtonComponent buttonText="Start game" onClick={startRound}></BasicButtonComponent>
       </ContentComponent>
     </ContainerComponent>
   );
