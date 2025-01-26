@@ -1,20 +1,37 @@
 import React, { useEffect } from "react";
 
-const StreetViewComponent = ({ location, apiKey }) => {
+const StreetViewComponent = ({ location, apiKey, mode }) => {
+
+
   useEffect(() => {
     if (!location) return;
 
+    const panoramaOptions = {
+      position: location,
+      pov: { heading: 34, pitch: 10 },
+      visible: true,
+      addressControl: false,
+      showRoadLabels: false
+    };
+
+    if (mode == 'No Move') {
+      panoramaOptions.clickToGo = false;
+      panoramaOptions.disableDefaultUI = true;
+    } else if (mode == 'NMPZ') {
+      panoramaOptions.disableDefaultUI = true;
+      panoramaOptions.clickToGo = false;
+      panoramaOptions.scrollwheel = false;
+      panoramaOptions.panControl = false;
+      panoramaOptions.zoomControl = false;
+      console.log("dziala");
+    } else {
+      panoramaOptions.clickToGo = true;
+      panoramaOptions.scrollwheel = true;
+    }
     const initMap = () => {
       const panorama = new window.google.maps.StreetViewPanorama(
         document.getElementById("street-view"),
-        {
-          position: location,
-          pov: { heading: 34, pitch: 10 },
-          visible: true,
-          disableDefaultUI: false,
-          addressControl: false,
-          showRoadLabels: false
-        }
+        panoramaOptions
       );
       console.log(
         `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
@@ -33,7 +50,10 @@ const StreetViewComponent = ({ location, apiKey }) => {
     }
   }, [location, apiKey]);
 
-  return <div id="street-view" style={{ height: "100vh", width: "100%" }}></div>;
+  return (
+      <div id="street-view" style={{ height: "100vh", width: "100%", zIndex: 1 }}></div>
+  );
+
 };
 
 export default StreetViewComponent;

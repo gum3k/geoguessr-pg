@@ -9,6 +9,7 @@ import GuessSummary from "../components/pages/game/GuessSummary";
 import GameSummaryComponent from "../components/pages/game/GameSummaryComponent";
 import NerdzikComponent from "../components/theme/NerdzikComponent";
 import TimerComponent from "../components/pages/game/TimerComponent";
+import BlockComponent from "../components/pages/game/BlockComponent";
 
 const GameView = () => {
   const { state } = useLocation();
@@ -24,6 +25,7 @@ const GameView = () => {
   const [timeUp, setTimeUp] = useState(false);
   const [timeLeft, setTimeLeft] = useState(state?.roundTime);
   const [isPaused, setIsPaused] = useState(false);
+  const [mode, setMode] = useState('Move');
   const navigate = useNavigate();
   
 
@@ -116,12 +118,22 @@ const GameView = () => {
       setLocations(newLocations);
     };
     loadLocations();
+
+    const handleMode = () => {
+      const selectedMode = state?.selectedMode;
+      setMode(selectedMode || "Move");
+    }
+    handleMode();
   }, [state, setLocations]);
 
   const currentLocation = locations[currentLocationIndex];
 
   return (
     <div style={{ position: "relative", height: "100vh" }}>
+        {!showSummary && (
+            <BlockComponent mode={state?.selectedMode}></BlockComponent>
+          )
+        }
       <div
         style={{
           position: "absolute",
@@ -143,7 +155,7 @@ const GameView = () => {
       {/* Conditional rendering for Street View and Map */}
       {!showSummary && !timeUp && (
         <>
-          <StreetViewComponent location={currentLocation} apiKey={apiKey} />
+          <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode}/>
           <MapComponent
             onLocationSelect={handleLocationSelect}
             handleGuess={handleGuess}
