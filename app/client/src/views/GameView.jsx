@@ -129,28 +129,23 @@ const GameView = () => {
   const currentLocation = locations[currentLocationIndex];
 
   return (
-    <div style={{ position: "relative", height: "100vh" }}>
+    <div style={{ position: "relative", height: "100%" }}>
         {!showSummary && (
             <BlockComponent mode={state?.selectedMode}></BlockComponent>
           )
         }
-      <div
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-          opacity: 0.5,
-          zIndex: 10,
-        }}
-      >
-        <NerdzikComponent height="100px" />
         {!showSummary && (
+          <div style={{position: "absolute", left: "50%", transform: "translateX(-50%)", zIndex: 20, width: "100%"}}>
           <TimerComponent
             initialTime={timeLeft}
             isPaused={isPaused}
             handleTimer={handleTimer}
           />
+        </div>
         )}
+      <div
+        style={{position: "absolute", top: "10px", left: "10px", zIndex: 10,}}>
+        <NerdzikComponent height="100px" />
       </div>
       {/* Conditional rendering for Street View and Map */}
       {!showSummary && !timeUp && (

@@ -17,14 +17,15 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
     if (mode == 'No Move') {
       panoramaOptions.clickToGo = false;
       panoramaOptions.disableDefaultUI = true;
-    } else if (mode == 'NMPZ') {
+    } 
+    else if (mode == 'NMPZ') {
       panoramaOptions.disableDefaultUI = true;
       panoramaOptions.clickToGo = false;
       panoramaOptions.scrollwheel = false;
       panoramaOptions.panControl = false;
       panoramaOptions.zoomControl = false;
-      console.log("dziala");
-    } else {
+    } 
+    else {
       panoramaOptions.clickToGo = true;
       panoramaOptions.scrollwheel = true;
     }
