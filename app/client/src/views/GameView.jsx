@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import useApiKey from "../hooks/useApiKey";
 import useLocations from "../hooks/useLocations";
 import { fetchLocations } from "../utils/fetchLocations";
-import { useNavigate } from "react-router-dom";
-import MapComponent from "../components/MapComponent";
-import StreetViewComponent from "../components/StreetViewComponent";
-import GuessSummary from "../components/GuessSummary";
+import MapComponent from "../components/pages/game/MapComponent";
+import StreetViewComponent from "../components/pages/game/StreetViewComponent";
+import GuessSummary from "../components/pages/game/GuessSummary";
+import GameSummaryComponent from "../components/pages/game/GameSummaryComponent";
+import NerdzikComponent from "../components/theme/NerdzikComponent";
 
 const GameView = () => {
-  const [apiKey] = useApiKey(); // Hook do pobierania klucza API
-  const [locations, setLocations] = useLocations(); // Hook do zarządzania lokalizacjami
-  const [currentLocationIndex, setCurrentLocationIndex] = useState(0); // Śledzenie aktualnej lokalizacji
-  const [playerLocation, setPlayerLocation] = useState(null); // Lokalizacja gracza
+  const { state } = useLocation();
+  const [apiKey] = useApiKey();
+  const [locations, setLocations] = useLocations();
+  const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
+  const [playerLocation, setPlayerLocation] = useState(null);
   const [actuallLocation, setActuallLocation] = useState(null);
-  const [score, setScore] = useState(null); // Wynik gracza
-  const [distance, setDistance] = useState(null); // Odległość między lokalizacjami
-  const [showSummary, setShowSummary] = useState(false); // Czy wyświetlać podsumowanie
-  const navigate = useNavigate(); // Hook do nawigacji
+  const [score, setScore] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [showSummaryEnd, setShowSummaryEnd] = useState(false);
+  const navigate = useNavigate();
+  
+
+  const [roundInfo, setRoundInfo] = useState([]);
+
+  const addRoundInfo = (pLocation, tLocation, npoints) => {
+    const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
+    setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
+  }
+
 
   const calculateDistance = (loc1, loc2) => {
-    const R = 6371; // Promień Ziemi w kilometrach
+    const R = 6371; // radius
     const dLat = ((loc2.lat - loc1.lat) * Math.PI) / 180;
     const dLng = ((loc2.lng - loc1.lng) * Math.PI) / 180;
     const a =
@@ -29,55 +42,67 @@ const GameView = () => {
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Odległość w kilometrach
+    return R * c; // final distance
   };
 
   const handleLocationSelect = (location) => {
     const currentLocation = locations[currentLocationIndex];
     const distance = calculateDistance(location, currentLocation);
     setDistance(Math.round(distance));
-    const points = Math.max(0, Math.round(5000 - distance));
+    const e = 2.718281828459045;
+    const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 14916.862)));
     setScore(points);
     setPlayerLocation(location);
     setActuallLocation(currentLocation);
-    console.log("Player Location: ", playerLocation);
-    console.log("Actuall Location: ", actuallLocation);
-    };
+  };
 
+  const handleGuess = () => {
+    addRoundInfo(playerLocation, actuallLocation, score);
+    setShowSummary(true);
+  };
 
-    const handleGuess = async () => {
-      if (currentLocationIndex >= locations.length - 1) {
-        navigate("/"); // PODSUMOWANIE GRY
-      } else {
-        setShowSummary(true);
+  const handleRandomLocation = () => {
+    if (currentLocationIndex >= locations.length - 1) {
+      navigate("/"); // redirecting to summary
+    } else {
+      setShowSummary(true);
+      setCurrentLocationIndex((prevIndex) => prevIndex + 1);
+      setScore(null);
+      setPlayerLocation(null);
+      setDistance(null);
+      setShowSummary(false);
     }
   };
-  const handleRandomLocation = async () => {
-    if (currentLocationIndex >= locations.length - 1) {
-      navigate("/"); // Przejście na ekran podsumowania gry
-    } else {
-      setShowSummary(true); // Pokaż podsumowanie po dokonaniu wyboru
-      setCurrentLocationIndex((prevIndex) => prevIndex + 1); // Przechodzi do następnej lokalizacji
-      setScore(null); // Resetuje wynik
-      setPlayerLocation(null); // Resetuje lokalizację gracza
-      setDistance(null); // Resetuje odległość
-      setShowSummary(false); // Ukryj podsumowanie*/
-    }
+
+  const handleGameSummary = () => {
+    setShowSummaryEnd(true);
   };
 
   useEffect(() => {
     const loadLocations = async () => {
-      const newLocations = await fetchLocations();
+      const rounds = state?.rounds || 5; // default value is 5
+      const newLocations = await fetchLocations(rounds);
       setLocations(newLocations);
     };
     loadLocations();
-  }, []);
+  }, [state, setLocations]);
 
   const currentLocation = locations[currentLocationIndex];
 
   return (
     <div style={{ position: "relative", height: "100vh" }}>
-      {/* Warunkowe wyświetlanie Street View i Mapy */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "10px",
+          opacity: 0.5,
+          zIndex: 10,
+        }}
+      >
+        <NerdzikComponent height="100px" />
+      </div>
+      {/* Conditional rendering for Street View and Map */}
       {!showSummary && (
         <>
           <StreetViewComponent location={currentLocation} apiKey={apiKey} />
@@ -88,16 +113,24 @@ const GameView = () => {
         </>
       )}
 
-      {/* Wyświetlanie GuessSummary */}
-      {showSummary && playerLocation && (
+      {/* Display GuessSummary */}
+      {showSummary && playerLocation && !showSummaryEnd && (
         <GuessSummary
           playerLocation={playerLocation}
           targetLocation={actuallLocation}
           points={score}
           distance={distance}
           handleRandomLocation={handleRandomLocation}
+          ifLast={(currentLocationIndex >= locations.length - 1)}
+          handleGameSummary={handleGameSummary}
         />
       )}
+      {showSummaryEnd && (
+        <GameSummaryComponent
+        roundInfo={roundInfo}
+      />
+      )}
+      
     </div>
   );
 };

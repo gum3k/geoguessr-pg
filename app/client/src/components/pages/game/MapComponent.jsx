@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import useApiKey from "../hooks/useApiKey";
+import useApiKey from "../../../hooks/useApiKey";
 
 const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",
   position: "absolute",
   bottom: "30px",
-  right: "10px",
+  right: "30px",
   zIndex: 10,
   cursor: "pointer",
 };
 
 const buttonStyle = {
   position: "absolute",
-  bottom: "10px",
-  right: "10px",
+  bottom: "15px",
+  right: "61px",
   zIndex: 20,
   padding: "10px 20px",
   backgroundColor: "#007bff",
@@ -39,9 +39,26 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
 
   const mapContainerStyles = {
     ...containerStyle,
-    width: isMapHovered || isButtonHovered ? "700px" : "300px", // Zmiana w zależności od stanu hover
-    height: isMapHovered || isButtonHovered ? "500px" : "216px", // Zmiana w zależności od stanu hover
-    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, // Zmiana w zależności od stanu hover
+    width: isMapHovered || isButtonHovered ? "700px" : "300px", 
+    height: isMapHovered || isButtonHovered ? "500px" : "216px", 
+    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, 
+  };
+
+  const mapOptions = {
+    minZoom: 2,
+    restriction: {
+      latLngBounds: {
+        north: 85,
+        south: -85, 
+        west: -180,
+        east: 180 
+      },
+      strictBounds: true, 
+    },
+    
+    streetViewControl: false, 
+    mapTypeControl: false, 
+    fullscreenControl: false, 
   };
 
   useEffect(() => {
@@ -94,6 +111,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
           center={center}
           zoom={2}
           onClick={handleMapClick}
+          options={mapOptions}
         >
           {selectedLocation && <Marker position={selectedLocation} />}
         </GoogleMap>

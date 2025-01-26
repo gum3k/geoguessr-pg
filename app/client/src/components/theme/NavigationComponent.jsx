@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import NerdzikComponent from './NerdzikComponent';
 
 const NavigationComponent = () => {
     return (
         <div style={styles.navbar}>
-          <Link to="/">
-            <img src="/geo_nerdface_2.png" alt="Game Logo" style={styles.logo} />
-          </Link>
+          <NerdzikComponent/>
           <Link
             to="/gamesettings"
             style={styles.button}
@@ -57,13 +56,13 @@ const styles = {
     },
     buttonHover: {
         textShadow: `
-        0 0 10px rgba(128, 0, 255, 1),   /* Intensywny fioletowy blask */
-        0 0 20px rgba(128, 0, 255, 1), /* Średni promień */
-        0 0 30px rgba(128, 0, 255, 1), /* Większy rozbłysk */
-        0 0 40px rgba(128, 0, 255, 1), /* Większy rozbłysk */
-        0 0 50px rgba(128, 0, 255, 0.9), /* Większy rozbłysk */
-        0 0 60px rgba(128, 0, 255, 0.8), /* Większy rozbłysk */
-        0 0 70px rgba(128, 0, 255, 0.7)  /* Najszerze rozmycie */
+        0 0 10px rgba(128, 0, 255, 1),   
+        0 0 20px rgba(128, 0, 255, 1), 
+        0 0 30px rgba(128, 0, 255, 1), 
+        0 0 40px rgba(128, 0, 255, 1), 
+        0 0 50px rgba(128, 0, 255, 0.9), 
+        0 0 60px rgba(128, 0, 255, 0.8), 
+        0 0 70px rgba(128, 0, 255, 0.7)  
       `,
       }
   };
