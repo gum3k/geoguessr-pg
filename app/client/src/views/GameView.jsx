@@ -75,11 +75,16 @@ const GameView = () => {
     setActuallLocation(locations[currentLocationIndex]);
     const time = state?.roundTime;
     if (timeLeft <= 0 && time != 0){
-      addRoundInfo(playerLocation, actuallLocation, score);
-      setShowSummary(true);
-      setTimeUp(true);
-      setTimeLeft(time);
-      setIsPaused(true);
+      if (playerLocation === null){
+        addRoundInfo(playerLocation, actuallLocation, score);
+        setShowSummary(true);
+        setTimeUp(true);
+        setTimeLeft(time);
+        setIsPaused(true);
+      }
+      else {
+        handleGuess();
+      }
     }
     else {
       setTimeUp(false);
