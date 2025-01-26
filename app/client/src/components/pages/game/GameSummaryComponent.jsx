@@ -52,13 +52,15 @@ const GameSummaryComponent = ({ roundInfo }) => {
           {/* Rysowanie markerów i linii dla wszystkich rund */}
           {roundInfo.map((round, index) => (
             <React.Fragment key={index}>
-              <Marker
-                position={round.playerLocation}
-                icon={{
-                  url: "usericon.png",
-                  scaledSize: new window.google.maps.Size(40, 40),
-                }}
-              />
+              {round.playerLocation && (
+                <Marker
+                  position={round.playerLocation}
+                  icon={{
+                    url: "usericon.png",
+                    scaledSize: new window.google.maps.Size(40, 40),
+                  }}
+                />
+              )}
               <Marker
                 position={round.targetLocation}
                 icon={{
@@ -66,6 +68,7 @@ const GameSummaryComponent = ({ roundInfo }) => {
                   scaledSize: new window.google.maps.Size(40, 40),
                 }}
               />
+
               <Polyline
                 path={[round.playerLocation, round.targetLocation]}
                 options={{

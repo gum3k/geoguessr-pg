@@ -22,7 +22,8 @@ const GameView = () => {
   const [showSummary, setShowSummary] = useState(false);
   const [showSummaryEnd, setShowSummaryEnd] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
-  const [initialTime, setInitialTime] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(state?.roundTime);
+  const [isPaused, setIsPaused] = useState(false);
   const navigate = useNavigate();
   
 
@@ -67,17 +68,21 @@ const GameView = () => {
   const handleGuess = () => {
     addRoundInfo(playerLocation, actuallLocation, score);
     setShowSummary(true);
+    setIsPaused(true);
   };
 
   const handleTimer = (timeLeft) => {
     setActuallLocation(locations[currentLocationIndex]);
-    if (initialTime != 0 && timeLeft <= 0){
-      setTimeUp(true);
+    const time = state?.roundTime;
+    if (timeLeft <= 0 && time != 0){
+      addRoundInfo(playerLocation, actuallLocation, score);
       setShowSummary(true);
+      setTimeUp(true);
+      setTimeLeft(time);
+      setIsPaused(true);
     }
     else {
       setTimeUp(false);
-      setInitialTime(state?.roundTime);
     }
   }
 
@@ -91,7 +96,7 @@ const GameView = () => {
       setPlayerLocation(null);
       setDistance(null);
       setShowSummary(false);
-      setInitialTime(state?.roundTime);
+      setIsPaused(false);
     }
   };
 
@@ -122,13 +127,16 @@ const GameView = () => {
         }}
       >
         <NerdzikComponent height="100px" />
-        <TimerComponent 
-        initialTime={initialTime}
-        handleTimer={handleTimer}
-        />
+        {!showSummary && (
+          <TimerComponent
+            initialTime={timeLeft}
+            isPaused={isPaused}
+            handleTimer={handleTimer}
+          />
+        )}
       </div>
       {/* Conditional rendering for Street View and Map */}
-      {!showSummary && (
+      {!showSummary && !timeUp && (
         <>
           <StreetViewComponent location={currentLocation} apiKey={apiKey} />
           <MapComponent
@@ -137,7 +145,7 @@ const GameView = () => {
           />
         </>
       )}
-
+ 
       {/* Display GuessSummary */}
       {(showSummary || timeUp) && !showSummaryEnd && (
         <GuessSummary

@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-const TimerComponent = ({ initialTime, handleTimer }) => {
+const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
-    if (initialTime === 0) {
-      handleTimer(null); // NO LIMIT, brak potrzeby odliczania
-      return;
-    }
+    if (isPaused) return;
 
-    if (timeLeft <= 0) {
-      handleTimer(0); // Czas się skończył
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+    const interval = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        const newTime = prevTime - 1;
+        handleTimer(newTime); // Przekazuj nowy czas do rodzica
+        if(newTime === 0){
+            setTimeLeft(initialTime);
+        }
+        return newTime;
+      });
     }, 1000);
+    
+    return () => clearInterval(interval); // Czyszczenie interwału przy unmount
+  }, [timeLeft, initialTime, handleTimer, isPaused]);
 
-    return () => clearInterval(timer);
-  }, [timeLeft, initialTime, handleTimer]);
+  useEffect(() => {
+    setTimeLeft(initialTime); // Resetowanie czasu przy zmianie initialTime
+  }, [initialTime]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -29,10 +32,11 @@ const TimerComponent = ({ initialTime, handleTimer }) => {
 
   return (
     <div style={{ fontSize: "2rem", textAlign: "center" }}>
-        {initialTime === 0 ? (
-            <span>NO LIMIT</span>
-        ) : ( <span>Time left: {formatTime(timeLeft)}</span> )
-        }
+      {initialTime === 0 ? (
+        <span>NO LIMIT</span>
+      ) : (
+        <span>Time left: {formatTime(timeLeft)}</span>
+      )}
     </div>
   );
 };
