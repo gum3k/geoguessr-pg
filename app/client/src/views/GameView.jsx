@@ -6,23 +6,33 @@ import { fetchLocations } from "../utils/fetchLocations";
 import MapComponent from "../components/pages/game/MapComponent";
 import StreetViewComponent from "../components/pages/game/StreetViewComponent";
 import GuessSummary from "../components/pages/game/GuessSummary";
+import GameSummaryComponent from "../components/pages/game/GameSummaryComponent";
 import NerdzikComponent from "../components/theme/NerdzikComponent";
 
 const GameView = () => {
-  const { state } = useLocation(); // Retrieve state from navigation (contains rounds)
-  const [apiKey] = useApiKey(); // Hook to fetch the API key
-  const [locations, setLocations] = useLocations(); // Hook for managing locations
-  const [currentLocationIndex, setCurrentLocationIndex] = useState(0); // Current location index
-  const [playerLocation, setPlayerLocation] = useState(null); // Player's selected location
-  const [actuallLocation, setActuallLocation] = useState(null); // Actual target location
-  const [score, setScore] = useState(null); // Player's score
-  const [distance, setDistance] = useState(null); // Distance between locations
-  const [showSummary, setShowSummary] = useState(false); // Toggle summary visibility
-  const navigate = useNavigate(); // Navigation hook
+  const { state } = useLocation();
+  const [apiKey] = useApiKey();
+  const [locations, setLocations] = useLocations();
+  const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
+  const [playerLocation, setPlayerLocation] = useState(null);
+  const [actuallLocation, setActuallLocation] = useState(null);
+  const [score, setScore] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [showSummaryEnd, setShowSummaryEnd] = useState(false);
+  const navigate = useNavigate();
   
 
+  const [roundInfo, setRoundInfo] = useState([]);
+
+  const addRoundInfo = (pLocation, tLocation, npoints) => {
+    const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
+    setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
+  }
+
+
   const calculateDistance = (loc1, loc2) => {
-    const R = 6371; // Earth's radius in kilometers
+    const R = 6371; // radius
     const dLat = ((loc2.lat - loc1.lat) * Math.PI) / 180;
     const dLng = ((loc2.lng - loc1.lng) * Math.PI) / 180;
     const a =
@@ -32,7 +42,7 @@ const GameView = () => {
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in kilometers
+    return R * c; // final distance
   };
 
   const handleLocationSelect = (location) => {
@@ -47,16 +57,13 @@ const GameView = () => {
   };
 
   const handleGuess = () => {
-    if (currentLocationIndex >= locations.length - 1) {
-      navigate("/"); // Redirect to summary screen
-    } else {
-      setShowSummary(true);
-    }
+    addRoundInfo(playerLocation, actuallLocation, score);
+    setShowSummary(true);
   };
 
   const handleRandomLocation = () => {
     if (currentLocationIndex >= locations.length - 1) {
-      navigate("/"); // Redirect to summary screen
+      navigate("/"); // redirecting to summary
     } else {
       setShowSummary(true);
       setCurrentLocationIndex((prevIndex) => prevIndex + 1);
@@ -67,10 +74,14 @@ const GameView = () => {
     }
   };
 
+  const handleGameSummary = () => {
+    setShowSummaryEnd(true);
+  };
+
   useEffect(() => {
     const loadLocations = async () => {
-      const rounds = state?.rounds || 5; // Default to 5 rounds if none provided
-      const newLocations = await fetchLocations(rounds); // Fetch locations based on number of rounds
+      const rounds = state?.rounds || 5; // default value is 5
+      const newLocations = await fetchLocations(rounds);
       setLocations(newLocations);
     };
     loadLocations();
@@ -85,8 +96,8 @@ const GameView = () => {
           position: "absolute",
           top: "10px",
           left: "10px",
-          opacity: 0.5, // Semi-transparent
-          zIndex: 10, // Ensure it appears above other elements
+          opacity: 0.5,
+          zIndex: 10,
         }}
       >
         <NerdzikComponent height="100px" />
@@ -103,15 +114,23 @@ const GameView = () => {
       )}
 
       {/* Display GuessSummary */}
-      {showSummary && playerLocation && (
+      {showSummary && playerLocation && !showSummaryEnd && (
         <GuessSummary
           playerLocation={playerLocation}
           targetLocation={actuallLocation}
           points={score}
           distance={distance}
           handleRandomLocation={handleRandomLocation}
+          ifLast={(currentLocationIndex >= locations.length - 1)}
+          handleGameSummary={handleGameSummary}
         />
       )}
+      {showSummaryEnd && (
+        <GameSummaryComponent
+        roundInfo={roundInfo}
+      />
+      )}
+      
     </div>
   );
 };

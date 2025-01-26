@@ -27,7 +27,7 @@ const mapOptions = {
   fullscreenControl: false, 
 };
 
-const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation }) => {
+const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation, ifLast, handleGameSummary }) => {
   return (
     <ContainerComponent>
       <div className="map-wrapper mt-4" style={{ position: "relative", height: "100vh", backgroundColor: "white" }}>
@@ -94,29 +94,37 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             justifyContent: "space-between",
             alignItems: "center",
             zIndex: 2,
-            borderRadius: "10px 10px 0 0", // Rounded corners at the top of the bar
+            borderRadius: "10px 10px 0 0", // rounded corners
           }}
         >
-{/* Points and Distance */}
-<div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
-  {/* Points Earned section */}
-  <div style={{ textAlign: "center", marginRight: "20px" }}>
-    <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
-    <p style={{ margin: 0, fontSize: "32px" }}>{points}</p>
-  </div>
+        {/* Points and Distance */}
+        <div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
+          {/* Points Earned section */}
+          <div style={{ textAlign: "center", marginRight: "20px" }}>
+            <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>{points}</p>
+          </div>
 
-  {/* Distance Difference section */}
-  <div style={{ textAlign: "center", marginLeft: "20px" }}>
-    <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
-    <p style={{ margin: 0, fontSize: "32px" }}>{distance.toFixed(2)} km</p>
-  </div>
-</div>
-
-<RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round"/>
+          {/* Distance Difference section */}
+          <div style={{ textAlign: "center", marginLeft: "20px" }}>
+            <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>{distance.toFixed(2)} km</p>
+          </div>
         </div>
+
+        {!ifLast && (
+          <RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round" />
+        )}
+        {ifLast && (
+          <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
+        )}
+
       </div>
-    </ContainerComponent>
+    </div>
+  </ContainerComponent>
   );
+  
+
 };
 
 export default GuessSummary;
