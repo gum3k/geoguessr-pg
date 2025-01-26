@@ -17,8 +17,8 @@ const mapOptions = {
     latLngBounds: {
       north: 85, 
       south: -85, 
-      west: -180, 
-      east: 180 
+      west: -179, 
+      east: 179 
     },
     strictBounds: true, 
   },

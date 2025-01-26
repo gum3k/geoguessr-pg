@@ -16,8 +16,8 @@ const mapOptions = {
     latLngBounds: {
       north: 85, 
       south: -85, 
-      west: -180, 
-      east: 180 
+      west: -180,
+      east: 180
     },
     strictBounds: true, 
   },
@@ -28,28 +28,37 @@ const mapOptions = {
 };
 
 const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation, ifLast, handleGameSummary }) => {
+  const center = playerLocation
+  ? {
+      lat: (playerLocation.lat + targetLocation.lat) / 2,
+      lng: (playerLocation.lng + targetLocation.lng) / 2,
+    }
+  : targetLocation ?
+  { lat: targetLocation.lat, lng: targetLocation.lng }
+  : {lat: 0, lng: 0}
+  
   return (
     <ContainerComponent>
       <div className="map-wrapper mt-4" style={{ position: "relative", height: "100vh", backgroundColor: "white" }}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          center={{
-            lat: (playerLocation.lat + targetLocation.lat) / 2,
-            lng: (playerLocation.lng + targetLocation.lng) / 2,
-          }}
+          center={center}
           zoom={4}
           options={mapOptions}
         >
           {/* Marker for the guess location */}
-          <Marker
-            position={playerLocation}
-            icon={{
-              url: "usericon.png",
-              scaledSize: new window.google.maps.Size(40, 40), 
-            }}
-          />
+          {playerLocation && (
+            <Marker
+              position={playerLocation}
+              icon={{
+                url: "usericon.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+              }}
+            />
+          )}
 
           {/* Marker for the actual location */}
+          {}
           <Marker
             position={targetLocation}
             icon={{
@@ -102,13 +111,15 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
           {/* Points Earned section */}
           <div style={{ textAlign: "center", marginRight: "20px" }}>
             <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
-            <p style={{ margin: 0, fontSize: "32px" }}>{points}</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>{points !== null ? points : "0"}</p>
           </div>
 
           {/* Distance Difference section */}
           <div style={{ textAlign: "center", marginLeft: "20px" }}>
             <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
-            <p style={{ margin: 0, fontSize: "32px" }}>{distance.toFixed(2)} km</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>
+               {distance !== null ? `${distance.toFixed(2)} km` : "- km"}
+            </p>
           </div>
         </div>
 

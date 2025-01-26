@@ -20,7 +20,8 @@ const RoundSelectionScreen = () => {
 
     navigate('/game', {
       state: {
-        rounds
+        rounds,
+        roundTime
       },
     });
   };

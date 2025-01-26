@@ -8,6 +8,7 @@ import StreetViewComponent from "../components/pages/game/StreetViewComponent";
 import GuessSummary from "../components/pages/game/GuessSummary";
 import GameSummaryComponent from "../components/pages/game/GameSummaryComponent";
 import NerdzikComponent from "../components/theme/NerdzikComponent";
+import TimerComponent from "../components/pages/game/TimerComponent";
 
 const GameView = () => {
   const { state } = useLocation();
@@ -20,6 +21,8 @@ const GameView = () => {
   const [distance, setDistance] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
   const [showSummaryEnd, setShowSummaryEnd] = useState(false);
+  const [timeUp, setTimeUp] = useState(false);
+  const [initialTime, setInitialTime] = useState(0);
   const navigate = useNavigate();
   
 
@@ -47,12 +50,17 @@ const GameView = () => {
 
   const handleLocationSelect = (location) => {
     const currentLocation = locations[currentLocationIndex];
-    const distance = calculateDistance(location, currentLocation);
-    setDistance(Math.round(distance));
-    const e = 2.718281828459045;
-    const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 14916.862)));
-    setScore(points);
-    setPlayerLocation(location);
+    if (location !== null) {
+      const distance = calculateDistance(location, currentLocation);
+      setDistance(Math.round(distance));
+      const e = 2.718281828459045;
+      const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 14916.862)));
+      setScore(points);
+      setPlayerLocation(location);
+    } else {
+      setScore(0);
+      setDistance(0);
+    }
     setActuallLocation(currentLocation);
   };
 
@@ -60,6 +68,18 @@ const GameView = () => {
     addRoundInfo(playerLocation, actuallLocation, score);
     setShowSummary(true);
   };
+
+  const handleTimer = (timeLeft) => {
+    setActuallLocation(locations[currentLocationIndex]);
+    if (initialTime != 0 && timeLeft <= 0){
+      setTimeUp(true);
+      setShowSummary(true);
+    }
+    else {
+      setTimeUp(false);
+      setInitialTime(state?.roundTime);
+    }
+  }
 
   const handleRandomLocation = () => {
     if (currentLocationIndex >= locations.length - 1) {
@@ -71,6 +91,7 @@ const GameView = () => {
       setPlayerLocation(null);
       setDistance(null);
       setShowSummary(false);
+      setInitialTime(state?.roundTime);
     }
   };
 
@@ -101,6 +122,10 @@ const GameView = () => {
         }}
       >
         <NerdzikComponent height="100px" />
+        <TimerComponent 
+        initialTime={initialTime}
+        handleTimer={handleTimer}
+        />
       </div>
       {/* Conditional rendering for Street View and Map */}
       {!showSummary && (
@@ -114,7 +139,7 @@ const GameView = () => {
       )}
 
       {/* Display GuessSummary */}
-      {showSummary && playerLocation && !showSummaryEnd && (
+      {(showSummary || timeUp) && !showSummaryEnd && (
         <GuessSummary
           playerLocation={playerLocation}
           targetLocation={actuallLocation}
