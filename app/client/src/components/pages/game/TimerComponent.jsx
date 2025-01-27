@@ -1,44 +1,73 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
+const styles = {
+  progressBar: {
+    width: "100%",
+    height: "7px",
+    backgroundColor: "#ddd",
+    borderRadius: "10px",
+    overflow: "hidden",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    marginBottom: "10px",
+    zIndex: 1
+  }
+}
 
 const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [noLimit, setNoLimit] = useState(false);
+
+  const start = useRef(Date.now());
 
   useEffect(() => {
     if (isPaused) return;
 
+    if (initialTime === 0){
+      setNoLimit(true);
+    } else {
+      setNoLimit(false);
+    }
+    
     const interval = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        const newTime = prevTime - 0.1;
+      setTimeLeft(() => {
+        const elapsed = (Date.now() - start.current) / 1000; // Oblicz czas, który upłynął w sekundach
+        const newTime = Math.max(initialTime - elapsed, 0); // Pozostały czas
+    
         handleTimer(newTime);
+    
         if (newTime === 0) {
-          setTimeLeft(initialTime);
+          clearInterval(interval); // Zatrzymaj interwał po zakończeniu czasu
+          return initialTime; // Resetuj czas do początkowej wartości
         }
-        return newTime;
+    
+        return newTime; // Aktualizuj pozostały czas
       });
     }, 100);
 
     return () => clearInterval(interval);
   }, [timeLeft, initialTime, handleTimer, isPaused]);
 
+
   useEffect(() => {
     setTimeLeft(initialTime);
+    start.current = Date.now();
   }, [initialTime]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    const tenthsOfSecond = Math.floor((seconds % 1) * 10);
   
-    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}:${tenthsOfSecond}`;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
   };
-  
 
   const getTimeColor = () => {
     const percentageLeft = (timeLeft / initialTime) * 100;
 
-    if (percentageLeft > 50 || initialTime === 0) {
+    if (percentageLeft > 40 || initialTime === 0) {
       return "green";
-    } else if (percentageLeft > 15) {
+    } else if (percentageLeft > 10) {
       return "yellow";
     } else {
       return "red";
@@ -47,21 +76,8 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
 
   return (
     <div style={{ position: "relative" }}>
-      {/* progress bar */}
-      <div
-        style={{
-          width: "100%",
-          height: "7px",
-          backgroundColor: "#ddd",
-          borderRadius: "10px",
-          overflow: "hidden",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          marginBottom: "10px",
-          zIndex: 1,
-        }}
-      >
+      {!noLimit && (
+      <div style={styles.progressBar}>
         <div
           style={{
             height: "100%",
@@ -71,7 +87,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
           }}
         />
       </div>
-
+      )}
       {/* text */}
       <div
         style={{
