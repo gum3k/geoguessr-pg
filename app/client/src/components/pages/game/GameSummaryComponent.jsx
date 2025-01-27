@@ -79,8 +79,20 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
                   path={[round.playerLocation, round.targetLocation]}
                   options={{
                     strokeColor: "#FF0000",
-                    strokeOpacity: 0.8,
+                    strokeOpacity: 0,
                     strokeWeight: 2,
+                    icons: [
+                      {
+                        icon: {
+                          path: "M 0,-1 0,1", 
+                          strokeOpacity: 0.8,
+                          scale: 4,
+                        },
+                        offset: "0%",
+                        repeat: "20px", 
+       
+                      }
+                    ],
                   }}
                 />
               )}
