@@ -10,6 +10,7 @@ import GameSummaryComponent from "../components/pages/game/GameSummaryComponent"
 import NerdzikComponent from "../components/theme/NerdzikComponent";
 import TimerComponent from "../components/pages/game/TimerComponent";
 import BlockComponent from "../components/pages/game/BlockComponent";
+import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 
 const GameView = () => {
   const { state } = useLocation();
@@ -155,6 +156,13 @@ const GameView = () => {
             onLocationSelect={handleLocationSelect}
             handleGuess={handleGuess}
           />
+          <div style={{ top: "10%", position: "absolute", width: "8%", right: 0 }}>
+            <RoundInfoComponent 
+              roundNumber={currentLocationIndex + 1} 
+              maxRounds={locations.length} 
+              currentPoints={roundInfo.reduce((total, round) => total + (round.points || 0), 0)} // suma punktów z dotychczasowych rund
+            />
+          </div>
         </>
       )}
  
