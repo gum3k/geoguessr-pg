@@ -3,3 +3,4 @@ apikey.txt
 /locations/venv
 /locations/__pycache__
 node_modules/
+**/package-lock.json

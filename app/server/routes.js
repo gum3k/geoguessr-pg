@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
-// API route to fetch API key
+// fetch API key
 router.get('/apikey', (req, res) => {
   const apiKeyPath = process.env.API_KEY_PATH || path.join(__dirname, '..', '..', 'apikey.txt');
 
@@ -16,7 +16,7 @@ router.get('/apikey', (req, res) => {
   });
 });
 
-// Serve all locations as CSV
+// serve all locations as CSV
 router.get('/locations', (req, res) => {
   const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', 'equally_distributed_world_5mln', 'locations.csv');
 
@@ -29,9 +29,9 @@ router.get('/locations', (req, res) => {
   });
 });
 
-// API route to fetch random locations
+// fetch random locations
 router.get('/locations/random', (req, res) => {
-  const count = parseInt(req.query.count, 10) || 1; // Default to 1 location
+  const count = parseInt(req.query.count, 10) || 1;
   const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', 'equally_distributed_world_5mln', 'locations.csv');
 
   fs.readFile(locationsPath, 'utf8', (err, data) => {
@@ -40,7 +40,7 @@ router.get('/locations/random', (req, res) => {
       return res.status(500).json({ error: 'Failed to read locations file' });
     }
 
-    const rows = data.trim().split('\n').slice(1); // Skip header row
+    const rows = data.trim().split('\n').slice(1);
     const randomLocations = [];
 
     for (let i = 0; i < count; i++) {

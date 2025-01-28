@@ -20,7 +20,9 @@ const RoundSelectionScreen = () => {
 
     navigate('/game', {
       state: {
-        rounds
+        rounds,
+        roundTime,
+        selectedMode
       },
     });
   };
@@ -87,9 +89,7 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent onClick={startGame}>
-          Start Game
-        </BasicButtonComponent>
+        <BasicButtonComponent buttonText="Start Game" onClick={startGame}></BasicButtonComponent>
       </ContentComponent>
     </ContainerComponent>
   );
