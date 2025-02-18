@@ -1,0 +1,11 @@
+FOR CLIENT
+cd app/client
+npm config set legacy-peer-deps true
+npm install
+npm start
+
+FOR SERVER
+cd app/server
+npm install
+npm run dev
+

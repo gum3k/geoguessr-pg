@@ -6,13 +6,12 @@ VISUALIZE_POINTS = False
 VISUALIZE_LOCATIONS = True
 
 def read_csv(path):
-    df = pd.read_csv(path)  # Adjust path to your CSV file
+    df = pd.read_csv(path)
     return df[['Latitude', 'Longitude']].dropna()
 
 def create_map(points, path, name='map.html'):
-    # Create a base map centered at the average of the points
     map_center = [points['Latitude'].mean(), points['Longitude'].mean()]
-    m = folium.Map(location=map_center, zoom_start=2)  # Zoom level 2 for global view
+    m = folium.Map(location=map_center, zoom_start=2)
     
     marker_cluster = MarkerCluster().add_to(m)
     for _, row in points.iterrows():
