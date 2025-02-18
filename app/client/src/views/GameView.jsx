@@ -58,7 +58,7 @@ const GameView = () => {
       const distance = calculateDistance(location, currentLocation);
       setDistance(Math.round(distance));
       const e = 2.718281828459045;
-      const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 14916.862)));
+      const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 20037.852)));
       setScore(points);
       setPlayerLocation(location);
     } else {
