@@ -78,8 +78,8 @@ def is_point_on_land(lat, lon, buffer_distance=POINT_DEGREE_BUFFER):
     possible_matches = spatial_index.query(buffered_point)
     
     for idx in possible_matches:
-        geom = land_geometries.iloc[idx]  # Get the geometry from the GeoDataFrame
-        if geom.intersects(buffered_point):  # Check if the point is on land
+        geom = land_geometries.iloc[idx]
+        if geom.intersects(buffered_point):  # check if the point is on land
             return True
     return False
 
@@ -89,24 +89,24 @@ def get_country_code(lat, lon):
     #     if country['geometry'].contains(point):
     #         return country['ISO_A2_EH'], country['ADMIN']
     
-    buffered_point = point.buffer(1)  # Create a buffer around the point
+    buffered_point = point.buffer(1)  # create a buffer around the point
     for idx, country in world.iterrows():
         if country['geometry'].intersects(buffered_point):
             return country['ISO_A2_EH'], country['ADMIN']
     return None
 
 def generate_point(i, samples, phi):
-    y = 1 - (i / float(samples - 1)) * 2  # y goes from 1 to -1
-    radius = math.sqrt(1 - y * y)  # radius at y
+    y = 1 - (i / float(samples - 1)) * 2    # y goes from 1 to -1
+    radius = math.sqrt(1 - y * y)           # radius at y
 
     theta = phi * i  # golden angle increment
 
     x = math.cos(theta) * radius
     z = math.sin(theta) * radius
 
-    # Convert Cartesian to spherical (latitude and longitude)
-    latitude = math.degrees(math.asin(y))  # Latitude in degrees
-    longitude = math.degrees(math.atan2(z, x))  # Longitude in degrees
+    # convert Cartesian to spherical (latitude and longitude)
+    latitude = math.degrees(math.asin(y))       # latitude in degrees
+    longitude = math.degrees(math.atan2(z, x))  # longitude in degrees
 
     if is_point_on_land(latitude, longitude):
         return (latitude, longitude)
@@ -121,7 +121,7 @@ def fibonacci_sphere_lat_lon(samples=SAMPLES):
     phi = math.pi * (math.sqrt(5.) - 1.)  # golden angle in radians
 
     with tqdm(total=samples, desc="Generating points") as pbar:
-        # Use ThreadPoolExecutor to parallelize the process
+        # parallelize the process
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [executor.submit(generate_point, i, samples, phi) for i in range(samples)]
 
@@ -150,7 +150,7 @@ def load_points_from_csv(filename):
     try:
         with open(filename, mode='r', newline='') as file:
             reader = csv.reader(file)
-            next(reader)  # Skip header
+            next(reader)  # skip the header
             for row in reader:
                 lat, lon = float(row[0]), float(row[1])
                 points.append((lat, lon))
@@ -187,7 +187,7 @@ async def check_street_view_async(lat, lng, session, retry_limit=RETRIES):
                                     lat, lng = offset_lat, offset_lng
                             else:
                                 return False, (lat, lng)
-                        elif response.status == 429:  # Rate-limiting
+                        elif response.status == 429:  # rate-limiting
                             logger.warning(f"Rate limit hit for ({lat}, {lng}). Retrying...")
                             return await retry_check_street_view(lat, lng, session)
                         else:
@@ -204,19 +204,19 @@ async def retry_check_street_view(lat, lng, session, retries=3, delay=2):
         await asyncio.sleep(delay)
         logger.info(f"Retrying ({lat}, {lng}), attempt {attempt + 1}")
         result = await check_street_view_async(lat, lng, session)
-        if result[0]:  # Found Street View coverage
+        if result[0]:  # found Street View coverage
             return result
     logger.error(f"Failed to check ({lat}, {lng}) after {retries} retries")
     return False, (lat, lng)
 
-# Asynchronous wrapper to call check_street_view for each point
+# asynchronous wrapper to call check_street_view for each point
 async def check_street_view_wrapper_async(point, session, pbar):
     lat, lng = point
     has_street_view, new_coords = await check_street_view_async(lat, lng, session)
     pbar.update(1)
     return has_street_view, new_coords
 
-# Main function to filter points with street view, using async calls
+# filter points with street view, using async calls
 async def filter_points_with_street_view_async(points):
     street_view_points = set()
     async with aiohttp.ClientSession() as session:
@@ -233,13 +233,13 @@ async def filter_points_with_street_view_async(points):
 def save_map_data(map_directory, map_name, points_generated, street_view_found):
     info_filename = os.path.join(map_directory, f"info.txt")
     with open(info_filename, 'w') as file:
-        # Write general map generation info
+        # write general map generation info
         file.write(f"Map Name: {map_name}\n")
         file.write(f"Map Directory: {map_directory}\n")
         file.write(f"Points Generated: {points_generated}\n")
         file.write(f"Street View Locations Found: {len(street_view_found)}\n")
         
-        # Write map generation parameters
+        # write map generation parameters
         file.write("\nMap Generation Parameters:\n")
         file.write(f"BOUNDS: {BOUNDS}\n")
         file.write(f"POINT_DEGREE_BUFFER: {POINT_DEGREE_BUFFER} degrees\n")
@@ -249,7 +249,7 @@ def save_map_data(map_directory, map_name, points_generated, street_view_found):
         file.write(f"RETRY_JITTER: {RETRY_JITTER}\n")
         file.write(f"RETRIES: {RETRIES}\n")
         
-        # Paths and Flags
+        # paths and flags
         file.write("\nPaths and Flags:\n")
         file.write(f"MAPS_DIRECTORY: {MAPS_DIRECTORY}\n")
         file.write(f"POINTS_LOAD_MAP_PATH: {POINTS_LOAD_MAP_PATH}\n")
