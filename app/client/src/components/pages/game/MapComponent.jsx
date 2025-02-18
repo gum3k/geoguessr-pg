@@ -154,7 +154,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
       </div>
 
       {/* Button to guess location */}
-      {isMapHovered || isButtonHovered ? (
+      {selectedLocation && (
         <button
           style={buttonStyle}
           onClick={handleGuess}
@@ -163,7 +163,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
         >
           Guess Location
         </button>
-      ) : null}
+      )}
     </div>
   );
 };
