@@ -8,7 +8,7 @@ const containerStyle = {
   bottom: "30px",
   right: "30px",
   zIndex: 10,
-  cursor: "pointer", // Default cursor style for the button
+  cursor: "default", // Default cursor style for the button
 };
 
 const buttonStyle = {
@@ -21,7 +21,7 @@ const buttonStyle = {
   color: "white",
   border: "none",
   borderRadius: "5px",
-  cursor: "pointer",
+  cursor: "default",
   transition: "opacity 0.3s ease",
 };
 
@@ -137,8 +137,6 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
       <div
         className="map-container"
         style={mapContainerStyles}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
@@ -148,6 +146,8 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
           options={mapOptions}
           onLoad={onMapLoad} // Save the map reference after the map loads
           onUnmount={onMapUnmount}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {selectedLocation && <Marker position={selectedLocation} />}
         </GoogleMap>
