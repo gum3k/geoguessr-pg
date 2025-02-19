@@ -7,80 +7,80 @@ const RoundInfoComponent = ({ mapName, roundNumber, maxRounds, currentPoints }) 
         position: "fixed",
         top: 0,
         right: 0,
-        padding: "15px",
+        padding: "10px",
         display: "flex",
-        flexDirection: "row", // Changed to row for horizontal layout
-        alignItems: "center", // Vertically center the items in the row
-        justifyContent: "center", // Center the items horizontally
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: 2,
         opacity: 0.9,
       }}
     >
       {/* Map Name Rectangle */}
       <div
+        title="Map Name"
         style={{
-          background: "linear-gradient(to right, #00aaff, #0055ff)",
-          padding: "10px 20px",
-          marginRight: "10px", // Space between the rectangles
-          borderRadius: "10px",
-          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+          background: "#f0f0f0",
+          padding: "8px 16px",
+          marginRight: "8px",
+          borderRadius: "8px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <p
           style={{
             margin: 0,
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "white",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            fontSize: "16px",
+            fontWeight: "normal",
+            color: "#333",
           }}
         >
-          Map: {mapName}
+          {mapName}
         </p>
       </div>
 
       {/* Round Counter Rectangle */}
       <div
+        title="Round Counter"
         style={{
-          background: "linear-gradient(to right, #00aaff, #0055ff)",
-          padding: "10px 20px",
-          marginRight: "10px", // Space between the rectangles
-          borderRadius: "10px",
-          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+          background: "#f0f0f0",
+          padding: "8px 16px",
+          marginRight: "8px",
+          borderRadius: "8px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <p
           style={{
             margin: 0,
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "white",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            fontSize: "16px",
+            fontWeight: "normal",
+            color: "#333",
           }}
         >
-          Round {roundNumber}/{maxRounds}
+          {roundNumber}/{maxRounds}
         </p>
       </div>
 
       {/* Points Rectangle */}
       <div
+        title="Current Points"
         style={{
-          background: "linear-gradient(to right, #00aaff, #0055ff)",
-          padding: "10px 20px",
-          borderRadius: "10px",
-          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+          background: "#f0f0f0",
+          padding: "8px 16px",
+          borderRadius: "8px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <p
           style={{
             margin: 0,
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "white",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            fontSize: "16px",
+            fontWeight: "normal",
+            color: "#333",
           }}
         >
-          {currentPoints} Points
+          {currentPoints}
         </p>
       </div>
     </div>

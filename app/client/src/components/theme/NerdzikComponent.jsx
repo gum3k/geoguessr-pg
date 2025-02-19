@@ -9,15 +9,13 @@ const NerdzikComponent = ({ height = '70px' }) => {
       padding: '10px',
       opacity: 0.5,
       transition: 'opacity 0.13s ease-in-out',
-    },
-    logoHover: {
-      opacity: 1,
-    },
+    }
   };
 
   return (
     <Link to="/">
       <img
+        title='Egguesr'
         src="/geo_nerdface_2.png"
         alt="Game Logo"
         style={styles.logo}

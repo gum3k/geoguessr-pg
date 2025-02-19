@@ -146,7 +146,7 @@ const GameView = () => {
         )}
       <div
         style={{position: "absolute", top: "10px", left: "10px", zIndex: 10,}}>
-        <NerdzikComponent height="100px" />
+        <NerdzikComponent height="60px" />
       </div>
       {/* conditional rendering for Street View and Map */}
       {!showSummary && !timeUp && (

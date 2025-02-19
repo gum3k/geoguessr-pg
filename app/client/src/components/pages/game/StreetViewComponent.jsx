@@ -26,8 +26,33 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
         panoramaOptions
       );
       console.log(
-        `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
+      `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
       );
+      if (mode === "NMPZ" || mode === "No Move") {
+        panorama.addListener('pano_changed', () => {
+          const streetViewContainer = document.querySelector('#street-view');
+          streetViewContainer.addEventListener(
+            'keydown',
+            (event) => {
+            console.log(event.key);
+            if (
+              (
+              event.key === 'ArrowUp' ||
+              event.key === 'ArrowDown' ||
+              event.key === 'w' ||
+              event.key === 's'
+              ) &&
+              !event.metaKey &&
+              !event.altKey &&
+              !event.ctrlKey
+            ) {
+              event.stopPropagation();
+            }
+            },
+            { capture: true }
+          );
+        });
+      }
     };
 
     if (!window.google || !window.google.maps) {
