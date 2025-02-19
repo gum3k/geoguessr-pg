@@ -7,7 +7,7 @@ const BlockComponent = ({ mode }) => {
     width: "100%",
     height: "98.5%",
     opacity: "0%",
-    zIndex: 10
+    zIndex: 2
   }
 
     if (mode == 'NMPZ') {

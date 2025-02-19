@@ -12,17 +12,19 @@ const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
+  const [mapName] = useState('equally_distributed_world_5mln');
   const navigate = useNavigate();
 
   const startGame = async () => {
-    const locations = await fetchLocations(rounds);
+    const locations = await fetchLocations(rounds, mapName);
     console.log('Fetched Locations:', locations);
 
     navigate('/game', {
       state: {
         rounds,
         roundTime,
-        selectedMode
+        selectedMode,
+        mapName
       },
     });
   };

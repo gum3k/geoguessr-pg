@@ -32,7 +32,8 @@ router.get('/locations', (req, res) => {
 // fetch random locations
 router.get('/locations/random', (req, res) => {
   const count = parseInt(req.query.count, 10) || 1;
-  const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', 'equally_distributed_world_5mln', 'locations.csv');
+  const mapName = req.query.mapName || 'equally_distributed_world_5mln';
+  const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', mapName, 'locations.csv');
 
   fs.readFile(locationsPath, 'utf8', (err, data) => {
     if (err) {

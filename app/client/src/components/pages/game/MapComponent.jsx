@@ -1,29 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import useApiKey from "../../../hooks/useApiKey";
+
+const container = {
+  position: "absolute",
+  bottom: "0",
+  right: "70px",
+}
 
 const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",
   position: "absolute",
-  bottom: "30px",
-  right: "30px",
-  zIndex: 10,
-  cursor: "pointer",
+  bottom: "60px",
+  right: "0px",
+  zIndex: 15,
+  cursor: "default",
 };
 
-const buttonStyle = {
+const buttonHoverContainerStyle = {
   position: "absolute",
   bottom: "15px",
-  right: "61px",
-  zIndex: 20,
+  right: "0px",
+  width: "300px",
+  height: "100px",
+  zIndex: 10,
+};
+
+const buttonStyle = (isActive) => ({
+  position: "absolute",
+  bottom: "0px",
+  right: "0px",
+  width: "300px",
+  zIndex: 5,
   padding: "10px 20px",
   backgroundColor: "#007bff",
   color: "white",
   border: "none",
   borderRadius: "5px",
-  cursor: "pointer",
+  cursor: isActive ? "pointer" : "default",
   transition: "opacity 0.3s ease",
-};
+  opacity: isActive ? 1 : 0.5, // Lower opacity when inactive
+});
 
 const center = {
   lat: 0,
@@ -37,11 +54,13 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isMapHovered, setIsMapHovered] = useState(false);
 
+  const mapRef = useRef(null);
+
   const mapContainerStyles = {
     ...containerStyle,
-    width: isMapHovered || isButtonHovered ? "700px" : "300px", 
-    height: isMapHovered || isButtonHovered ? "500px" : "216px", 
-    opacity: isMapHovered || isButtonHovered ? 1 : 0.8, 
+    width: isMapHovered || isButtonHovered ? "700px" : "300px",
+    height: isMapHovered || isButtonHovered ? "500px" : "156px",
+    opacity: isMapHovered || isButtonHovered ? 1 : 0.5,
   };
 
   const mapOptions = {
@@ -49,16 +68,16 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     restriction: {
       latLngBounds: {
         north: 85,
-        south: -85, 
+        south: -85,
         west: -180,
-        east: 180 
+        east: 180,
       },
-      strictBounds: true, 
+      strictBounds: true,
     },
-    
-    streetViewControl: false, 
-    mapTypeControl: false, 
-    fullscreenControl: false, 
+
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: false,
   };
 
   useEffect(() => {
@@ -95,39 +114,73 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     onLocationSelect({ lat, lng });
   };
 
+  // Handle mouse hover events for the map
+  const handleMouseEnter = () => {
+    setIsMapHovered(true);
+    if (mapRef.current) {
+      mapRef.current.style.cursor = "crosshair"; // Change cursor to crosshair using the map div
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsMapHovered(false);
+    if (mapRef.current) {
+      mapRef.current.style.cursor = "default"; // Reset cursor
+    }
+  };
+
+  const onMapLoad = (map) => {
+    // Save the reference to the map after it loads
+    mapRef.current = map.getDiv();
+    map.addListener("mousemove", (mapsMouseEvent) => {
+      map.setOptions({draggableCursor:'crosshair'});
+    });
+    mapRef.current.addEventListener("mouseenter", handleMouseEnter);
+    mapRef.current.addEventListener("mouseleave", handleMouseLeave);
+  };
+
+  const onMapUnmount = () => {
+    if (mapRef.current) {
+      mapRef.current.removeEventListener("mouseenter", handleMouseEnter);
+      mapRef.current.removeEventListener("mouseleave", handleMouseLeave);
+    }
+  };
+
   if (!isLoaded) return <p>Loading map ...</p>;
 
   return (
-    <div>
-      {/* Kontener dla mapy */}
-      <div
-        className="map-container"
-        style={mapContainerStyles}
-        onMouseEnter={() => setIsMapHovered(true)}
-        onMouseLeave={() => setIsMapHovered(false)}
-      >
+    <div 
+      style={container}
+    >
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
           center={center}
           zoom={2}
           onClick={handleMapClick}
           options={mapOptions}
+          onLoad={onMapLoad} // Save the map reference after the map loads
+          onUnmount={onMapUnmount}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          zIndex={15}
         >
           {selectedLocation && <Marker position={selectedLocation} />}
         </GoogleMap>
-      </div>
 
-      {/* Przycisk New Location pojawia się tylko po najechaniu na mapę */}
-      {isMapHovered || isButtonHovered ? (
+      {/* Button to guess location */}
+      <div
+        className="hover-container"
+        style={buttonHoverContainerStyle}
+        onMouseEnter={() => setIsButtonHovered(true)}
+        onMouseLeave={() => setIsButtonHovered(false)}
+      >
         <button
-          style={buttonStyle}
-          onClick={handleGuess} // Wywołanie przekazanej funkcji
-          onMouseEnter={() => setIsButtonHovered(true)}
-          onMouseLeave={() => setIsButtonHovered(false)}
+          style={buttonStyle(!!selectedLocation)}
+          onClick={selectedLocation ? handleGuess : null}
         >
           Guess Location
         </button>
-      ) : null}
+      </div>
     </div>
   );
 };

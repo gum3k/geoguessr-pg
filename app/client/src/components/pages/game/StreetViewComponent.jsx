@@ -8,27 +8,18 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
 
     const panoramaOptions = {
       position: location,
-      pov: { heading: 34, pitch: 10 },
+      pov: { heading: Math.floor(Math.random() * 360), pitch: 0, zoom: 0 },
       visible: true,
       addressControl: false,
-      showRoadLabels: false
+      showRoadLabels: false,
+      disableDefaultUI: mode === "NMPZ" || mode === "No Move",
+      clickToGo: mode !== "No Move" && mode !== "NMPZ",
+      scrollwheel: mode !== "NMPZ",
+      panControl: true,
+      zoomControl: true,
+      fullscreenControl: false,
     };
 
-    if (mode == 'No Move') {
-      panoramaOptions.clickToGo = false;
-      panoramaOptions.disableDefaultUI = true;
-    } 
-    else if (mode == 'NMPZ') {
-      panoramaOptions.disableDefaultUI = true;
-      panoramaOptions.clickToGo = false;
-      panoramaOptions.scrollwheel = false;
-      panoramaOptions.panControl = false;
-      panoramaOptions.zoomControl = false;
-    } 
-    else {
-      panoramaOptions.clickToGo = true;
-      panoramaOptions.scrollwheel = true;
-    }
     const initMap = () => {
       const panorama = new window.google.maps.StreetViewPanorama(
         document.getElementById("street-view"),
@@ -49,6 +40,7 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
     } else {
       initMap();
     }
+
   }, [location, apiKey]);
 
   return (
