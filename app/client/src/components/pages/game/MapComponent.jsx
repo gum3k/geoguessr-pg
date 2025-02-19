@@ -5,23 +5,33 @@ import useApiKey from "../../../hooks/useApiKey";
 const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",
   position: "absolute",
-  bottom: "30px",
-  right: "30px",
-  zIndex: 10,
-  cursor: "default", // Default cursor style for the button
+  bottom: "60px",
+  right: "10px",
+  zIndex: 3,
+  cursor: "default",
+};
+
+const buttonHoverContainerStyle = {
+  position: "absolute",
+  bottom: "15px",
+  right: "10px",
+  width: "300px",
+  height: "100px",
+  zIndex: 2,
 };
 
 const buttonStyle = {
   position: "absolute",
-  bottom: "15px",
-  right: "61px",
-  zIndex: 20,
+  bottom: "0px",
+  right: "0px",
+  width: "300px",
+  zIndex: 1,
   padding: "10px 20px",
   backgroundColor: "#007bff",
   color: "white",
   border: "none",
   borderRadius: "5px",
-  cursor: "default",
+  cursor: "pointer",
   transition: "opacity 0.3s ease",
 };
 
@@ -133,11 +143,6 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
 
   return (
     <div>
-      {/* Map container with hover effects */}
-      <div
-        className="map-container"
-        style={mapContainerStyles}
-      >
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
           center={center}
@@ -148,21 +153,26 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
           onUnmount={onMapUnmount}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          zIndex={15}
         >
           {selectedLocation && <Marker position={selectedLocation} />}
         </GoogleMap>
-      </div>
 
       {/* Button to guess location */}
       {selectedLocation && (
-        <button
-          style={buttonStyle}
-          onClick={handleGuess}
-          onMouseEnter={() => setIsButtonHovered(true)}
-          onMouseLeave={() => setIsButtonHovered(false)}
+        <div
+        className="hover-container"
+        style={buttonHoverContainerStyle}
+        onMouseEnter={() => setIsButtonHovered(true)}
+        onMouseLeave={() => setIsButtonHovered(false)}
         >
-          Guess Location
-        </button>
+          <button
+            style={buttonStyle}
+            onClick={handleGuess}
+          >
+            Guess Location
+          </button>
+        </div>
       )}
     </div>
   );
