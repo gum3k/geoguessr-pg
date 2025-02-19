@@ -157,7 +157,8 @@ const GameView = () => {
             handleGuess={handleGuess}
           />
           <div style={{ top: "10%", position: "absolute", width: "8%", right: 0 }}>
-            <RoundInfoComponent 
+            <RoundInfoComponent
+              mapName={state?.mapName}
               roundNumber={currentLocationIndex + 1} 
               maxRounds={locations.length} 
               currentPoints={roundInfo.reduce((total, round) => total + (round.points || 0), 0)} // suma punktów z dotychczasowych rund
