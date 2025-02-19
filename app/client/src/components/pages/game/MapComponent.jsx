@@ -2,22 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import useApiKey from "../../../hooks/useApiKey";
 
+const container = {
+  position: "absolute",
+  bottom: "0",
+  right: "70px",
+}
+
 const containerStyle = {
   transition: "width 0.3s ease, height 0.3s ease",
   position: "absolute",
   bottom: "60px",
-  right: "10px",
-  zIndex: 3,
+  right: "0px",
+  zIndex: 15,
   cursor: "default",
 };
 
 const buttonHoverContainerStyle = {
   position: "absolute",
   bottom: "15px",
-  right: "10px",
+  right: "0px",
   width: "300px",
   height: "100px",
-  zIndex: 2,
+  zIndex: 10,
 };
 
 const buttonStyle = (isActive) => ({
@@ -25,7 +31,7 @@ const buttonStyle = (isActive) => ({
   bottom: "0px",
   right: "0px",
   width: "300px",
-  zIndex: 1,
+  zIndex: 5,
   padding: "10px 20px",
   backgroundColor: "#007bff",
   color: "white",
@@ -143,7 +149,9 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
   if (!isLoaded) return <p>Loading map ...</p>;
 
   return (
-    <div>
+    <div 
+      style={container}
+    >
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
           center={center}

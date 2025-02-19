@@ -101,9 +101,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
           zIndex: 2,
         }}
       >
-        {initialTime === 0 ? (
-          <span>∞ ∞ ∞</span>
-        ) : (
+        {initialTime !== 0 && (
           <span>{formatTime(timeLeft)}</span>
         )}
       </div>
