@@ -35,7 +35,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
         const elapsed = (Date.now() - start.current) / 1000; // Oblicz czas, który upłynął w sekundach
         const newTime = Math.max(initialTime - elapsed, 0); // Pozostały czas
     
-        handleTimer(newTime);
+        setTimeout(() => handleTimer(newTime), 0);
     
         if (newTime === 0) {
           clearInterval(interval); // Zatrzymaj interwał po zakończeniu czasu
@@ -75,6 +75,7 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
   };
 
   return (
+    initialTime != 0 && (
     <div style={{ position: "relative" }}>
       {!noLimit && (
       <div style={styles.progressBar}>
@@ -101,11 +102,11 @@ const TimerComponent = ({ initialTime, handleTimer, isPaused }) => {
           zIndex: 2,
         }}
       >
-        {initialTime !== 0 && (
+        
           <span>{formatTime(timeLeft)}</span>
-        )}
       </div>
     </div>
+    )
   );
 };
 

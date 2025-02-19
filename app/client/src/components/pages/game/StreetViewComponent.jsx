@@ -17,6 +17,7 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
       scrollwheel: mode !== "NMPZ",
       panControl: true,
       zoomControl: true,
+      fullscreenControl: false,
     };
 
     const initMap = () => {

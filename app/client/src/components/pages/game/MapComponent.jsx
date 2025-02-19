@@ -59,8 +59,8 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
   const mapContainerStyles = {
     ...containerStyle,
     width: isMapHovered || isButtonHovered ? "700px" : "300px",
-    height: isMapHovered || isButtonHovered ? "500px" : "216px",
-    opacity: isMapHovered || isButtonHovered ? 1 : 0.8,
+    height: isMapHovered || isButtonHovered ? "500px" : "156px",
+    opacity: isMapHovered || isButtonHovered ? 1 : 0.5,
   };
 
   const mapOptions = {
