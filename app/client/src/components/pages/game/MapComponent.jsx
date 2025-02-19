@@ -20,7 +20,7 @@ const buttonHoverContainerStyle = {
   zIndex: 2,
 };
 
-const buttonStyle = {
+const buttonStyle = (isActive) => ({
   position: "absolute",
   bottom: "0px",
   right: "0px",
@@ -31,9 +31,10 @@ const buttonStyle = {
   color: "white",
   border: "none",
   borderRadius: "5px",
-  cursor: "pointer",
+  cursor: isActive ? "pointer" : "default",
   transition: "opacity 0.3s ease",
-};
+  opacity: isActive ? 1 : 0.5, // Lower opacity when inactive
+});
 
 const center = {
   lat: 0,
@@ -159,21 +160,19 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
         </GoogleMap>
 
       {/* Button to guess location */}
-      {selectedLocation && (
-        <div
+      <div
         className="hover-container"
         style={buttonHoverContainerStyle}
         onMouseEnter={() => setIsButtonHovered(true)}
         onMouseLeave={() => setIsButtonHovered(false)}
+      >
+        <button
+          style={buttonStyle(!!selectedLocation)}
+          onClick={selectedLocation ? handleGuess : null}
         >
-          <button
-            style={buttonStyle}
-            onClick={handleGuess}
-          >
-            Guess Location
-          </button>
-        </div>
-      )}
+          Guess Location
+        </button>
+      </div>
     </div>
   );
 };
