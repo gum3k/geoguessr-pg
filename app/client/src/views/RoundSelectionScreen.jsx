@@ -6,8 +6,8 @@ import MovingImageComponent from '../components/theme/MovingImageComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
-import { fetchLocations } from '../utils/fetchLocations';
 import io from 'socket.io-client';
+import { fetchLocations } from '../utils/fetchLocations';
 
 // Connect to the server
 const socket = io('http://localhost:5000');
@@ -17,38 +17,50 @@ const RoundSelectionScreen = () => {
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
   const [mapName] = useState('equally_distributed_world_5mln');
+  const [lobbyCreated, setLobbyCreated] = useState(false);
+  const [lobbyId, setLobbyId] = useState(null); // Store lobby ID here
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for lobby creation event
-    socket.on('lobbyCreated', (lobbyData) => {
+    // Handle lobby creation response
+    const handleLobbyCreated = (lobbyData) => {
       console.log('Lobby Created:', lobbyData);
-      // Redirect to the new lobby page
+      setLobbyCreated(true); // Mark that the lobby has been created
+      setLobbyId(lobbyData.lobbyId); // Set the lobby ID for later
       navigate(`/lobby/${lobbyData.lobbyId}`, { state: { lobbyData } });
-    });
+    };
+
+    socket.on('lobbyCreated', handleLobbyCreated);
 
     return () => {
-      socket.off('lobbyCreated'); // Clean up when component unmounts
+      socket.off('lobbyCreated', handleLobbyCreated);
     };
-  }, [navigate]);
+  }, [lobbyId, navigate]);
+
+  const createLobby = () => {
+    if (!lobbyCreated) {
+      console.log("Creating a lobby...");
+      socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
+    }
+  };
 
   const startGame = async () => {
     const locations = await fetchLocations(rounds, mapName);
-    console.log('Fetched Locations:', locations);
-
-    navigate('/game', {
-      state: {
-        rounds,
-        roundTime,
-        selectedMode,
-        mapName
-      },
-    });
-  };
-
-  const createLobby = () => {
-    console.log("Creating a lobby...");
-    socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
+    if (lobbyId) {
+      console.log("Starting the game...");
+      // Emit the 'startGame' event to the server
+      socket.emit('startGame', lobbyId);
+    }
+    else {
+      navigate('/game', {
+        state: {
+          rounds,
+          roundTime,
+          selectedMode,
+          mapName
+        },
+      });
+    }
   };
 
   const handleModeSelect = (mode) => {
@@ -76,13 +88,13 @@ const RoundSelectionScreen = () => {
           label={'Rounds: ' + rounds}
         />
         <SliderComponent
-          min={0}
-          max={600}
-          step={10}
-          value={roundTime}
-          onChange={(e) => setRoundTime(Number(e.target.value))}
-          label={formatTime(roundTime)}
-        />
+            min={0}
+            max={600}
+            step={10}
+            value={roundTime}
+            onChange={(e) => setRoundTime(Number(e.target.value))}
+            label={formatTime(roundTime)}
+          />
         <h3>Select Game Mode</h3>
         <div style={styles.modeContainer}>
           <div
@@ -114,13 +126,36 @@ const RoundSelectionScreen = () => {
           </div>
         </div>
         <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
-        <BasicButtonComponent buttonText="Create Lobby" onClick={createLobby} />
+        <BasicButtonComponent 
+          buttonText="Create Lobby" 
+          onClick={createLobby} 
+          disabled={lobbyCreated} // Disable button after lobby creation
+        />
       </ContentComponent>
     </ContainerComponent>
   );
 };
 
 const styles = {
+  sliderContainer: {
+    margin: '20px 0',
+    textAlign: 'center',
+  },
+  slider: {
+    width: '80%',
+    height: '8px',
+    background: 'linear-gradient(to right, violet, purple)',
+    borderRadius: '5px',
+    outline: 'none',
+    appearance: 'none',
+    cursor: 'pointer',
+  },
+  sliderValue: {
+    marginTop: '10px',
+    fontSize: '18px',
+    color: 'white',
+    fontWeight: 'bold',
+  },
   modeContainer: {
     display: 'flex',
     justifyContent: 'center',
