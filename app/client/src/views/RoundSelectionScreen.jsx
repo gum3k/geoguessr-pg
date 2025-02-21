@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
@@ -7,6 +7,10 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import { fetchLocations } from '../utils/fetchLocations';
+import io from 'socket.io-client';
+
+// Connect to the server
+const socket = io('http://localhost:5000');
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
@@ -14,6 +18,19 @@ const RoundSelectionScreen = () => {
   const [roundTime, setRoundTime] = useState(0);
   const [mapName] = useState('equally_distributed_world_5mln');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Listen for lobby creation event
+    socket.on('lobbyCreated', (lobbyData) => {
+      console.log('Lobby Created:', lobbyData);
+      // Redirect to the new lobby page
+      navigate(`/lobby/${lobbyData.lobbyId}`, { state: { lobbyData } });
+    });
+
+    return () => {
+      socket.off('lobbyCreated'); // Clean up when component unmounts
+    };
+  }, [navigate]);
 
   const startGame = async () => {
     const locations = await fetchLocations(rounds, mapName);
@@ -27,6 +44,11 @@ const RoundSelectionScreen = () => {
         mapName
       },
     });
+  };
+
+  const createLobby = () => {
+    console.log("Creating a lobby...");
+    socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
   };
 
   const handleModeSelect = (mode) => {
@@ -43,7 +65,7 @@ const RoundSelectionScreen = () => {
   return (
     <ContainerComponent>
       <NavigationComponent />
-      <MovingImageComponent/>
+      <MovingImageComponent />
       <ContentComponent>
         <h2>Select Number of Rounds</h2>
         <SliderComponent
@@ -54,13 +76,13 @@ const RoundSelectionScreen = () => {
           label={'Rounds: ' + rounds}
         />
         <SliderComponent
-            min={0}
-            max={600}
-            step={10}
-            value={roundTime}
-            onChange={(e) => setRoundTime(Number(e.target.value))}
-            label={formatTime(roundTime)}
-          />
+          min={0}
+          max={600}
+          step={10}
+          value={roundTime}
+          onChange={(e) => setRoundTime(Number(e.target.value))}
+          label={formatTime(roundTime)}
+        />
         <h3>Select Game Mode</h3>
         <div style={styles.modeContainer}>
           <div
@@ -91,32 +113,14 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent buttonText="Start Game" onClick={startGame}></BasicButtonComponent>
+        <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+        <BasicButtonComponent buttonText="Create Lobby" onClick={createLobby} />
       </ContentComponent>
     </ContainerComponent>
   );
 };
 
 const styles = {
-  sliderContainer: {
-    margin: '20px 0',
-    textAlign: 'center',
-  },
-  slider: {
-    width: '80%',
-    height: '8px',
-    background: 'linear-gradient(to right, violet, purple)',
-    borderRadius: '5px',
-    outline: 'none',
-    appearance: 'none',
-    cursor: 'pointer',
-  },
-  sliderValue: {
-    marginTop: '10px',
-    fontSize: '18px',
-    color: 'white',
-    fontWeight: 'bold',
-  },
   modeContainer: {
     display: 'flex',
     justifyContent: 'center',
@@ -143,7 +147,5 @@ const styles = {
     boxShadow: '0 4px 16px rgba(128, 0, 255, 0.8)',
   },
 };
-
-
 
 export default RoundSelectionScreen;

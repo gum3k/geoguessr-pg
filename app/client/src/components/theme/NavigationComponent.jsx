@@ -15,15 +15,6 @@ const NavigationComponent = () => {
       >
         SINGLEPLAYER
       </Link>
-
-      <Link
-        to="/lobby"
-        style={styles.button}
-        onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
-        onMouseLeave={(e) => (e.target.style.textShadow = "none")}
-      >
-        MULTIPLAYER
-      </Link>
     </div>
   );
 };

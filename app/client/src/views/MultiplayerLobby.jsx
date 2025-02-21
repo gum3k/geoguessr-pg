@@ -1,56 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import NavigationComponent from "../components/theme/NavigationComponent";
-import ContainerComponent from "../components/theme/ContainerComponent";
-import MovingImageComponent from "../components/theme/MovingImageComponent";
-import ContentComponent from "../components/theme/ContentComponent";
-import BasicButtonComponent from "../components/theme/BasicButtonComponent";
-import { socket } from "../socket";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import NavigationComponent from '../components/theme/NavigationComponent';
+import ContainerComponent from '../components/theme/ContainerComponent'; 
+import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContentComponent from '../components/theme/ContentComponent'; 
+import BasicButtonComponent from '../components/theme/BasicButtonComponent';
+import io from 'socket.io-client';
 
-const MultiplayerLobby = () => {
-  const { lobbyCode } = useParams(); // Get lobby code from URL
-  const [players, setPlayers] = useState([]);
-  const [isHost, setIsHost] = useState(false);
+// Connect to the server
+const socket = io('http://localhost:5000');
+
+const LobbyPage = () => {
+  const { lobbyId } = useParams();  // Extract lobbyId from the URL
+  const [lobbyData, setLobbyData] = useState(null);
+  const [players, setPlayers] = useState(0);
   const navigate = useNavigate();
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
-    socket.connect();
+    console.log('LobbyPage mounted');
+    console.log(`Joining lobby with ID: ${lobbyId}`);
+    
+    socket.emit('joinLobby', lobbyId); // Join the existing lobby
 
-    if (lobbyCode) {
-      // Join an existing lobby
-      socket.emit("joinLobby", { lobbyCode });
-    } else {
-      // Create a new lobby
-      socket.emit("createLobby", (newLobbyCode) => {
-        navigate(`/lobby/${newLobbyCode}`); // Redirect to new lobby
-        setIsHost(true);
-      });
-    }
+    socket.on('lobbyData', (data) => {
+      console.log('Received lobby data:', data);
+      setLobbyData(data);
+      setPlayers(data.players.length);
 
-    // Update player list
-    socket.on("updatePlayers", (playerList) => {
-      setPlayers(playerList);
-    });
-
-    // Assign host if this user created the lobby
-    socket.on("assignHost", () => {
-      setIsHost(true);
-    });
-
-    // Redirect when game starts
-    socket.on("startGame", (gameData) => {
-      navigate("/game", { state: gameData });
+      // Check if the current user is the host (assuming the host is the first player)
+      setIsHost(data.players[0].id === socket.id);
     });
 
     return () => {
-      socket.off("updatePlayers");
-      socket.off("assignHost");
-      socket.off("startGame");
+      socket.off('lobbyData');
     };
-  }, [lobbyCode, navigate]);
+  }, [lobbyId]);
+
+  const exitLobby = () => {
+    socket.emit('leaveLobby', lobbyId); // Leave the lobby
+    navigate('/'); // Redirect to the home page
+  };
 
   const startGame = () => {
-    socket.emit("startGame", { lobbyCode });
+    // Emit the startGame event to the server
+    socket.emit('startGame', lobbyId);
+
+    // After emitting, redirect to the game page (or a loading page)
+    navigate(`/game/${lobbyId}`);
   };
 
   return (
@@ -58,38 +55,32 @@ const MultiplayerLobby = () => {
       <NavigationComponent />
       <MovingImageComponent />
       <ContentComponent>
-        <h2>Multiplayer Lobby</h2>
-        <p>Lobby Code: <strong>{lobbyCode}</strong></p>
-        <p>Share this link: <strong>{window.location.href}</strong></p>
+        {lobbyData ? (
+          <>
+            <h1>Lobby: {lobbyData.lobbyId}</h1>
+            <p>{players} / 4 players</p>
+            <p>Waiting for other players...</p>
 
-        <ul style={styles.playerList}>
-          {players.map((player, index) => (
-            <li key={index} style={styles.playerItem}>{player.name}</li>
-          ))}
-        </ul>
+            <h2>Game Details</h2>
+            <p><strong>Rounds:</strong> {lobbyData.rounds}</p>
+            <p><strong>Map:</strong> {lobbyData.mapName}</p>
+            <p><strong>Game Mode:</strong> {lobbyData.selectedMode}</p>
 
-        {isHost && players.length > 1 && (
-          <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+            {isHost && (
+              <BasicButtonComponent 
+                buttonText="Start Game" 
+                onClick={startGame} 
+              />
+            )}
+
+            <BasicButtonComponent buttonText="Exit Lobby" onClick={exitLobby} />
+          </>
+        ) : (
+          <p>Loading lobby...</p>
         )}
       </ContentComponent>
     </ContainerComponent>
   );
 };
 
-const styles = {
-  playerList: {
-    listStyle: "none",
-    padding: 0,
-    textAlign: "center",
-  },
-  playerItem: {
-    padding: "10px",
-    fontSize: "18px",
-    color: "white",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    borderRadius: "10px",
-    margin: "5px 0",
-  },
-};
-
-export default MultiplayerLobby;
+export default LobbyPage;

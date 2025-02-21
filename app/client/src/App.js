@@ -12,7 +12,7 @@ const App = () => {
         <Route path="/" element={<StartingScreen />} />
         <Route path="/game" element={<GameView />} />
         <Route path="/gamesettings" element={<RoundSelectionScreen />} />
-        <Route path="/lobby" element={<MultiplayerLobby />} />
+        <Route path="/lobby/:lobbyId" element={<MultiplayerLobby />} />
       </Routes>
     </Router>
   );
