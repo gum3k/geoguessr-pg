@@ -5,7 +5,7 @@ const ContentComponent = ({ children }) => {
     content: {
         position: 'relative',
         textAlign: 'center',
-        paddingTop: '300px', 
+        paddingTop: '80px', 
         color: 'white',
       },
   };
