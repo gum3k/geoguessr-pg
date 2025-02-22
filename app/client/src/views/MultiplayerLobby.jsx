@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
 import MovingImageComponent from '../components/theme/MovingImageComponent'; 
@@ -11,47 +11,66 @@ import io from 'socket.io-client';
 const socket = io('http://localhost:5000');
 
 const LobbyPage = () => {
-  const { lobbyId } = useParams();  // Extract lobbyId from the URL
+  const { lobbyId } = useParams();
   const [lobbyData, setLobbyData] = useState(null);
-  const [players, setPlayers] = useState(0);  // Track number of players
+  const [players, setPlayers] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isHost, setIsHost] = useState(false);
 
+  const handleBeforeUnload = () => {
+    if (isHost) {
+      socket.emit('hostLeaving', lobbyId);
+    }
+    socket.emit('leaveLobby', lobbyId);
+  };
+
   useEffect(() => {
-    // Handle game start notification
     const gameStarting = () => {
       console.log('Game is starting!');
-      // Navigate to the game screen when the game starts
       navigate(`/game`, { state: { lobbyId } });
     };
 
-    console.log('LobbyPage mounted');
     console.log(`Joining lobby with ID: ${lobbyId}`);
-    
     socket.emit('joinLobby', lobbyId); // Join the existing lobby
 
-    // Listen for updated lobby data from the server
     socket.on('lobbyData', (data) => {
       console.log('Received updated lobby data:', data);
       setLobbyData(data);
-      setPlayers(data.players.length);  // Update the player count
-
-      // Check if the current user is the host (assuming the host is the first player)
+      setPlayers(data.players.length);
       setIsHost(data.players[0].id === socket.id);
     });
 
     socket.on('startGame', startGame);
     socket.on('gameStarting', gameStarting);
 
-    // Cleanup event listener on component unmount
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       socket.off('lobbyData');
       socket.off('startGame');
       socket.off('gameStarting');
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [lobbyId]); // Adding lobbyId as a dependency to refresh when lobbyId changes
+  }, [lobbyId, isHost]); // Adding lobbyId and isHost as dependencies to refresh when they change
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (!location.pathname.includes(`/lobby/${lobbyId}`)) {
+        handleBeforeUnload();
+      }
+    };
+
+    handleRouteChange(); // Check on initial render
+    return () => {
+      handleRouteChange(); // Cleanup on unmount
+    };
+  }, [location, lobbyId]);
 
   const exitLobby = () => {
+    if (isHost) {
+      socket.emit('hostLeaving', lobbyId);
+    }
     socket.emit('leaveLobby', lobbyId); // Leave the lobby
     navigate('/'); // Redirect to the home page
   };

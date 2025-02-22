@@ -9,7 +9,6 @@ import SliderComponent from '../components/pages/settings/SliderComponent';
 import io from 'socket.io-client';
 import { fetchLocations } from '../utils/fetchLocations';
 
-// Connect to the server
 const socket = io('http://localhost:5000');
 
 const RoundSelectionScreen = () => {
@@ -22,7 +21,6 @@ const RoundSelectionScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Handle lobby creation response
     const handleLobbyCreated = (lobbyData) => {
       console.log('Lobby Created:', lobbyData);
       setLobbyCreated(true); // Mark that the lobby has been created
@@ -45,10 +43,8 @@ const RoundSelectionScreen = () => {
   };
 
   const startGame = async () => {
-    const locations = await fetchLocations(rounds, mapName);
     if (lobbyId) {
       console.log("Starting the game...");
-      // Emit the 'startGame' event to the server
       socket.emit('startGame', lobbyId);
     }
     else {

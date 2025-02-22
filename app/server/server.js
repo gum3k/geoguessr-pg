@@ -40,16 +40,15 @@ io.on('connection', (socket) => {
       roundTime: data.roundTime,
       selectedMode: data.selectedMode,
       mapName: data.mapName,
-      players: [] // Add host as the first player
+      players: []
     };
 
     lobbies[lobbyId] = newLobby;
 
-    // Emit to the client that the lobby has been created
     socket.emit('lobbyCreated', newLobby);
+    socket.join(lobbyId);
   });
 
-  // Handle joining a lobby
   socket.on('joinLobby', (lobbyId) => {
     console.log(`Player ${socket.id} joining lobby ${lobbyId}`);
     
@@ -57,56 +56,68 @@ io.on('connection', (socket) => {
       lobbies[lobbyId] = { players: [] };
     }
 
-    // Add player to the lobby
     const lobby = lobbies[lobbyId];
-    const player = { id: socket.id, name: `Player ${socket.id}` };
     
     if (!lobby.players.find(player => player.id === socket.id)) {
       lobby.players.push({ id: socket.id, name: `Player ${socket.id}`, host: false });
     }
-
-    // Emit the updated lobby data to all players in the lobby
-    io.to(lobbyId).emit('lobbyData', lobby);  // Send updated lobby data to all players in this lobby
-
-    // Emit the lobby data to the new player
-    socket.emit('lobbyData', lobby); // Send the updated lobby data to the new player
-
-    // Join the lobby room
+    io.to(lobbyId).emit('lobbyData', lobby);
+    socket.emit('lobbyData', lobby);
     socket.join(lobbyId);
   });
 
-  // Handle player leaving the lobby
   socket.on('leaveLobby', (lobbyId) => {
     if (lobbies[lobbyId]) {
       const lobby = lobbies[lobbyId];
       
-      // Remove player from the lobby
       const playerIndex = lobby.players.findIndex(player => player.id === socket.id);
       if (playerIndex !== -1) {
+        const isHost = lobby.players[playerIndex].host;
         lobby.players.splice(playerIndex, 1);
-      }
 
-      // Emit updated lobby data to all players in the lobby
-      io.to(lobbyId).emit('lobbyData', lobby); // Notify all players in the lobby
+        if (isHost && lobby.players.length > 0) {
+          lobby.players[0].host = true; // Promote the first player to host
+          io.to(lobbyId).emit('hostChanged', lobby.players[0]);
+        }
+
+        if (lobby.players.length === 0) {
+          delete lobbies[lobbyId]; // Delete the lobby if no players are left
+        } else {
+          io.to(lobbyId).emit('lobbyData', lobby);
+        }
+      }
     }
   });
 
-
-  // Handle starting the game
   socket.on('startGame', (lobbyId) => {
     const lobby = lobbies[lobbyId];
     if (lobby) {
       console.log(`Game starting for lobby ${lobbyId}`);
-
-      // Broadcast to all players in the lobby to start the game
       io.to(lobbyId).emit('gameStarting', { message: 'The game is starting!', lobbyId });
-      
-      // Optionally, do other game setup logic here
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('A user disconnected');
+    console.log('A user disconnected:', socket.id);
+    for (const lobbyId in lobbies) {
+      const lobby = lobbies[lobbyId];
+      const playerIndex = lobby.players.findIndex(player => player.id === socket.id);
+      if (playerIndex !== -1) {
+        const isHost = lobby.players[playerIndex].host;
+        lobby.players.splice(playerIndex, 1);
+
+        if (isHost && lobby.players.length > 0) {
+          lobby.players[0].host = true; // Promote the first player to host
+          io.to(lobbyId).emit('hostChanged', lobby.players[0]);
+        }
+
+        if (lobby.players.length === 0) {
+          delete lobbies[lobbyId]; // Delete the lobby if no players are left
+        } else {
+          io.to(lobbyId).emit('lobbyData', lobby);
+        }
+      }
+    }
   });
 });
 
