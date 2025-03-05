@@ -33,7 +33,7 @@ const RoundSelectionScreen = () => {
     return () => {
       socket.off('lobbyCreated', handleLobbyCreated);
     };
-  }, [lobbyId, navigate]);
+  }, [lobbyId]);
 
   const createLobby = () => {
     if (!lobbyCreated) {

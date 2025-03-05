@@ -11,9 +11,15 @@ import NerdzikComponent from "../components/theme/NerdzikComponent";
 import TimerComponent from "../components/pages/game/TimerComponent";
 import BlockComponent from "../components/pages/game/BlockComponent";
 import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
+import { useParams } from "react-router-dom";
+import { calculateDistance } from "../utils/calculateDistance";
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 const GameView = () => {
   const { state } = useLocation();
+  const { lobbyId } = useParams();
   const [apiKey] = useApiKey();
   const [locations, setLocations] = useLocations();
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
@@ -28,8 +34,7 @@ const GameView = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [mode, setMode] = useState('Move');
   const navigate = useNavigate();
-  
-
+  const [gameSettings, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
 
   const addRoundInfo = (pLocation, tLocation, npoints) => {
@@ -37,20 +42,26 @@ const GameView = () => {
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
   }
 
+  useEffect(() => {
+    if (lobbyId) {
+      socket.emit("getLobbyData", lobbyId);
+      socket.on("lobbyData", (data) => {
+        console.log("Received lobby data:", data);
+        setGameSettings(data);
+        setLocations(data.locations || []);
+      });
 
-  const calculateDistance = (loc1, loc2) => {
-    const R = 6371; // radius
-    const dLat = ((loc2.lat - loc1.lat) * Math.PI) / 180;
-    const dLng = ((loc2.lng - loc1.lng) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((loc1.lat * Math.PI) / 180) *
-        Math.cos((loc2.lat * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // final distance
-  };
+      socket.on("lobbyNotFound", () => {
+        console.error("Lobby not found");
+        navigate("/");
+      });
+
+      return () => {
+        socket.off("lobbyData");
+        socket.off("lobbyNotFound");
+      };
+    }
+  }, [lobbyId, navigate]);
 
   const handleLocationSelect = (location) => {
     const currentLocation = locations[currentLocationIndex];
@@ -113,19 +124,22 @@ const GameView = () => {
   };
 
   useEffect(() => {
-    const loadLocations = async () => {
-      const rounds = state?.rounds || 5; // default value is 5
-      const newLocations = await fetchLocations(rounds);
-      setLocations(newLocations);
-    };
-    loadLocations();
+    if (locations.length === 0 && !lobbyId) {
+      console.log("Loading NEW locations...");
+      const loadLocations = async () => {
+        const rounds = state?.rounds || 5; // default value is 5
+        const newLocations = await fetchLocations(rounds);
+        setLocations(newLocations);
+      };
+      loadLocations();
+    }
 
     const handleMode = () => {
       const selectedMode = state?.selectedMode;
       setMode(selectedMode || "Move");
     }
     handleMode();
-  }, [state, setLocations]);
+  }, []);
 
   const currentLocation = locations[currentLocationIndex];
 

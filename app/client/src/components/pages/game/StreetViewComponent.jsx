@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 
 const StreetViewComponent = ({ location, apiKey, mode }) => {
 
-
   useEffect(() => {
     if (!location) return;
 
@@ -26,52 +25,56 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
         panoramaOptions
       );
       console.log(
-      `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
+        `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
       );
       if (mode === "NMPZ" || mode === "No Move") {
         panorama.addListener('pano_changed', () => {
           const streetViewContainer = document.querySelector('#street-view');
-          streetViewContainer.addEventListener(
-            'keydown',
-            (event) => {
-            console.log(event.key);
-            if (
-              (
-              event.key === 'ArrowUp' ||
-              event.key === 'ArrowDown' ||
-              event.key === 'w' ||
-              event.key === 's'
-              ) &&
-              !event.metaKey &&
-              !event.altKey &&
-              !event.ctrlKey
-            ) {
-              event.stopPropagation();
-            }
-            },
-            { capture: true }
-          );
+          if (streetViewContainer) {
+            streetViewContainer.addEventListener(
+              'keydown',
+              (event) => {
+                console.log(event.key);
+                if (
+                  (
+                    event.key === 'ArrowUp' ||
+                    event.key === 'ArrowDown' ||
+                    event.key === 'w' ||
+                    event.key === 's'
+                  ) &&
+                  !event.metaKey &&
+                  !event.altKey &&
+                  !event.ctrlKey
+                ) {
+                  event.stopPropagation();
+                }
+              },
+              { capture: true }
+            );
+          }
         });
       }
     };
 
-    if (!window.google || !window.google.maps) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initMap; 
-      document.head.appendChild(script);
-    } else {
-      initMap();
-    }
+    const loadGoogleMapsScript = () => {
+      if (!window.google || !window.google.maps) {
+        window.initMap = initMap;
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } else {
+        initMap();
+      }
+    };
 
+    loadGoogleMapsScript();
   }, [location, apiKey]);
 
   return (
-      <div id="street-view" style={{ height: "100vh", width: "100%", zIndex: 1 }}></div>
+    <div id="street-view" style={{ height: "100vh", width: "100%", zIndex: 1 }}></div>
   );
-
 };
 
 export default StreetViewComponent;

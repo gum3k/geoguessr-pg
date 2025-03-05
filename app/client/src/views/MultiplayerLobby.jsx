@@ -6,6 +6,7 @@ import MovingImageComponent from '../components/theme/MovingImageComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import io from 'socket.io-client';
+import { fetchLocations } from '../utils/fetchLocations';
 
 // Connect to the server
 const socket = io('http://localhost:5000');
@@ -28,13 +29,10 @@ const LobbyPage = () => {
   useEffect(() => {
     const gameStarting = () => {
       console.log('Game is starting!');
-      navigate(`/game`, { state: { lobbyId } });
+      navigate(`/game/${lobbyId}`, { state: { lobbyId } });
     };
 
-    console.log(`Joining lobby with ID: ${lobbyId}`);
-    socket.emit('joinLobby', lobbyId); // Join the existing lobby
-
-    socket.on('lobbyData', (data) => {
+    socket.on('lobbyData', async (data) => {
       console.log('Received updated lobby data:', data);
       setLobbyData(data);
       setPlayers(data.players.length);
@@ -53,6 +51,11 @@ const LobbyPage = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [lobbyId, isHost]); // Adding lobbyId and isHost as dependencies to refresh when they change
+
+  useEffect(() => {
+    console.log(`Joining lobby with ID: ${lobbyId}`);
+    socket.emit('joinLobby', lobbyId); // Join the existing lobby
+  }, [lobbyId]);
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -75,7 +78,9 @@ const LobbyPage = () => {
     navigate('/'); // Redirect to the home page
   };
 
-  const startGame = () => {
+  const startGame = async () => {
+    const locations = await fetchLocations(lobbyData.rounds);
+    socket.emit('setLocations', { lobbyId, locations });
     console.log('Starting the game...');
     socket.emit('startGame', lobbyId); // Notify the server to start the game
   };

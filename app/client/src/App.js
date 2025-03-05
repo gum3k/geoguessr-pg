@@ -11,6 +11,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<StartingScreen />} />
         <Route path="/game" element={<GameView />} />
+        <Route path="/game/:lobbyId" element={<GameView />} />
         <Route path="/gamesettings" element={<RoundSelectionScreen />} />
         <Route path="/lobby/:lobbyId" element={<MultiplayerLobby />} />
       </Routes>
