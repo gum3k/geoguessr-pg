@@ -86,7 +86,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     const loadGoogleMapsScript = () => {
       if (!window.google || !window.google.maps) {
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback&libraries=places&v=weekly`;
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);

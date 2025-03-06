@@ -162,8 +162,8 @@ const GameView = () => {
         style={{position: "absolute", top: "10px", left: "10px", zIndex: 10,}}>
         <NerdzikComponent height="60px" />
       </div>
-      {/* conditional rendering for Street View and Map */}
-      {!showSummary && !timeUp && (
+      { console.log("Api key: ", apiKey) }
+      {!showSummary && !timeUp && apiKey && (
         <>
           <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode}/>
           <MapComponent
