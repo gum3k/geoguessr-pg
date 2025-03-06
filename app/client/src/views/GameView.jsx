@@ -147,6 +147,9 @@ const GameView = () => {
     if (state?.roundTime) {
       setTimeLeft(state.roundTime);
     }
+    else {
+      setTimeLeft(0);
+    }
   }, [state?.roundTime]);
 
   const currentLocation = locations[currentLocationIndex];
