@@ -14,7 +14,6 @@ import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
 import { calculateDistance } from "../utils/calculateDistance";
 import io from 'socket.io-client';
-import seedrandom from 'seedrandom';
 
 
 const socket = io('http://localhost:5000');
@@ -112,6 +111,7 @@ const GameView = () => {
         console.log("Received lobby data:", data);
         setGameSettings(data);
         setLocations(data.locations || []);
+        state.roundTime = data.roundTime;
       });
 
       socket.on("lobbyNotFound", () => {
@@ -142,6 +142,12 @@ const GameView = () => {
     }
     handleMode();
   }, []);
+
+  useEffect(() => {
+    if (state?.roundTime) {
+      setTimeLeft(state.roundTime);
+    }
+  }, [state?.roundTime]);
 
   const currentLocation = locations[currentLocationIndex];
 
