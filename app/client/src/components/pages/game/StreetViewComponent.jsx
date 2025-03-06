@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
+import seedrandom from "seedrandom";
 
-const StreetViewComponent = ({ location, apiKey, mode }) => {
+const StreetViewComponent = ({ location, apiKey, mode, seed }) => {
 
   useEffect(() => {
     if (!location) return;
-
+    
+    const rng = seedrandom(seed);
     const panoramaOptions = {
       position: location,
-      pov: { heading: Math.floor(Math.random() * 360), pitch: 0, zoom: 0 },
+      pov: { heading: rng() * 360, pitch: 0, zoom: 0 },
       visible: true,
       addressControl: false,
       showRoadLabels: false,

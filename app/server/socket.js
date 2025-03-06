@@ -5,7 +5,7 @@ module.exports = function (io) {
     console.log('A user connected:', socket.id);
 
     socket.on('createLobby', (data) => {
-      const lobbyId = Math.floor(Math.random() * 1000000);
+      const lobbyId = crypto.getRandomValues(new Uint32Array(1))[0];
       const newLobby = {
         lobbyId,
         rounds: data.rounds,

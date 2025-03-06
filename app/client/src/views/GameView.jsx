@@ -14,6 +14,8 @@ import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
 import { calculateDistance } from "../utils/calculateDistance";
 import io from 'socket.io-client';
+import seedrandom from 'seedrandom';
+
 
 const socket = io('http://localhost:5000');
 
@@ -41,27 +43,6 @@ const GameView = () => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
   }
-
-  useEffect(() => {
-    if (lobbyId) {
-      socket.emit("getLobbyData", lobbyId);
-      socket.on("lobbyData", (data) => {
-        console.log("Received lobby data:", data);
-        setGameSettings(data);
-        setLocations(data.locations || []);
-      });
-
-      socket.on("lobbyNotFound", () => {
-        console.error("Lobby not found");
-        navigate("/");
-      });
-
-      return () => {
-        socket.off("lobbyData");
-        socket.off("lobbyNotFound");
-      };
-    }
-  }, [lobbyId, navigate]);
 
   const handleLocationSelect = (location) => {
     const currentLocation = locations[currentLocationIndex];
@@ -124,16 +105,37 @@ const GameView = () => {
   };
 
   useEffect(() => {
+    if (lobbyId) {
+      state.seed = lobbyId;
+      socket.emit("getLobbyData", lobbyId);
+      socket.on("lobbyData", (data) => {
+        console.log("Received lobby data:", data);
+        setGameSettings(data);
+        setLocations(data.locations || []);
+      });
+
+      socket.on("lobbyNotFound", () => {
+        console.error("Lobby not found");
+        navigate("/");
+      });
+
+      return () => {
+        socket.off("lobbyData");
+        socket.off("lobbyNotFound");
+      };
+    }
+  }, [lobbyId, navigate]);
+
+  useEffect(() => {
     if (locations.length === 0 && !lobbyId) {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
         const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds);
+        const newLocations = await fetchLocations(rounds, state?.mapName, state?.seed);
         setLocations(newLocations);
       };
       loadLocations();
     }
-
     const handleMode = () => {
       const selectedMode = state?.selectedMode;
       setMode(selectedMode || "Move");
@@ -162,10 +164,9 @@ const GameView = () => {
         style={{position: "absolute", top: "10px", left: "10px", zIndex: 10,}}>
         <NerdzikComponent height="60px" />
       </div>
-      { console.log("Api key: ", apiKey) }
       {!showSummary && !timeUp && apiKey && (
         <>
-          <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode}/>
+          <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode} seed={state.seed}/>
           <MapComponent
             onLocationSelect={handleLocationSelect}
             handleGuess={handleGuess}
