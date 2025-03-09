@@ -15,11 +15,40 @@ const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
+  const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [mapName] = useState('equally_distributed_world_5mln');
+  const [lobbyCreated, setLobbyCreated] = useState(false);
+  const [lobbyId, setLobbyId] = useState(null); // Store lobby ID here
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const handleLobbyCreated = (lobbyData) => {
+      console.log('Lobby Created:', lobbyData);
+      setLobbyCreated(true); // Mark that the lobby has been created
+      setLobbyId(lobbyData.lobbyId); // Set the lobby ID for later
+      navigate(`/lobby/${lobbyData.lobbyId}`, { state: { lobbyData } });
+    };
+
+    socket.on('lobbyCreated', handleLobbyCreated);
+
+    return () => {
+      socket.off('lobbyCreated', handleLobbyCreated);
+    };
+  }, [lobbyId]);
+
+  const createLobby = () => {
+    if (!lobbyCreated) {
+      console.log("Creating a lobby...");
+      socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
+    }
+  };
 
   const startGame = async () => {
+    if (lobbyId) {
+      console.log("Starting the game...");
+      socket.emit('startGame', lobbyId);
+    }
+    else {
       navigate('/game', {
         state: {
           rounds,
@@ -28,6 +57,7 @@ const RoundSelectionScreen = () => {
           mapName
         },
       });
+    }
   };
 
   const handleModeSelect = (mode) => {
@@ -46,7 +76,7 @@ const RoundSelectionScreen = () => {
       <NavigationComponent />
       <MovingImageComponent />
       <ContentComponent>
-        <h2>Select settings of your game</h2>
+        <h2>Select settings of your lobby</h2>
         <SliderComponent
           min={1}
           max={9}
@@ -61,6 +91,15 @@ const RoundSelectionScreen = () => {
             value={roundTime}
             onChange={(e) => setRoundTime(Number(e.target.value))}
             label={formatTime(roundTime)}
+          />
+
+        <SliderComponent
+            min={2}
+            max={10}
+            step={1}
+            value={numberOfPlayers}
+            onChange={(e) => setNumberOfPlayers(Number(e.target.value))}
+            label={Number(numberOfPlayers) + ' Players'}
           />
         <h3>Select Game Mode</h3>
         <div style={styles.modeContainer}>
@@ -92,7 +131,16 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+        <BasicButtonComponent 
+          buttonText="Create Lobby" 
+          onClick={createLobby} 
+          disabled={lobbyCreated} // Disable button after lobby creation
+        />
+
+        <BasicButtonComponent 
+            buttonText="Join Lobby" 
+            //onClick={joinLobby} 
+        />
       </ContentComponent>
     </ContainerComponent>
   );

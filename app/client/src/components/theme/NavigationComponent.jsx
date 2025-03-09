@@ -15,6 +15,36 @@ const NavigationComponent = () => {
       >
         SINGLEPLAYER
       </Link>
+
+      <Link
+        to="/gamesettings_multi"
+        style={styles.button}
+        onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+        onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+      >
+        MULTIPLAYER
+      </Link>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", width: "100%" }}>
+        <Link
+          to="/register"
+          style={styles.button}
+          onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+          onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+        >
+          REGISTER
+        </Link>
+
+        <Link
+          to="/login"
+          style={styles.button}
+          onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+          onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+        >
+          LOGIN
+        </Link>
+      </div>
+      
     </div>
   );
 };
