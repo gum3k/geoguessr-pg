@@ -37,45 +37,42 @@ const GameView = () => {
   const [gameSettings, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
 
-  const fetchDistanceFromServer = async (loc1, loc2) => {
-    try {
-        const response = await fetch('http://localhost:5000/api/calculate-distance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ location1: loc1, location2: loc2 })
-        });
-
-        const data = await response.json();
-        return data.distance; // Zwraca dystans obliczony na backendzie
-    } catch (error) {
-        console.error('Błąd pobierania dystansu z backendu:', error);
-        return null;
-    }
-};
-
-
   const addRoundInfo = (pLocation, tLocation, npoints) => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
   }
 
-  const handleLocationSelect = async (location) => {
-    const currentLocation = locations[currentLocationIndex];
-    if (location !== null) {
-        const distance = await fetchDistanceFromServer(location, currentLocation); // Pobranie dystansu z backendu
-        setDistance(Math.round(distance));
-
-        const e = 2.718281828459045;
-        const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 20037.852)));
-        setScore(points);
-        setPlayerLocation(location);
-    } else {
+  const submitGuessToServer = async (location) => {
+    if (!location) {
         setScore(0);
         setDistance(0);
+        return;
     }
-    setActuallLocation(currentLocation);
-};
 
+    try {
+        const response = await fetch('http://localhost:5000/api/game/submit-guess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lobbyId: lobbyId || "singleplayer",
+                playerLocation: location,
+                targetLocation: locations[currentLocationIndex]
+            })
+        });
+
+        const data = await response.json();
+        setDistance(data.distance ?? 0);
+        setScore(data.score ?? 0);
+        setPlayerLocation(location);
+    } catch (error) {
+        console.error('Błąd podczas wysyłania zgadywania:', error);
+    }
+  };
+
+  const handleLocationSelect = async (location) => {
+      setActuallLocation(locations[currentLocationIndex]);
+      await submitGuessToServer(location);
+  };
 
   const handleGuess = () => {
     addRoundInfo(playerLocation, actuallLocation, score);
@@ -117,9 +114,18 @@ const GameView = () => {
     }
   };
 
-  const handleGameSummary = () => {
-    setShowSummaryEnd(true);
+  const handleGameSummary = async () => {
+    try {
+        const response = await fetch(`http://localhost:5000/api/game/round-info/${lobbyId || "singleplayer"}`);
+        const data = await response.json();
+        setRoundInfo(data);
+        setShowSummaryEnd(true);
+    } catch (error) {
+        console.error('Błąd pobierania historii rund:', error);
+    }
   };
+
+
 
   useEffect(() => {
     if (lobbyId) {
