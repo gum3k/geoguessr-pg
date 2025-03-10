@@ -6,11 +6,14 @@ const socketIo = require('socket.io');
 require('dotenv').config();
 
 const app = express();
+const cors = require('cors');
+
+app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
+    origin: "http://localhost:3000",  // Adres frontendowego Reacta
+    methods: ["GET", "POST", "FETCH"],
     allowedHeaders: "*",
     credentials: true
   }
@@ -19,11 +22,14 @@ const io = socketIo(server, {
 // Import and initialize the socket logic
 require('./socket')(io);
 
+// Middleware: Parsowanie JSON w ciele żądań
+app.use(express.json());
+
 // Serve React app from the client build directory
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 
 // API routes
-app.use('/api', routes);
+app.use('/api', routes);  // Dodajemy routing, który obsłuży rejestrację i inne API
 
 // Catch-all route to serve React app
 app.get('*', (req, res) => {

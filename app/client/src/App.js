@@ -5,6 +5,8 @@ import GameView from "./views/GameView";
 import RoundSelectionScreen from "./views/RoundSelectionScreen";
 import RoundSelectionScreenMulti from "./views/RoundSelectionScreenMulti";
 import MultiplayerLobby from "./views/MultiplayerLobby";
+import RegisterView from "./views/RegisterView";
+import LoginView from "./views/LoginView";
 
 const App = () => {
   return (
@@ -16,6 +18,8 @@ const App = () => {
         <Route path="/gamesettings" element={<RoundSelectionScreen />} />
         <Route path="/gamesettings_multi" element={<RoundSelectionScreenMulti />} />
         <Route path="/lobby/:lobbyId" element={<MultiplayerLobby />} />
+        <Route path="/register" element={<RegisterView />} />
+        <Route path="/login" element={<LoginView />} />
       </Routes>
     </Router>
   );

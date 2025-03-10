@@ -1,6 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const { query } = require('./database');
 const router = express.Router();
 const seedrandom = require('seedrandom');
 
@@ -57,6 +59,39 @@ router.get('/locations/random/:seed', (req, res) => {
 
     res.json(randomLocations);
   });
+});
+
+
+router.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const existingUser = await query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
+      [username, email, hashedPassword]
+    );
+
+    const newUser = result.rows[0];
+    return res.status(201).json({
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+    });
+  } catch (error) {
+    console.error('Error registering user', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;
