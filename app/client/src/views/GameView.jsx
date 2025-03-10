@@ -12,7 +12,6 @@ import TimerComponent from "../components/pages/game/TimerComponent";
 import BlockComponent from "../components/pages/game/BlockComponent";
 import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
-import { calculateDistance } from "../utils/calculateDistance";
 import io from 'socket.io-client';
 
 
@@ -38,26 +37,45 @@ const GameView = () => {
   const [gameSettings, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
 
+  const fetchDistanceFromServer = async (loc1, loc2) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/calculate-distance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ location1: loc1, location2: loc2 })
+        });
+
+        const data = await response.json();
+        return data.distance; // Zwraca dystans obliczony na backendzie
+    } catch (error) {
+        console.error('Błąd pobierania dystansu z backendu:', error);
+        return null;
+    }
+};
+
+
   const addRoundInfo = (pLocation, tLocation, npoints) => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
   }
 
-  const handleLocationSelect = (location) => {
+  const handleLocationSelect = async (location) => {
     const currentLocation = locations[currentLocationIndex];
     if (location !== null) {
-      const distance = calculateDistance(location, currentLocation);
-      setDistance(Math.round(distance));
-      const e = 2.718281828459045;
-      const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 20037.852)));
-      setScore(points);
-      setPlayerLocation(location);
+        const distance = await fetchDistanceFromServer(location, currentLocation); // Pobranie dystansu z backendu
+        setDistance(Math.round(distance));
+
+        const e = 2.718281828459045;
+        const points = Math.max(0, Math.round(5000 * e ** (-10 * distance / 20037.852)));
+        setScore(points);
+        setPlayerLocation(location);
     } else {
-      setScore(0);
-      setDistance(0);
+        setScore(0);
+        setDistance(0);
     }
     setActuallLocation(currentLocation);
-  };
+};
+
 
   const handleGuess = () => {
     addRoundInfo(playerLocation, actuallLocation, score);
