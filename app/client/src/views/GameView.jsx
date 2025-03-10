@@ -80,6 +80,17 @@ const GameView = () => {
     setIsPaused(true);
   };
 
+  const pauseTimer = () => {
+    socket.emit("pauseTimer", lobbyId);
+    setIsPaused(true);
+};
+
+const resumeTimer = () => {
+    socket.emit("resumeTimer", lobbyId);
+    setIsPaused(false);
+};
+
+
   const handleTimer = (timeLeft) => {
     setActuallLocation(locations[currentLocationIndex]);
     const time = state?.roundTime;
@@ -125,28 +136,35 @@ const GameView = () => {
     }
   };
 
-
-
   useEffect(() => {
     if (lobbyId) {
-      state.seed = lobbyId;
-      socket.emit("getLobbyData", lobbyId);
-      socket.on("lobbyData", (data) => {
-        console.log("Received lobby data:", data);
-        setGameSettings(data);
-        setLocations(data.locations || []);
-        state.roundTime = data.roundTime;
-      });
+        socket.emit("getLobbyData", lobbyId);
+        socket.on("lobbyData", (data) => {
+            console.log("Received lobby data:", data);
+            setGameSettings(data);
+            setLocations(data.locations || []);
+            state.roundTime = data.roundTime;
 
-      socket.on("lobbyNotFound", () => {
-        console.error("Lobby not found");
-        navigate("/");
-      });
+            // Startowanie timera w backendzie
+            socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
+        });
 
-      return () => {
-        socket.off("lobbyData");
-        socket.off("lobbyNotFound");
-      };
+        // Nasłuchiwanie na czas od backendu
+        socket.on("timerUpdate", ({ timeLeft }) => {
+            setTimeLeft(timeLeft);
+        });
+
+        socket.on("timerEnded", () => {
+            setTimeUp(true);
+            setIsPaused(true);
+            handleGuess();
+        });
+
+        return () => {
+            socket.off("lobbyData");
+            socket.off("timerUpdate");
+            socket.off("timerEnded");
+        };
     }
   }, [lobbyId, navigate]);
 
