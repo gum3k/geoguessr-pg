@@ -64,7 +64,8 @@ const styles = {
     zIndex: 1000,
   },
   button: {
-    fontSize: "18px",
+    fontFamily: 'Accuratist, sans-serif',
+    fontSize: "20px",
     fontWeight: "bold",
     textDecoration: "none",
     color: "white",

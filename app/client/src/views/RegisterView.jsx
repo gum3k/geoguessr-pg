@@ -64,17 +64,17 @@ const RegisterView = () => {
     <ContainerComponent>
       <NavigationComponent />
       <ContentComponent>
-        <div style={{ paddingTop: '100px', maxWidth: '400px', margin: '0 auto' }}>
-          <h2 style={{ marginLeft: '5%' }}>Registration</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <input type="text" name="login" placeholder="Login" value={formData.login} onChange={handleChange} required style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#333', color: '#fff', border: '1px solid #555' }} />
-            <input type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#333', color: '#fff', border: '1px solid #555' }} />
-            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#333', color: '#fff', border: '1px solid #555' }} />
-            <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#333', color: '#fff', border: '1px solid #555' }} />
-            <div style={{marginLeft: '5%'}}>
-            <BasicButtonComponent buttonText="Register" type="submit"/>
+        <div style={styles.formContainer}>
+          <h2 style={styles.title}>Registration</h2>
+          {error && <p style={{ ...styles.message, ...styles.error }}>{error}</p>}
+          {successMessage && <p style={{ ...styles.message, ...styles.success }}>{successMessage}</p>}
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <input type="text" name="login" placeholder="Login" value={formData.login} onChange={handleChange} required style={styles.input} />
+            <input type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} required style={styles.input} />
+            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required style={styles.input} />
+            <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required style={styles.input} />
+            <div style={styles.buttonContainer}>
+              <BasicButtonComponent buttonText="Register" type="submit" />
             </div>
           </form>
         </div>
@@ -82,5 +82,37 @@ const RegisterView = () => {
     </ContainerComponent>
   );
 };
+
+const styles = {
+  form: {
+    padding: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    width: '350px',
+    maxWidth: '600px'
+  },
+  input: {
+    width: '100%',
+    padding: '12px',
+    fontSize: '16px',
+    backgroundColor: '#002244', // Ciemnoniebieskie tło
+    color: '#ffffff', // Jasna czcionka
+    border: '1px solid #005599', // Subtelne obramowanie
+    borderRadius: '10px', // Zaokrąglenie rogów
+    fontFamily: 'Accuratist, sans-serif', // Czcionka Accuratist
+    outline: 'none',
+  },
+  message: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  error: {
+    color: 'red',
+  },
+  success: {
+    color: 'green',
+  },
+}
 
 export default RegisterView;

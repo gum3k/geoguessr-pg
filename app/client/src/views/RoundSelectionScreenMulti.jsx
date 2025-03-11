@@ -74,7 +74,6 @@ const RoundSelectionScreen = () => {
   return (
     <ContainerComponent>
       <NavigationComponent />
-      <MovingImageComponent />
       <ContentComponent>
         <h2>Select settings of your lobby</h2>
         <SliderComponent
@@ -131,16 +130,18 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent 
-          buttonText="Create Lobby" 
-          onClick={createLobby} 
-          disabled={lobbyCreated} // Disable button after lobby creation
-        />
+        <div style={styles.controlsContainer}>
+          <BasicButtonComponent 
+            buttonText="Create Lobby" 
+            onClick={createLobby} 
+            disabled={lobbyCreated} // Disable button after lobby creation
+          />
 
-        <BasicButtonComponent 
-            buttonText="Join Lobby" 
-            //onClick={joinLobby} 
-        />
+          <BasicButtonComponent 
+              buttonText="Join Lobby" 
+              //onClick={joinLobby} 
+          />
+        </div>
       </ContentComponent>
     </ContainerComponent>
   );
@@ -166,11 +167,18 @@ const styles = {
     color: 'white',
     fontWeight: 'bold',
   },
+  controlsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '20px',
+    padding: '10px'
+  },
   modeContainer: {
     display: 'flex',
     justifyContent: 'center',
     gap: '20px',
     marginTop: '20px',
+    padding: '10px'
   },
   modeTile: {
     padding: '10px 20px',

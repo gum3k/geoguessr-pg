@@ -8,12 +8,13 @@ const RoundButtonComponent = ({ onClick, buttonText }) => {
         padding: "15px 30px",
         backgroundColor: "#0055ff",
         color: "white",
+        fontFamily: 'Accuratist, sans-serif',
         fontSize: "24px",
         border: "none",
         borderRadius: "8px",
         fontWeight: "bold",
         cursor: "pointer",
-        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0px 4px 6px rgb(255, 255, 255)",
         zIndex: 3,
         transition: "background-color 0.3s, transform 0.2s",
         marginRight: "5%"
@@ -29,3 +30,4 @@ const RoundButtonComponent = ({ onClick, buttonText }) => {
 };
 
 export default RoundButtonComponent;
+

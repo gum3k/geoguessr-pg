@@ -44,7 +44,6 @@ const RoundSelectionScreen = () => {
   return (
     <ContainerComponent>
       <NavigationComponent />
-      <MovingImageComponent />
       <ContentComponent>
         <h2>Select settings of your game</h2>
         <SliderComponent
@@ -92,7 +91,9 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+        <div style={{marginTop: '10px'}}>
+          <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+        </div>
       </ContentComponent>
     </ContainerComponent>
   );

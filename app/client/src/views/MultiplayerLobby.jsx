@@ -88,7 +88,6 @@ const LobbyPage = () => {
   return (
     <ContainerComponent>
       <NavigationComponent />
-      <MovingImageComponent />
       <ContentComponent>
         {lobbyData ? (
           <>
