@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 
 // API routes
 app.use('/api', routes);  // Dodajemy routing, który obsłuży rejestrację i inne API
-
+app.use('/game', express.static(path.join(__dirname, 'public')));
 app.use('/api', gameRoutes); // endpoint od obslugi gry
 
 // Catch-all route to serve React app

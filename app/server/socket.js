@@ -1,9 +1,9 @@
 const crypto = require("crypto");
+const timerService = require("./services/timerService");
 
 module.exports = function (io) {
   let lobbies = {}; // Store lobbies and their players
-  const gameTimers = {}; // Store timers for each lobby
-
+  
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
 
@@ -79,7 +79,7 @@ module.exports = function (io) {
         });
 
         // Start the timer when the game begins
-        io.to(lobbyId).emit("startRoundTimer", { lobbyId, roundTime: lobby.roundTime });
+        timerService.startRoundTimer(io, lobbyId, lobby.roundTime);
       }
     });
 
@@ -126,35 +126,16 @@ module.exports = function (io) {
 
 
     socket.on("startRoundTimer", ({ lobbyId, roundTime }) => {
-      if (gameTimers[lobbyId]) clearInterval(gameTimers[lobbyId].interval);
-
-      let timeLeft = roundTime;
-      gameTimers[lobbyId] = { timeLeft };
-
-      const interval = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft -= 1;
-          io.to(lobbyId).emit("timerUpdate", { timeLeft });
-        } else {
-          clearInterval(interval);
-          io.to(lobbyId).emit("timerEnded");
-        }
-      }, 1000);
-
-      gameTimers[lobbyId].interval = interval;
+      timerService.startRoundTimer(io, lobbyId, roundTime);
     });
 
     socket.on("pauseTimer", (lobbyId) => {
-      if (gameTimers[lobbyId]) {
-        clearInterval(gameTimers[lobbyId].interval);
-      }
+      timerService.pauseTimer(lobbyId);
     });
 
     socket.on("resumeTimer", (lobbyId) => {
-      if (gameTimers[lobbyId]) {
-        io.to(lobbyId).emit("timerUpdate", { timeLeft: gameTimers[lobbyId].timeLeft });
-        socket.emit("startRoundTimer", { lobbyId, roundTime: gameTimers[lobbyId].timeLeft });
-      }
+      timerService.resumeTimer(io, lobbyId);
     });
+    
   });
 };
