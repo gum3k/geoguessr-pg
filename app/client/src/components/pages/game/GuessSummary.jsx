@@ -51,7 +51,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             <Marker
               position={playerLocation}
               icon={{
-                url: "usericon.png",
+                url: process.env.PUBLIC_URL + "/usericon.png",
                 scaledSize: new window.google.maps.Size(40, 40),
               }}
             />
@@ -62,7 +62,7 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
           <Marker
             position={targetLocation}
             icon={{
-              url: "locationicon.png",
+              url: process.env.PUBLIC_URL + "/locationicon.png",
               scaledSize: new window.google.maps.Size(40, 40), 
             }}
           />
