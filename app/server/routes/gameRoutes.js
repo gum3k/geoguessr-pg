@@ -4,6 +4,6 @@ const gameController = require("../controllers/gameController");
 
 router.post("/game/submit-guess", gameController.submitGuess);
 router.post("/game/start-round", gameController.startRound);
-router.get("/game/round-status/:lobbyId", gameController.getRoundStatus);
+router.get("/game/round-info/:lobbyId", gameController.getRoundStatus);
 
 module.exports = router;

@@ -7,29 +7,26 @@ const roundTimers = {};
 exports.processGuess = (lobbyId, playerLocation, targetLocation) => {
     const distance = gameUtils.calculateDistance(playerLocation, targetLocation);
     const score = gameUtils.calculateScore(distance);
+    const sessionId = lobbyId || "singleplayer";
 
-    if (!lobbyId || lobbyId === "singleplayer") {
-        if (!gameSessions["singleplayer"]) {
-            gameSessions["singleplayer"] = [];
-        }
-        gameSessions["singleplayer"].push({ playerLocation, targetLocation, distance, score });
-    } else {
-        if (!gameSessions[lobbyId]) {
-            gameSessions[lobbyId] = [];
-        }
-        gameSessions[lobbyId].push({ playerLocation, targetLocation, distance, score });
+    if (!gameSessions[sessionId]) {
+        gameSessions[sessionId] = { rounds: [] };
     }
 
+    gameSessions[sessionId].rounds.push({ playerLocation, targetLocation, distance, points: score });
     return { distance: Math.round(distance), score };
 };
 
+
 exports.startRound = (lobbyId, roundTime) => {
-    if (!gameSessions[lobbyId]) {
-        gameSessions[lobbyId] = { roundActive: true, timeLeft: roundTime };
-    } else {
-        gameSessions[lobbyId].roundActive = true;
-        gameSessions[lobbyId].timeLeft = roundTime;
+    const sessionId = lobbyId || "singleplayer";
+
+    if (!gameSessions[sessionId]) {
+        gameSessions[sessionId] = { rounds: [] };
     }
+
+    gameSessions[sessionId].roundActive = true;
+    gameSessions[sessionId].timeLeft = roundTime;
 
     io.to(lobbyId).emit("roundStart", { timeLeft: roundTime });
 
@@ -37,9 +34,9 @@ exports.startRound = (lobbyId, roundTime) => {
         if (roundTimers[lobbyId]) clearInterval(roundTimers[lobbyId]);
 
         roundTimers[lobbyId] = setInterval(() => {
-            if (gameSessions[lobbyId].timeLeft > 0) {
-                gameSessions[lobbyId].timeLeft -= 1;
-                io.to(lobbyId).emit("timerUpdate", { timeLeft: gameSessions[lobbyId].timeLeft });
+            if (gameSessions[sessionId].timeLeft > 0) {
+                gameSessions[sessionId].timeLeft -= 1;
+                io.to(lobbyId).emit("timerUpdate", { timeLeft: gameSessions[sessionId].timeLeft });
             } else {
                 clearInterval(roundTimers[lobbyId]);
                 exports.endRound(lobbyId);
@@ -63,5 +60,8 @@ exports.endRound = (lobbyId) => {
 };
 
 exports.getRoundStatus = (lobbyId) => {
-    return gameSessions[lobbyId] || null;
+    const sessionId = lobbyId || "singleplayer";
+    if (!gameSessions[sessionId]) return [];
+    return gameSessions[sessionId].rounds;
 };
+
