@@ -25,14 +25,12 @@ const RegisterView = () => {
     setError('');
     setSuccessMessage('');
 
-    // Sprawdzanie, czy hasła się zgadzają
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords are not the same!');
       return;
     }
 
     try {
-      // Wysyłamy dane na backend
       const response = await fetch('http://localhost:5000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,11 +94,11 @@ const styles = {
     width: '100%',
     padding: '12px',
     fontSize: '16px',
-    backgroundColor: '#002244', // Ciemnoniebieskie tło
-    color: '#ffffff', // Jasna czcionka
-    border: '1px solid #005599', // Subtelne obramowanie
-    borderRadius: '10px', // Zaokrąglenie rogów
-    fontFamily: 'Accuratist, sans-serif', // Czcionka Accuratist
+    backgroundColor: '#002244',
+    color: '#ffffff',
+    border: '1px solid #005599',
+    borderRadius: '10px',
+    fontFamily: 'Accuratist, sans-serif',
     outline: 'none',
   },
   message: {

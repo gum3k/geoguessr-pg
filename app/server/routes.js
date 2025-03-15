@@ -5,6 +5,13 @@ const bcrypt = require('bcryptjs');
 const { query } = require('./database');
 const router = express.Router();
 const seedrandom = require('seedrandom');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+const JWT_EXPIRES_IN = '1d';
+
+router.use(cookieParser());
 
 // fetch API key
 router.get('/apikey', (req, res) => {
@@ -70,15 +77,16 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    const existingUser = await query('SELECT * FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
+    const existingUser1 = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const existingUser2 = await query('SELECT * FROM users WHERE username = $1', [username]);
+    if (existingUser1.rows.length > 0 || existingUser2.rows.length > 0) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING userid, username, email',
       [username, email, hashedPassword]
     );
 
@@ -93,5 +101,49 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const existingUser = await query('SELECT * FROM users WHERE username = $1', [username]);
+    if (existingUser.rows.length == 0) {
+      return res.status(400).json({ message: 'User does not exist' });
+    }
+    const user = existingUser.rows[0];
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    const token = jwt.sign(
+      { id: user.userid, username: user.username },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    console.log('Token ustawiony w ciasteczku:', token);
+
+    return res.status(200).json({
+      message: 'Login successful',
+      user: { id: user.userid, username: user.username, email: user.email }
+    });
+  } catch (error) {
+    console.error('Error logging in user', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+  });
 
 module.exports = router;
