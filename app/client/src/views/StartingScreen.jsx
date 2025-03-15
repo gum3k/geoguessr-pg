@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
 import ContentComponent from '../components/theme/ContentComponent'; 
@@ -17,6 +18,10 @@ const StartingScreen = () => {
   const goSingleSettings = () => {
     navigate('/gamesettings');
   };
+
+  useEffect(() => {
+    document.cookie = `message=${'testowe ciasteczko'}; path=/; max-age=3600`;
+  }, []);
 
   return (
     <ContainerComponent>

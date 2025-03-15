@@ -31,6 +31,7 @@ const LoginView = () => {
           username: formData.login,
           password: formData.password
         }),
+        credentials: 'include',
       });
 
       const data = await response.json();

@@ -13,6 +13,7 @@ const JWT_EXPIRES_IN = '1d';
 
 router.use(cookieParser());
 
+
 // fetch API key
 router.get('/apikey', (req, res) => {
   const apiKeyPath = process.env.API_KEY_PATH || path.join(__dirname, '..', '..', 'apikey.txt');
@@ -68,7 +69,7 @@ router.get('/locations/random/:seed', (req, res) => {
   });
 });
 
-
+// Register new user
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -92,7 +93,7 @@ router.post('/register', async (req, res) => {
 
     const newUser = result.rows[0];
     return res.status(201).json({
-      id: newUser.id,
+      id: newUser.userid,
       username: newUser.username,
       email: newUser.email,
     });
@@ -102,6 +103,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Login user
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -127,11 +129,12 @@ router.post('/login', async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+
     res.cookie('token', token, {
       httpOnly: false,
       secure: false,
       sameSite: 'Lax',
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, // 1 dzień
     });
 
     console.log('Token ustawiony w ciasteczku:', token);
@@ -144,6 +147,6 @@ router.post('/login', async (req, res) => {
     console.error('Error logging in user', error);
     return res.status(500).json({ message: 'Server error' });
   }
-  });
+});
 
 module.exports = router;
