@@ -13,7 +13,18 @@ const cors = require('cors');
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Goog-Api-Key', 
+    'X-Goog-FieldMask', 
+    'Referer', 
+    'Accept', 
+    'Accept-Encoding', 
+    'User-Agent', 
+    'Origin', 
+    'Cache-Control'
+  ],
   credentials: true,
 }));
 const server = http.createServer(app);

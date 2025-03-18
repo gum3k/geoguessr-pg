@@ -19,10 +19,6 @@ const StartingScreen = () => {
     navigate('/gamesettings');
   };
 
-  useEffect(() => {
-    document.cookie = `message=${'testowe ciasteczko'}; path=/; max-age=3600`;
-  }, []);
-
   return (
     <ContainerComponent>
       <NavigationComponent />
@@ -39,8 +35,8 @@ const StartingScreen = () => {
           alignItems: 'center',
           marginTop: '20px'
         }}>
-          <BasicButtonComponent buttonText="SINGLEPLAYER" onClick={goMultiSettings} />
-          <BasicButtonComponent buttonText="MULTIPLAYER" onClick={goSingleSettings} />
+          <BasicButtonComponent buttonText="SINGLEPLAYER" onClick={goSingleSettings} />
+          <BasicButtonComponent buttonText="MULTIPLAYER" onClick={goMultiSettings} />
         </div>
       </ContentComponent>
     </ContainerComponent>
