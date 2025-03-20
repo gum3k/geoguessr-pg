@@ -8,12 +8,13 @@
 .earth-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background: url('/public/kula.png') no-repeat center;
   background-size: cover;
   cursor: pointer;
   border: none;
+  filter: brightness(3)
 }
 
 body {

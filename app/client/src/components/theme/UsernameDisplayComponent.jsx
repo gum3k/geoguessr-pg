@@ -19,14 +19,14 @@ const UsernameDisplayComponent = () => {
         console.log('Zdekodowany token:', decoded);
         setUsername(decoded.username);
       } catch (e) {
-        console.error('Błąd dekodowania tokenu', e);
+        console.error('Błąd dekodowania tokenu', e); 
       }
     } else {
       console.log('Token nie znaleziony w ciasteczkach');
     }
   }, []);
 
-  return username || 'Nie ma';
+  return username || 'Guest';
 };
 
 export default UsernameDisplayComponent;

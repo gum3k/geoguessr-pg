@@ -9,17 +9,17 @@ const SliderComponent = ({ min = 1, max = 10, step = 1, value, onChange, label =
       textAlign: 'center',
     },
     slider: {
-      width: '80%',
+      width: '400px',
       height: '12px',
       borderRadius: '5px',
       outline: 'none',
       appearance: 'none',
       cursor: 'pointer',
       background: `linear-gradient(90deg, 
-rgb(2, 168, 2) 0%,      /* Zielony początek */
-rgb(0, 67, 190) ${progress}%,  /* Niebieski środek (dynamiczny procent) */
-        purple ${progress}%,   /* Fiolet od punktu suwaka */
-        purple 100%)`,    /* Fiolet na końcu */
+      rgb(2, 168, 2) 0%,     
+      rgb(0, 67, 190) ${progress}%, 
+        purple ${progress}%,  
+        purple 100%)`,    
     },
     valueDisplay: {
       marginTop: '10px',

@@ -112,7 +112,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
             justifyContent: "space-between",
             alignItems: "center",
             zIndex: 2,
-            borderRadius: "10px 10px 0 0", // zaokrąglone rogi
+            borderRadius: "10px 10px 0 0",
           }}
         >
           <div

@@ -23,7 +23,6 @@ const StartingScreen = () => {
     <ContainerComponent>
       <NavigationComponent />
       <ContentComponent>
-      <UsernameDisplayComponent />
         <div style={{ fontSize: '24px', fontFamily: 'Accuratist, sans-serif', color: 'rgb(255, 255, 255)' }}>
           <h2>Welcome to the location guessing game!</h2>
           <p style={{ fontSize: '20px'}}>Choose a gamemode you want to play!</p>

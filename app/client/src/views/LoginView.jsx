@@ -56,7 +56,7 @@ const LoginView = () => {
       <NavigationComponent />
       <ContentComponent>
         <div style={styles.formContainer}>
-          <h2 style={styles.title}>Registration</h2>
+          <h2 style={styles.title}>Logging in</h2>
           {error && <p style={{ ...styles.message, ...styles.error }}>{error}</p>}
           {successMessage && <p style={{ ...styles.message, ...styles.success }}>{successMessage}</p>}
           <form onSubmit={handleSubmit} style={styles.form}>
