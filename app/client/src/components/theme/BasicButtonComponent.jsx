@@ -14,7 +14,7 @@ const BasicButtonComponent = ({ onClick, buttonText }) => {
     </button>
   );
 };
-
+ 
 const styles = {
     button: {
       marginTop: "10px",
@@ -23,7 +23,6 @@ const styles = {
       color: "white",
       fontFamily: 'Accuratist, sans-serif',
       fontSize: "32px",
-      border: "none",
       borderRadius: "8px",
       fontWeight: "bold",
       cursor: "pointer",

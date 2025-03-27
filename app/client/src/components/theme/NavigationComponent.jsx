@@ -1,8 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import NerdzikComponent from "./NerdzikComponent";
 import ProfileComponent from "./ProfileComponent";
-import UsernameDisplayComponent from "./UsernameDisplayComponent";
 
 const NavigationComponent = () => {
   return (

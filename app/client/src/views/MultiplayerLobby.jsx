@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
-import ContainerComponent from '../components/theme/ContainerComponent'; 
-import MovingImageComponent from '../components/theme/MovingImageComponent'; 
+import ContainerComponent from '../components/theme/ContainerComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import io from 'socket.io-client';
@@ -19,12 +18,20 @@ const LobbyPage = () => {
   const location = useLocation();
   const [isHost, setIsHost] = useState(false);
 
-  const handleBeforeUnload = () => {
+  const handleBeforeUnload = useCallback(() => {
     if (isHost) {
       socket.emit('hostLeaving', lobbyId);
     }
     socket.emit('leaveLobby', lobbyId);
-  };
+  }, [isHost, lobbyId]);
+
+  // Move startGame above the useEffect where it is used
+  const startGame = useCallback(async () => {
+    const locations = await fetchLocations(lobbyData.rounds);
+    socket.emit('setLocations', { lobbyId, locations });
+    console.log('Starting the game...');
+    socket.emit('startGame', lobbyId); // Notify the server to start the game
+  }, [lobbyData, lobbyId]);
 
   useEffect(() => {
     const gameStarting = () => {
@@ -50,7 +57,7 @@ const LobbyPage = () => {
       socket.off('gameStarting');
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [lobbyId, isHost]); // Adding lobbyId and isHost as dependencies to refresh when they change
+  }, [lobbyId, isHost, navigate, startGame, handleBeforeUnload]);
 
   useEffect(() => {
     console.log(`Joining lobby with ID: ${lobbyId}`);
@@ -68,7 +75,7 @@ const LobbyPage = () => {
     return () => {
       handleRouteChange(); // Cleanup on unmount
     };
-  }, [location, lobbyId]);
+  }, [location, lobbyId, handleBeforeUnload]);
 
   const exitLobby = () => {
     if (isHost) {
@@ -76,13 +83,6 @@ const LobbyPage = () => {
     }
     socket.emit('leaveLobby', lobbyId); // Leave the lobby
     navigate('/'); // Redirect to the home page
-  };
-
-  const startGame = async () => {
-    const locations = await fetchLocations(lobbyData.rounds);
-    socket.emit('setLocations', { lobbyId, locations });
-    console.log('Starting the game...');
-    socket.emit('startGame', lobbyId); // Notify the server to start the game
   };
 
   return (
