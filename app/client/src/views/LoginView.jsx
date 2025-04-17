@@ -83,7 +83,7 @@ const styles = {
   },
   input: {
     width: '100%',
-    padding: '12px',
+    padding: '12px 0px',
     fontSize: '16px',
     backgroundColor: '#002244',
     color: '#ffffff',
@@ -91,6 +91,7 @@ const styles = {
     borderRadius: '10px',
     fontFamily: 'Accuratist, sans-serif',
     outline: 'none',
+    textIndent: '10px'
   },
   message: {
     fontSize: '16px',

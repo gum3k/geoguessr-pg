@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import UsernameDisplayComponent from "./UsernameDisplayComponent";
 
-const ProfileComponent = () => {
-    const username = UsernameDisplayComponent;
+const ProfileMenuComponent = () => {
+    const username = useState(null);
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [fontSize, setFontSize] = useState(null);
 
   useEffect(() => {
     const textLength = username.length;
-    const newFontSize = Math.max(30 - (textLength), 12);
+    const newFontSize = Math.max(24 - 2*(textLength), 12);
     setFontSize(`${newFontSize}px`);
   }, [username]);
 
@@ -24,9 +24,8 @@ const ProfileComponent = () => {
         onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
         onMouseLeave={(e) => (e.target.style.textShadow = "none")}
         >
-           <img src="/usericon.png" alt="prof_pic" style={styles.profileImage}></img>  {/*Tymczasowo, docelowe fetchowanie profilowego */} 
+           <img src="/usericon.png" alt="prof_pic" style={styles.profileImage}/>  {/*Tymczasowo, docelowe fetchowanie profilowego */} 
            <UsernameDisplayComponent/>
-
         </Link>
         
         <div 
@@ -63,14 +62,14 @@ const styles = {
     justifyContent: "flex-end",
     gap: "10px",
     width: "100%",
-    padding: "60px"
+    padding: "20px"
   },
   profileWrapper: {
     position: "relative",
-    display: "block",
+    display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    textOverflow: 'ellipsis'
+    textOverflow: "ellipsis",
+    textAlign: "center"
   },
   profileImage: {
     width: "50px", 
@@ -80,14 +79,12 @@ const styles = {
   button: {
     display: "flex",
     fontFamily: "Accuratist, sans-serif",
-    fontSize: "25px",
     fontWeight: "bold",
     textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
     overflow: "hidden",
     textDecoration: "none",
     color: "white",
-    maxWidth: "130px",
+    width: "200px",
     cursor: "pointer",
     padding: "0px 20px",
     borderRadius: "8px",
@@ -95,7 +92,7 @@ const styles = {
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     transition: "all 0.3s",
     textTransform: 'uppercase',
-    textAlign: 'left',
+    textAlign: 'center',
     backgroundOpacity: "70%",
     lineHeight: "60px"
   },
@@ -108,13 +105,13 @@ const styles = {
     padding: "10px",
     display: "flex",
     flexDirection: "column",
-    minWidth: "150px",
+    width: "220px",
     zIndex: 1000,
     transition: "opacity 0.3s ease, transform 0.3s ease",
   },
   dropdownItem: {
     fontFamily: "Accuratist, sans-serif",
-    fontSize: "18px",
+    fontSize: "20px",
     fontWeight: "bold",
     textDecoration: "none",
     color: "white",
@@ -136,4 +133,4 @@ const styles = {
   },
 };
 
-export default ProfileComponent;
+export default ProfileMenuComponent;

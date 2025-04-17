@@ -1,12 +1,12 @@
 import React from "react";
 import NerdzikComponent from "./NerdzikComponent";
-import ProfileComponent from "./ProfileComponent";
+import ProfileMenuComponent from "./ProfileMenuComponent";
 
 const NavigationComponent = () => {
   return (
     <div style={styles.navbar}>
       <NerdzikComponent />
-      <ProfileComponent />
+      <ProfileMenuComponent />
     </div>
   );
 };
