@@ -3,3 +3,4 @@ tqdm
 geopandas
 aiohttp
 folium
+scipy

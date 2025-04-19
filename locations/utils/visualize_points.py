@@ -1,9 +1,7 @@
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
-
-VISUALIZE_POINTS = False
-VISUALIZE_LOCATIONS = True
+from config import *
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -20,10 +18,16 @@ def create_map(points, path, name='map.html'):
     m.save(path + '/' + name)
     print("Map saved as " + name)
     
-def visualize_points(maps_path, map_name, visualize_points, visualize_locations):
+def visualize_points(maps_path, map_name):
     if VISUALIZE_POINTS:
         points = read_csv(maps_path + map_name + '/points.csv')
+        if points.empty:
+            print("No points found in the CSV file.")
+            return
         create_map(points, path=maps_path + map_name, name='points.html')
     if VISUALIZE_LOCATIONS:
         locations = read_csv(maps_path + map_name + '/locations.csv')
+        if locations.empty:
+            print("No locations found in the CSV file.")
+            return
         create_map(locations, path=maps_path + map_name, name='locations.html')

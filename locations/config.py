@@ -5,7 +5,7 @@ import logging
 ##########   PARAMETERS FOR POINT GENERATION   ##########
 BOUNDS = (-90.0, -180.0, 90.0, 180.0)       #? Bounds of search - whole Earth by default
 POINT_DEGREE_BUFFER = 0.2                   #? Buffer distance around the point to check if it's on land
-SAMPLES = 5000000                           #? Number of points to generate on the Earth's surface
+SAMPLES = 500000                           #? Number of points to generate on the Earth's surface
                                             #? - 5mln gives around 120k points with Street View coverage
                                             #? - large number causes more processing before making progress tracked by a progress bar (just wait a minute)
                                             
@@ -14,11 +14,13 @@ COVERAGE_SEARCH_RADIUS = 7000                   #? Radius of the area of searchi
 MAX_REQUESTS_PER_SECOND = 490                   #? Maximum number of requests to Street View Static API per second (prevent rate limiting)
 RETRY_JITTER = 0.1                              #? Jitter for retrying points with unofficial Street View coverage
 RETRIES = 5                                     #? Number of retries for each point with unofficial Street View coverage
+LOOKUP_TRESHOLD = 0.001                         #? Distance threshold for checking if a point is near an existing point (in degrees)
 
 ##########   PATHS   ##########
 MAP_NAME = "test"                           #? Name of the map
 MAPS_DIRECTORY = "locations_sets/"          #? Directory to save maps (better don't change it)
-POINTS_LOAD_MAP_PATH = "locations_sets/equally_distributed_world_5mln/"                 #? Load points from a previous map (set to None to generate new points)              
+POINTS_LOAD_MAP_PATH = "locations_sets/test/"                 #? Load points from a previous map (set to None to generate new points)              
+LOOKUP_PATH = "./lookup/street_view_points.csv"
 
 ##########   FLAGS   ##########
 ONLY_GENERATE_POINTS = False                #? Only generate points, do not check Street View coverage
@@ -26,6 +28,7 @@ UNOFFICIAL_COVERAGE = False                 #? Include unofficial Street View co
 LOGGING = True                              #? Enable logging
 VISUALIZE_LOCATIONS = True                  #? Visualize locations with Street View coverage
 VISUALIZE_POINTS = False                    #? Visualize generated points (slow and not useful)
+LOOKUP_POINTS = True                     #? Use lookup table to filter points (faster than checking all points)
 
 # BOUNDS = (40.6, -74.150435, 40.925911, -73.890883) #! New York City for testing
 # SAMPLES = 1000                            #! small number of points for testing
