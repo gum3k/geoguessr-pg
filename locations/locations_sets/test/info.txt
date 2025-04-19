@@ -1,7 +1,7 @@
 Map Name: test
 Map Directory: locations_sets/test
-Points Generated: 146425
-Street View Locations Found: 16638
+Points Generated: 153642
+Street View Locations Found: 19122
 
 Map Generation Parameters:
 BOUNDS: (-90.0, -180.0, 90.0, 180.0)

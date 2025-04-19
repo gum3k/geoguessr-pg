@@ -19,7 +19,7 @@ LOOKUP_TRESHOLD = 0.001                         #? Distance threshold for checki
 ##########   PATHS   ##########
 MAP_NAME = "test"                           #? Name of the map
 MAPS_DIRECTORY = "locations_sets/"          #? Directory to save maps (better don't change it)
-POINTS_LOAD_MAP_PATH = "locations_sets/test/"                 #? Load points from a previous map (set to None to generate new points)              
+POINTS_LOAD_MAP_PATH = None #"locations_sets/test/"                 #? Load points from a previous map (set to None to generate new points)              
 LOOKUP_PATH = "./lookup/street_view_points.csv"
 
 ##########   FLAGS   ##########

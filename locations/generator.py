@@ -34,7 +34,7 @@ if __name__ == "__main__":
         if LOOKUP_POINTS:
             looked_up = lookup_street_view_points(points)
         street_view_points = asyncio.run(filter_points_with_street_view_async(points))
-        street_view_points += looked_up
+        street_view_points.update(looked_up)
         
         logger.info(f"Found {len(street_view_points)} locations with Street View coverage")
         
