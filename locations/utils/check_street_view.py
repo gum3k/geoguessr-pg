@@ -4,6 +4,8 @@ import asyncio
 import random
 from config import *
 from utils.file_operations import read_api_key
+from utils.points_generation import is_point_in_country
+from .street_view_lookup import StreetViewLookup
 
 
 API_KEY = read_api_key()
@@ -11,6 +13,7 @@ API_KEY = read_api_key()
 STREET_VIEW_METADATA_URL = "https://maps.googleapis.com/maps/api/streetview/metadata"
 
 REQUEST_SEMAPHORE = asyncio.Semaphore(MAX_REQUESTS_PER_SECOND)
+
 
 async def check_street_view_async(lat, lng, session, retry_limit=RETRIES):
         async with REQUEST_SEMAPHORE:
@@ -69,15 +72,42 @@ async def check_street_view_wrapper_async(point, session, pbar):
     pbar.update(1)
     return has_street_view, new_coords
 
-# filter points with street view, using async calls
 async def filter_points_with_street_view_async(points):
     street_view_points = set()
+
     async with aiohttp.ClientSession() as session:
         with tqdm(total=len(points), desc="Checking Street View", dynamic_ncols=True) as pbar:
-            tasks = [check_street_view_wrapper_async(point, session, pbar) for point in points]
+            tasks = []
+            for point in points:
+                tasks.append(check_street_view_wrapper_async(point, session, pbar))
 
             results = await asyncio.gather(*tasks)
+
             for has_street_view, new_coords in results:
                 if has_street_view:
-                    street_view_points.add(new_coords)
+                    if COUNTRY_NAME:
+                        if is_point_in_country(new_coords[0], new_coords[1]):
+                            street_view_points.add(new_coords)
+                    else:
+                        street_view_points.add(new_coords)
+
     return street_view_points
+
+
+def lookup_street_view_points(points):
+    lookup = StreetViewLookup()
+    looked_up = []
+    remaining = []
+
+    for point in tqdm(points, desc="Filtering points using lookup table"):
+        if lookup.is_near(point):
+            if COUNTRY_NAME:
+                if is_point_in_country(point[0], point[1]):
+                    looked_up.append(point)
+            else:
+                looked_up.append(point)
+        else:
+            remaining.append(point)
+
+    logger.info(f"Filtered {len(looked_up)} points using the lookup table")
+    return looked_up, remaining

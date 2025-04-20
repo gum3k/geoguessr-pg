@@ -35,6 +35,16 @@ def load_points_from_csv(filename):
         logger.error(f"Error loading points from CSV: {e}")
     return points
 
+def load_existing_street_view_points(file_path):
+    points = []
+    if os.path.exists(file_path):
+        with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader, None)  # skip header
+            for row in reader:
+                if len(row) >= 2:
+                    points.append((float(row[0]), float(row[1])))
+    return points
 
 def save_map_data(map_directory, map_name, points_generated, street_view_found):
     info_filename = os.path.join(map_directory, f"info.txt")
@@ -43,7 +53,7 @@ def save_map_data(map_directory, map_name, points_generated, street_view_found):
         file.write(f"Map Name: {map_name}\n")
         file.write(f"Map Directory: {map_directory}\n")
         file.write(f"Points Generated: {points_generated}\n")
-        file.write(f"Street View Locations Found: {len(street_view_found)}\n")
+        file.write(f"Street View Locations Found: {street_view_found}\n")
         
         # write map generation parameters
         file.write("\nMap Generation Parameters:\n")

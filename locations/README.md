@@ -83,8 +83,11 @@ The `requirements.txt` file contains all the Python libraries needed to run the 
 - `aiohttp`
 - `tqdm`
 - `concurrent.futures`
-- `visualize_points` (Custom visualization module)
 - Any other necessary packages
+
+### 3. Shapefiles
+
+Download countries shapefile here: [GeoBoundaries Global Downloads](https://www.geoboundaries.org/globalDownloads.html)
 
 ## Setting Up Google API Key
 
@@ -137,6 +140,10 @@ These files will be saved in the `locations_sets/` directory, with a subdirector
 ### 4. Visualizing Points
 
 The application can visualize the generated points and the locations with Street View coverage using the `visualize_points` module. You can enable this by setting the flags `VISUALIZE_POINTS` and `VISUALIZE_LOCATIONS` in the script.
+
+### 5. Lookup Tables
+
+Generator uses a lookup table (csv file with all previously found street view points). You can update it automatically with all locations from `locations_sets` by executing `to_lookup.py`.
 
 ## Customizing and Modifying
 
