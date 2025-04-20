@@ -13,7 +13,7 @@ from utils.check_street_view import filter_points_with_street_view_async, lookup
 
 if __name__ == "__main__":
     if POINTS_LOAD:
-        points = load_points_from_csv(POINTS_LOAD + "/points.csv")
+        points = load_points_from_csv(POINTS_LOAD_MAP_PATH + "/points.csv")
         random.shuffle(points)
         
         logger.info(f"Loaded {len(points)} points. Checking Street View coverage...")
@@ -29,8 +29,10 @@ if __name__ == "__main__":
     if not ONLY_GENERATE_POINTS:
         if LOOKUP_POINTS:
             looked_up, remaining = lookup_street_view_points(points)
-        street_view_points = asyncio.run(filter_points_with_street_view_async(remaining))
-        street_view_points.update(looked_up)
+            street_view_points = asyncio.run(filter_points_with_street_view_async(remaining))
+            street_view_points.update(looked_up)
+        else:
+            street_view_points = asyncio.run(filter_points_with_street_view_async(points))
         
         logger.info(f"Found {len(street_view_points)} locations with Street View coverage")
         

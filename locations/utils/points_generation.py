@@ -23,9 +23,6 @@ def is_point_on_land(lat, lon, buffer_distance=POINT_DEGREE_BUFFER):
     point = Point(lon, lat)
     buffered_point = point.buffer(buffer_distance)
     possible_matches = spatial_index.query(buffered_point)
-    if COUNTRY_NAME:
-        if not is_point_in_country(lat, lon):
-            return False
     for idx in possible_matches:
         geom = land_geometries.iloc[idx]
         if geom.intersects(buffered_point):  # check if the point is on land

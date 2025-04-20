@@ -4,6 +4,7 @@ import asyncio
 import random
 from config import *
 from utils.file_operations import read_api_key
+from utils.points_generation import is_point_in_country
 from .street_view_lookup import StreetViewLookup
 
 
@@ -84,7 +85,11 @@ async def filter_points_with_street_view_async(points):
 
             for has_street_view, new_coords in results:
                 if has_street_view:
-                    street_view_points.add(new_coords)
+                    if COUNTRY_NAME:
+                        if is_point_in_country(new_coords[0], new_coords[1]):
+                            street_view_points.add(new_coords)
+                    else:
+                        street_view_points.add(new_coords)
 
     return street_view_points
 
@@ -96,7 +101,11 @@ def lookup_street_view_points(points):
 
     for point in tqdm(points, desc="Filtering points using lookup table"):
         if lookup.is_near(point):
-            looked_up.append(point)
+            if COUNTRY_NAME:
+                if is_point_in_country(point[0], point[1]):
+                    looked_up.append(point)
+            else:
+                looked_up.append(point)
         else:
             remaining.append(point)
 

@@ -83,8 +83,11 @@ The `requirements.txt` file contains all the Python libraries needed to run the 
 - `aiohttp`
 - `tqdm`
 - `concurrent.futures`
-- `visualize_points` (Custom visualization module)
 - Any other necessary packages
+
+### 3. Shapefiles
+
+Download countries shapefile here: [GeoBoundaries Global Downloads](https://www.geoboundaries.org/globalDownloads.html)
 
 ## Setting Up Google API Key
 
