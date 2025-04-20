@@ -2,6 +2,7 @@ apikey.txt
 /locations/.venv
 /locations/venv
 /locations/__pycache__
-/locations/utils/__pycache__
 node_modules/
 **/package-lock.json
+/locations/shapefiles/boundaries
+/locations/utils/__pycache__
