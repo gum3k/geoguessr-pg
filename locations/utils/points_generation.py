@@ -8,16 +8,24 @@ import geopandas as gpd # Spatial data
 from shapely.strtree import STRtree
 
 
-#world = gpd.read_file("coverage_countries/boundaries/boundaries.shp")
-world = gpd.read_file("coverage_countries/land/ne_50m_land.shp")
+countries = gpd.read_file("shapefiles/boundaries/boundaries.shp")
+world = gpd.read_file("shapefiles/land/ne_50m_land.shp")
+
 land_geometries = world['geometry']
 spatial_index = STRtree(land_geometries)
+
+def is_point_in_country(lat, lon):
+    country_geom = countries[countries['shapeName'] == COUNTRY_NAME].geometry.iloc[0]
+    point = Point(lon, lat)
+    return country_geom.contains(point)
 
 def is_point_on_land(lat, lon, buffer_distance=POINT_DEGREE_BUFFER):
     point = Point(lon, lat)
     buffered_point = point.buffer(buffer_distance)
     possible_matches = spatial_index.query(buffered_point)
-    
+    if COUNTRY_NAME:
+        if not is_point_in_country(lat, lon):
+            return False
     for idx in possible_matches:
         geom = land_geometries.iloc[idx]
         if geom.intersects(buffered_point):  # check if the point is on land
@@ -45,19 +53,14 @@ def filter_points_on_land(points, batch_size=500, max_workers=None):
 
     return points_on_land
 
-def get_country_code(lat, lon):
-    point = Point(lon, lat)
-    # for idx, country in world.iterrows():
-    #     if country['geometry'].contains(point):
-    #         return country['ISO_A2_EH'], country['ADMIN']
-    
-    buffered_point = point.buffer(1)  # create a buffer around the point
-    for idx, country in world.iterrows():
-        if country['geometry'].intersects(buffered_point):
-            return country['ISO_A2_EH'], country['ADMIN']
-    return None
+def get_country_bbox(gdf, country_name):
+    country_geom = gdf[gdf['shapeName'] == country_name]
+    if not country_geom.empty:
+        return country_geom.total_bounds  # (minx, miny, maxx, maxy) = (lon1, lat1, lon2, lat2)
+    else:
+        raise ValueError(f"Country '{country_name}' not found in shapefile.")
 
-def generate_point(i, samples, phi):
+def generate_point(i, samples, phi, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180):
     y = 1 - (i / float(samples - 1)) * 2    # y goes from 1 to -1
     radius = math.sqrt(1 - y * y)           # radius at y
 
@@ -69,31 +72,33 @@ def generate_point(i, samples, phi):
     # convert Cartesian to spherical (latitude and longitude)
     latitude = math.degrees(math.asin(y))       # latitude in degrees
     longitude = math.degrees(math.atan2(z, x))  # longitude in degrees
+    
+    latitude = min_lat + ((latitude + 90) / 180) * (max_lat - min_lat)
+    longitude = min_lon + ((longitude + 180) / 360) * (max_lon - min_lon)
 
     return latitude, longitude
 
-def fibonacci_sphere_lat_lon(samples=SAMPLES, batch_size=100, max_workers=None):
-    """
-    Generates points on a sphere using the Fibonacci sphere method, filters them
-    to include only points on land, and returns them in latitude and longitude format.
-    """
+def fibonacci_sphere_lat_lon(samples=SAMPLES, batch_size=100, max_workers=None, country_name=COUNTRY_NAME):
     points = []
     phi = math.pi * (math.sqrt(5.) - 1.)  # golden angle in radians
 
+    if country_name:
+        countries = gpd.read_file("shapefiles/boundaries/boundaries.shp")
+        min_lon, min_lat, max_lon, max_lat = get_country_bbox(countries, country_name)
+    else:
+        min_lat, max_lat = -90, 90
+        min_lon, max_lon = -180, 180
+
     with tqdm(total=samples, desc="Generating points") as pbar:
         for i in range(samples):
-            result = generate_point(i, samples, phi)
-            if result:
-                points.append(result)
-                # result = get_country_code(latitude, longitude)
-                # country_code, name = result
-                # if (country_code): # and country_code in COVERAGE_COUNTRY_CODES
-                # points.append((latitude, longitude))
+            lat, lon = generate_point(i, samples, phi, min_lat, max_lat, min_lon, max_lon)
+            points.append((lat, lon))
             pbar.update(1)
 
-    # Filter points to include only those on land
+    # Filter to points on land only
     points_on_land = filter_points_on_land(points, batch_size=batch_size, max_workers=max_workers)
 
     return points_on_land
+
 
 

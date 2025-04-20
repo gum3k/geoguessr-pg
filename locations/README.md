@@ -138,6 +138,10 @@ These files will be saved in the `locations_sets/` directory, with a subdirector
 
 The application can visualize the generated points and the locations with Street View coverage using the `visualize_points` module. You can enable this by setting the flags `VISUALIZE_POINTS` and `VISUALIZE_LOCATIONS` in the script.
 
+### 5. Lookup Tables
+
+Generator uses a lookup table (csv file with all previously found street view points). You can update it automatically with all locations from `locations_sets` by executing `to_lookup.py`.
+
 ## Customizing and Modifying
 
 You can modify various parts of the code to suit your needs. For example:

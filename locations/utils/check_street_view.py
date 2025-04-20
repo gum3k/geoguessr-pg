@@ -3,7 +3,7 @@ import aiohttp
 import asyncio
 import random
 from config import *
-from utils.file_operations import load_existing_street_view_points, read_api_key
+from utils.file_operations import read_api_key
 from .street_view_lookup import StreetViewLookup
 
 
@@ -92,9 +92,13 @@ async def filter_points_with_street_view_async(points):
 def lookup_street_view_points(points):
     lookup = StreetViewLookup()
     looked_up = []
+    remaining = []
+
     for point in tqdm(points, desc="Filtering points using lookup table"):
         if lookup.is_near(point):
             looked_up.append(point)
-    points = [point for point in points if point not in looked_up]
+        else:
+            remaining.append(point)
+
     logger.info(f"Filtered {len(looked_up)} points using the lookup table")
-    return looked_up
+    return looked_up, remaining

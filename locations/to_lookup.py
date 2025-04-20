@@ -1,6 +1,5 @@
 import os
 import csv
-import math
 from tqdm import tqdm
 from scipy.spatial import KDTree
 from config import LOOKUP_TRESHOLD
