@@ -4,3 +4,5 @@ apikey.txt
 /locations/__pycache__
 node_modules/
 **/package-lock.json
+/locations/shapefiles/boundaries
+/locations/utils/__pycache__
