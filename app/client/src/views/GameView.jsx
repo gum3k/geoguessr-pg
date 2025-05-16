@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useApiKey from "../hooks/useApiKey";
 import useLocations from "../hooks/useLocations";
@@ -34,13 +34,13 @@ const GameView = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [mode, setMode] = useState('Move');
   const navigate = useNavigate();
-  const [gameSettings, setGameSettings] = useState({});
+  const [, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
 
-  const addRoundInfo = (pLocation, tLocation, npoints) => {
+  const addRoundInfo = useCallback((pLocation, tLocation, npoints) => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
-  }
+  }, []);
 
   const submitGuessToServer = async (location) => {
     if (!location) {
@@ -74,27 +74,28 @@ const GameView = () => {
       await submitGuessToServer(location);
   };
 
-  const handleGuess = () => {
+  const handleGuess = useCallback(() => {
     addRoundInfo(playerLocation, actuallLocation, score);
     setShowSummary(true);
     setIsPaused(true);
-  };
+  }, [playerLocation, actuallLocation, score, addRoundInfo]);
 
+  /*
   const pauseTimer = () => {
     socket.emit("pauseTimer", lobbyId);
     setIsPaused(true);
-};
+  };
 
-const resumeTimer = () => {
-    socket.emit("resumeTimer", lobbyId);
-    setIsPaused(false);
-};
-
+  const resumeTimer = () => {
+      socket.emit("resumeTimer", lobbyId);
+      setIsPaused(false);
+  };
+  */
 
   const handleTimer = (timeLeft) => {
     setActuallLocation(locations[currentLocationIndex]);
     const time = state?.roundTime;
-    if (timeLeft <= 0 && time != 0){
+    if (timeLeft <= 0 && time !== 0){
       if (playerLocation === null){
         addRoundInfo(playerLocation, actuallLocation, score);
         setShowSummary(true);
@@ -136,37 +137,46 @@ const resumeTimer = () => {
     }
   };
 
+  const handleGuessRef = useRef(handleGuess);
   useEffect(() => {
-    if (lobbyId) {
-        socket.emit("getLobbyData", lobbyId);
-        socket.on("lobbyData", (data) => {
-            console.log("Received lobby data:", data);
-            setGameSettings(data);
-            setLocations(data.locations || []);
-            state.roundTime = data.roundTime;
+    handleGuessRef.current = handleGuess;
+  }, [handleGuess]);
 
-            // Startowanie timera w backendzie
-            socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
-        });
+  useEffect(() => {
+    if (!lobbyId) return;
 
-        // Nasłuchiwanie na czas od backendu
-        socket.on("timerUpdate", ({ timeLeft }) => {
-            setTimeLeft(timeLeft);
-        });
+    socket.emit("getLobbyData", lobbyId);
 
-        socket.on("timerEnded", () => {
-            setTimeUp(true);
-            setIsPaused(true);
-            handleGuess();
-        });
+    const handleLobbyData = (data) => {
+      console.log("Received lobby data:", data);
+      setGameSettings(data);
+      setLocations(data.locations || []);
+      state.roundTime = data.roundTime;
 
-        return () => {
-            socket.off("lobbyData");
-            socket.off("timerUpdate");
-            socket.off("timerEnded");
-        };
-    }
-  }, [lobbyId, navigate]);
+      // Startowanie timera w backendzie
+      socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
+    };
+
+    const handleTimerUpdate = ({ timeLeft }) => {
+      setTimeLeft(timeLeft);
+    };
+
+    const handleTimerEnded = () => {
+      setTimeUp(true);
+      setIsPaused(true); 
+      handleGuessRef.current();
+    };
+
+    socket.on("lobbyData", handleLobbyData);
+    socket.on("timerUpdate", handleTimerUpdate);
+    socket.on("timerEnded", handleTimerEnded);
+
+    return () => {
+      socket.off("lobbyData", handleLobbyData);
+      socket.off("timerUpdate", handleTimerUpdate);
+      socket.off("timerEnded", handleTimerEnded);
+    };
+  }, [lobbyId, navigate, setLocations, state]);
 
   useEffect(() => {
     if (locations.length === 0 && !lobbyId) {
@@ -183,7 +193,7 @@ const resumeTimer = () => {
       setMode(selectedMode || "Move");
     }
     handleMode();
-  }, []);
+  });
 
   useEffect(() => {
     if (state?.roundTime) {

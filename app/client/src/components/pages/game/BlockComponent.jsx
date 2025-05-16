@@ -1,5 +1,3 @@
-import React, { useEffect } from "react";
-
 const BlockComponent = ({ mode }) => {
 
   const blockStyle = {
@@ -10,7 +8,7 @@ const BlockComponent = ({ mode }) => {
     zIndex: 2
   }
 
-    if (mode == 'NMPZ') {
+    if (mode === 'NMPZ') {
     return (
         <div style={blockStyle}>
             (<div style={blockStyle}></div>)

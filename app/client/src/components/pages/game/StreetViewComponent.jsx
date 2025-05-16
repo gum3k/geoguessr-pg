@@ -70,7 +70,7 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
     };
 
     loadGoogleMapsScript();
-  }, [location]);
+  }, [location, apiKey, mode]);
 
   return (
     <div id="street-view" style={{ height: "100vh", width: "100%", zIndex: 1 }}></div>

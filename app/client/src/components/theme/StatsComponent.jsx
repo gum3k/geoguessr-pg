@@ -1,8 +1,6 @@
-import React from 'react';
-
-const StatsComponent = ({ }) => {
-    const username = "Guest";
-    const email = "eloelo@elo.elo";
+const StatsComponent = () => {
+    //const username = "Guest";
+    //const email = "eloelo@elo.elo";
 
     return (
         <div style={styles.container}>

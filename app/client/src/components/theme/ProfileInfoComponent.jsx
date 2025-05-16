@@ -1,6 +1,4 @@
-import React from 'react';
-
-const ProfileInfoComponent = ({ }) => {
+const ProfileInfoComponent = () => {
     const username = "Guest";
     const email = "eloelo@elo.elo";
 

@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
-import MovingImageComponent from '../components/theme/MovingImageComponent'; 
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import io from 'socket.io-client';
-import { fetchLocations } from '../utils/fetchLocations';
 
 const socket = io('http://localhost:5000');
 
@@ -30,33 +28,16 @@ const RoundSelectionScreen = () => {
     };
 
     socket.on('lobbyCreated', handleLobbyCreated);
-
+    console.log('Lobby Created');
     return () => {
       socket.off('lobbyCreated', handleLobbyCreated);
     };
-  }, [lobbyId]);
+  }, [lobbyId, navigate]);
 
   const createLobby = () => {
     if (!lobbyCreated) {
       console.log("Creating a lobby...");
       socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
-    }
-  };
-
-  const startGame = async () => {
-    if (lobbyId) {
-      console.log("Starting the game...");
-      socket.emit('startGame', lobbyId);
-    }
-    else {
-      navigate('/game', {
-        state: {
-          rounds,
-          roundTime,
-          selectedMode,
-          mapName
-        },
-      });
     }
   };
 
