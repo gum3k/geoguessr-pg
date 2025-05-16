@@ -4,7 +4,6 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const { query } = require('./database');
 const router = express.Router();
-const seedrandom = require('seedrandom');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
@@ -40,11 +39,10 @@ router.get('/locations', (req, res) => {
   });
 });
 
-// fetch random locations with seed
-router.get('/locations/random/:seed', (req, res) => {
+// fetch random locations
+router.get('/locations/random/', (req, res) => {
   const count = parseInt(req.query.count, 10) || 1;
   const mapName = req.query.mapName || 'equally_distributed_world_5mln';
-  const seed = parseInt(req.params.seed, 10);
   const locationsPath = path.join(__dirname, '..', '..', 'locations', 'locations_sets', mapName, 'locations.csv');
 
   fs.readFile(locationsPath, 'utf8', (err, data) => {
@@ -55,10 +53,9 @@ router.get('/locations/random/:seed', (req, res) => {
 
     const rows = data.trim().split('\n').slice(1);
     const randomLocations = [];
-    const rng = seedrandom(seed);
 
     for (let i = 0; i < count; i++) {
-      const randomIndex = Math.floor(rng() * rows.length);
+      const randomIndex = Math.floor(Math.random() * rows.length);
       const [lat, lng] = rows[randomIndex].split(',').map(Number);
       if (!isNaN(lat) && !isNaN(lng)) {
         randomLocations.push({ lat, lng });

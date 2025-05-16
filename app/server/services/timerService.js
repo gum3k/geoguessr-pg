@@ -1,4 +1,4 @@
-const gameTimers = {}; // Przechowywanie timerów dla lobby
+const gameTimers = {};
 
 exports.startRoundTimer = (io, lobbyId, roundTime) => {
   if (gameTimers[lobbyId]) clearInterval(gameTimers[lobbyId].interval);
@@ -13,7 +13,7 @@ exports.startRoundTimer = (io, lobbyId, roundTime) => {
     } else {
       clearInterval(interval);
       io.to(lobbyId).emit("timerEnded");
-      delete gameTimers[lobbyId]; // Usunięcie timera po zakończeniu rundy
+      delete gameTimers[lobbyId];
     }
   }, 1000);
 

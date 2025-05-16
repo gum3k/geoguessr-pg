@@ -173,7 +173,7 @@ const resumeTimer = () => {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
         const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds, state?.mapName, state?.seed);
+        const newLocations = await fetchLocations(rounds, state?.mapName);
         setLocations(newLocations);
       };
       loadLocations();
@@ -217,7 +217,7 @@ const resumeTimer = () => {
       </div>
       {!showSummary && !timeUp && apiKey && (
         <>
-          <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode} seed={state.seed}/>
+          <StreetViewComponent location={currentLocation} apiKey={apiKey} mode={mode}/>
           <MapComponent
             onLocationSelect={handleLocationSelect}
             handleGuess={handleGuess}

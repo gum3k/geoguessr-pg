@@ -1,7 +1,6 @@
-export const fetchLocations = async (count = 5, mapName = '', seed = crypto.getRandomValues(new Uint32Array(1))[0]) => {
+export const fetchLocations = async (count = 5, mapName = '') => {
   try {
-    console.log('Fetching locations with seed:', seed);
-    const response = await fetch(`/api/locations/random/${seed}?count=${count}&mapName=${encodeURIComponent(mapName)}`);
+    const response = await fetch(`/api/locations/random/?count=${count}&mapName=${encodeURIComponent(mapName)}`);
     const locations = await response.json();
     return locations;
   } catch (err) {
