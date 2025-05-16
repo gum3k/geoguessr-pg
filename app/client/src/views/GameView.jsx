@@ -183,7 +183,7 @@ const GameView = () => {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
         const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds, state?.mapName);
+        const newLocations = await fetchLocations(rounds, state?.mapName);  // mapName should be a map directory in locations_sets
         setLocations(newLocations);
       };
       loadLocations();

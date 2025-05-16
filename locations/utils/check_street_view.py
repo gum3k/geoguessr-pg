@@ -16,45 +16,46 @@ REQUEST_SEMAPHORE = asyncio.Semaphore(MAX_REQUESTS_PER_SECOND)
 
 
 async def check_street_view_async(lat, lng, session, retry_limit=RETRIES):
-        async with REQUEST_SEMAPHORE:
-            retry_count = 0
-            original_lat, original_lng = lat, lng
-            while retry_count < retry_limit:
-                params = {
-                    'location': f"{lat},{lng}",
-                    'radius': COVERAGE_SEARCH_RADIUS,
-                    'key': API_KEY
-                }
-                try:
-                    async with session.get(STREET_VIEW_METADATA_URL, params=params) as response:
-                        if response.status == 200:
-                            data = await response.json()
-                            status = data.get('status', '')
-                            if status == 'OK':
-                                pano_id = data.get('pano_id')
-                                copyright_info = data.get('copyright', '')
-                                if pano_id and (copyright_info == '© Google'):
-                                    new_location = data.get('location', {})
-                                    return True, (new_location.get('lat', lat), new_location.get('lng', lng))
-                                else:
-                                    retry_count += 1
-                                    offset_lat = original_lat + random.uniform(-RETRY_JITTER, RETRY_JITTER)  # Adjust lat by small random value
-                                    offset_lng = original_lng + random.uniform(-RETRY_JITTER, RETRY_JITTER)  # Adjust lng by small random value
-                                    lat, lng = offset_lat, offset_lng
+    async with REQUEST_SEMAPHORE:
+        retry_count = 0
+        original_lat, original_lng = lat, lng
+        while retry_count < retry_limit:
+            params = {
+                'location': f"{lat},{lng}",
+                'radius': COVERAGE_SEARCH_RADIUS,
+                'key': API_KEY,
+                'source': 'outdoor'
+            }
+            try:
+                async with session.get(STREET_VIEW_METADATA_URL, params=params) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        status = data.get('status', '')
+                        if status == 'OK':
+                            pano_id = data.get('pano_id')
+                            copyright_info = data.get('copyright', '')
+                            if pano_id and (copyright_info == '© Google'):
+                                new_location = data.get('location', {})
+                                return True, (new_location.get('lat', lat), new_location.get('lng', lng))
                             else:
-                                return False, (lat, lng)
-                        elif response.status == 429:  # rate-limiting
-                            logger.warning(f"Rate limit hit for ({lat}, {lng}). Retrying...")
-                            return await retry_check_street_view(lat, lng, session)
+                                retry_count += 1
+                                offset_lat = original_lat + random.uniform(-RETRY_JITTER, RETRY_JITTER)  # Adjust lat by small random value
+                                offset_lng = original_lng + random.uniform(-RETRY_JITTER, RETRY_JITTER)  # Adjust lng by small random value
+                                lat, lng = offset_lat, offset_lng
                         else:
-                            logger.error(f"Error {response.status} for ({lat}, {lng})")
                             return False, (lat, lng)
-                except Exception as e:
-                    logger.error(f"Error for location ({lat}, {lng}): {e}")
-                    return False, (lat, lng)
-            return False, (lat, lng)
+                    elif response.status == 429:  # rate-limiting
+                        logger.warning(f"Rate limit hit for ({lat}, {lng}). Retrying...")
+                        return await retry_check_street_view(lat, lng, session)
+                    else:
+                        logger.error(f"Error {response.status} for ({lat}, {lng})")
+                        return False, (lat, lng)
+            except Exception as e:
+                logger.error(f"Error for location ({lat}, {lng}): {e}")
+                return False, (lat, lng)
+        return False, (lat, lng)
             
-async def retry_check_street_view(lat, lng, session, retries=3, delay=2):
+async def retry_check_street_view(lat, lng, session, retries=3, delay=0.1):
     """Retry logic for handling rate-limiting."""
     for attempt in range(retries):
         await asyncio.sleep(delay)
@@ -83,6 +84,7 @@ async def filter_points_with_street_view_async(points):
 
             results = await asyncio.gather(*tasks)
 
+        with tqdm(total=len(results), desc="Filtering Street View Results", dynamic_ncols=True) as filter_pbar:
             for has_street_view, new_coords in results:
                 if has_street_view:
                     if COUNTRY_NAME:
@@ -90,6 +92,7 @@ async def filter_points_with_street_view_async(points):
                             street_view_points.add(new_coords)
                     else:
                         street_view_points.add(new_coords)
+                filter_pbar.update(1)
 
     return street_view_points
 

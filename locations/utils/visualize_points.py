@@ -18,16 +18,16 @@ def create_map(points, path, name='map.html'):
     m.save(path + '/' + name)
     logger.info("Map saved as " + name)
     
-def visualize_points(maps_path, map_name):
+def visualize_points(maps_path, MAP_DIRECTORY):
     if VISUALIZE_POINTS:
-        points = read_csv(maps_path + map_name + '/points.csv')
+        points = read_csv(maps_path + MAP_DIRECTORY + '/points.csv')
         if points.empty:
             logger.info("No points found in the CSV file.")
             return
-        create_map(points, path=maps_path + map_name, name='points.html')
+        create_map(points, path=maps_path + MAP_DIRECTORY, name='points.html')
     if VISUALIZE_LOCATIONS:
-        locations = read_csv(maps_path + map_name + '/locations.csv')
+        locations = read_csv(maps_path + MAP_DIRECTORY + '/locations.csv')
         if locations.empty:
             logger.info("No locations found in the CSV file.")
             return
-        create_map(locations, path=maps_path + map_name, name='locations.html')
+        create_map(locations, path=maps_path + MAP_DIRECTORY, name='locations.html')

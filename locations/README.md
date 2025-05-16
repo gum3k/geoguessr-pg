@@ -135,7 +135,7 @@ Once the points are generated, the results are saved to CSV files:
 - **points.csv**: Contains the generated points (latitude, longitude).
 - **locations.csv**: Contains the points that have Street View coverage.
 
-These files will be saved in the `locations_sets/` directory, with a subdirectory for each map you generate (based on the `MAP_NAME` setting).
+These files will be saved in the `locations_sets/` directory, with a subdirectory for each map you generate (based on the `MAP_DIRECTORY` setting).
 
 ### 4. Visualizing Points
 

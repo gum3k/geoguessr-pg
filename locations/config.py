@@ -5,10 +5,10 @@ import logging
 ##########   PARAMETERS FOR POINT GENERATION   ##########
 BOUNDS = (-90.0, -180.0, 90.0, 180.0)       #? Bounds of search - whole Earth by default
 POINT_DEGREE_BUFFER = 0.2                   #? Buffer distance around the point to check if it's on land
-SAMPLES = 5000                           #? Number of points to generate on the Earth's surface
+SAMPLES = 200000                           #? Number of points to generate on the Earth's surface
                                             #? - 5mln gives around 120k points with Street View coverage
                                             #? - large number causes more processing before making progress tracked by a progress bar (just wait a minute)
-COUNTRY_NAME = None                         #? Name of the country to generate points in (None for whole Earth), list of countries under options 
+COUNTRY_NAME = "South Africa"                         #? Name of the country to generate points in (None for whole Earth), list of countries under options 
         
                                             
 #####   PARAMETERS FOR STREET VIEW COVERAGE CHECK   #####
@@ -20,24 +20,29 @@ LOOKUP_TRESHOLD = COVERAGE_SEARCH_RADIUS / 111320  #? Distance threshold for che
                                                 #? Convert radius from meters to degrees (approximation)
 
 ##########   PATHS   ##########
-MAP_NAME = "test"                                       #? Name of the map
-MAPS_DIRECTORY = "locations_sets/"                      #? Directory to save maps (better don't change it)
-POINTS_LOAD_MAP_PATH = "locations_sets/Poland_50k_test/"                 #? Load points from a previous map (set to None to generate new points)              
-LOOKUP_PATH = "./lookup/street_view_points.csv"
+MAP_DIRECTORY = None                                    #? Name of the map directory (None to name from country name)
+MAP_NAME = None                                         #? Name of the map (None to name from country name)                             
+DESCRIPTION = "Description here"                         
+MAPS_DIRECTORY = "locations_sets/"                          #? Directory to save maps (better don't change it)
+POINTS_LOAD_MAP_PATH = None                                 #? Path to load points from a previous map (None to generate new points)                
+LOOKUP_PATH = None
 
 ##########   FLAGS   ##########
 ONLY_GENERATE_POINTS = False                #? Only generate points, do not check Street View coverage
 UNOFFICIAL_COVERAGE = False                 #? Include unofficial Street View coverage
 LOGGING = True                              #? Enable logging
 VISUALIZE_LOCATIONS = True                  #? Visualize locations with Street View coverage
-VISUALIZE_POINTS = False                    #? Visualize generated points (slow and not useful)
+VISUALIZE_POINTS = True                    #? Visualize generated points (slow and not useful)
 POINTS_LOAD = False                         #? Load points from a previous map (set to False to generate new points)
 LOOKUP_POINTS = False                        #? Use lookup table to filter points (faster than checking all points)
 
 # BOUNDS = (40.6, -74.150435, 40.925911, -73.890883) #! New York City for testing
 
 if COUNTRY_NAME:
-    MAPS_DIRECTORY = MAPS_DIRECTORY + "countries/"
+    if MAP_DIRECTORY == None:
+        MAP_DIRECTORY = COUNTRY_NAME.replace(" ", "_")
+    if MAP_NAME == None:
+        MAP_NAME = COUNTRY_NAME
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -51,7 +51,7 @@ def save_map_data(map_directory, map_name, points_generated, street_view_found):
     with open(info_filename, 'w') as file:
         # write general map generation info
         file.write(f"Map Name: {map_name}\n")
-        file.write(f"Map Directory: {map_directory}\n")
+        file.write(f"Map Description: {DESCRIPTION}\n")
         file.write(f"Points Generated: {points_generated}\n")
         file.write(f"Street View Locations Found: {street_view_found}\n")
         
