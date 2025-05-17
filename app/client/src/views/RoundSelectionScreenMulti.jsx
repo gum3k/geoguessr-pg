@@ -5,6 +5,7 @@ import ContainerComponent from '../components/theme/ContainerComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
+import PopupInputComponent from '../components/theme/PopupInputComponent';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5000');
@@ -16,29 +17,49 @@ const RoundSelectionScreen = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [mapName] = useState('equally_distributed_world_5mln');
   const [lobbyCreated, setLobbyCreated] = useState(false);
-  const [lobbyId, setLobbyId] = useState(null); // Store lobby ID here
+  const [lobbyId, setLobbyId] = useState(null);
+  const [showJoinPopup, setShowJoinPopup] = useState(false);
+  const [joinLobbyId, setJoinLobbyId] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleLobbyCreated = (lobbyData) => {
       console.log('Lobby Created:', lobbyData);
-      setLobbyCreated(true); // Mark that the lobby has been created
-      setLobbyId(lobbyData.lobbyId); // Set the lobby ID for later
+      setLobbyCreated(true);
+      setLobbyId(lobbyData.lobbyId);
       navigate(`/lobby/${lobbyData.lobbyId}`, { state: { lobbyData } });
     };
 
     socket.on('lobbyCreated', handleLobbyCreated);
-    console.log('Lobby Created');
+
     return () => {
       socket.off('lobbyCreated', handleLobbyCreated);
     };
-  }, [lobbyId, navigate]);
+  }, [lobbyId, joinLobbyId, navigate]);
 
   const createLobby = () => {
     if (!lobbyCreated) {
       console.log("Creating a lobby...");
       socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
     }
+  };
+
+  const joinLobby = () => {
+    setShowJoinPopup(true);
+  };
+
+  const submitJoinLobby = () => {
+    const trimmedId = joinLobbyId.trim();
+    if (!trimmedId) return;
+
+    socket.emit('checkLobby', trimmedId, (exists) => {
+      if (exists) {
+        setShowJoinPopup(false);
+        navigate(`/lobby/${trimmedId}`);
+      } else {
+        alert("Lobby not found. Please check the ID.");
+      }
+    });
   };
 
   const handleModeSelect = (mode) => {
@@ -65,22 +86,21 @@ const RoundSelectionScreen = () => {
           label={'Rounds: ' + rounds}
         />
         <SliderComponent
-            min={0}
-            max={600}
-            step={10}
-            value={roundTime}
-            onChange={(e) => setRoundTime(Number(e.target.value))}
-            label={formatTime(roundTime)}
-          />
-
+          min={0}
+          max={600}
+          step={10}
+          value={roundTime}
+          onChange={(e) => setRoundTime(Number(e.target.value))}
+          label={formatTime(roundTime)}
+        />
         <SliderComponent
-            min={2}
-            max={10}
-            step={1}
-            value={numberOfPlayers}
-            onChange={(e) => setNumberOfPlayers(Number(e.target.value))}
-            label={Number(numberOfPlayers) + ' Players'}
-          />
+          min={2}
+          max={10}
+          step={1}
+          value={numberOfPlayers}
+          onChange={(e) => setNumberOfPlayers(Number(e.target.value))}
+          label={Number(numberOfPlayers) + ' Players'}
+        />
         <h3>Select Game Mode</h3>
         <div style={styles.modeContainer}>
           <div
@@ -115,14 +135,23 @@ const RoundSelectionScreen = () => {
           <BasicButtonComponent 
             buttonText="Create Lobby" 
             onClick={createLobby} 
-            disabled={lobbyCreated} // Disable button after lobby creation
+            disabled={lobbyCreated} 
           />
-
           <BasicButtonComponent 
-              buttonText="Join Lobby" 
-              //onClick={joinLobby} 
+            buttonText="Join Lobby" 
+            onClick={joinLobby} 
           />
         </div>
+        {showJoinPopup && (
+          <PopupInputComponent
+            title="Enter Lobby ID"
+            placeholder="Lobby ID"
+            value={joinLobbyId}
+            onChange={(e) => setJoinLobbyId(e.target.value)}
+            onConfirm={submitJoinLobby}
+            onCancel={() => setShowJoinPopup(false)}
+          />
+        )}
       </ContentComponent>
     </ContainerComponent>
   );

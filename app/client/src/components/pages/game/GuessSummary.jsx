@@ -45,15 +45,18 @@ const GuessSummary = ({
     if (playerLocation) bounds.extend(playerLocation);
     if (targetLocation) bounds.extend(targetLocation);
 
-    if (!bounds.isEmpty()) {
+    if (!bounds.isEmpty() && (playerLocation && targetLocation)) {
       const barHeight = bottomBarRef.current?.clientHeight || 0;
-
-      map.fitBounds(bounds, { // Adjust the bounds to fit the markers
+      map.fitBounds(bounds, {
         top: 30,
         right: 30,
         left: 30,
         bottom: barHeight,
       });
+    } else if (playerLocation || targetLocation) {
+      const singleLocation = playerLocation || targetLocation;
+      map.setCenter(singleLocation);
+      map.setZoom(4);
     }
   }, [playerLocation, targetLocation]);
 
@@ -61,12 +64,12 @@ const GuessSummary = ({
     <ContainerComponent>
       <div
         className="map-wrapper mt-4"
-        style={{ position: "relative", height: "100vh", backgroundColor: "white" }}
+        style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
       >
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={{ lat: 0, lng: 0 }}
-          zoom={4}
+          zoom={6}
           options={mapOptions}
           onLoad={onMapLoad}
         >

@@ -8,7 +8,7 @@ module.exports = function (io) {
     console.log("A user connected:", socket.id);
 
     socket.on("createLobby", (data) => {
-      const lobbyId = crypto.randomUUID(); // Generate unique lobby ID
+      const lobbyId = Math.random().toString(36).substr(2, 6).toUpperCase();
       const newLobby = {
         lobbyId,
         rounds: data.rounds,
@@ -123,6 +123,12 @@ module.exports = function (io) {
         socket.emit("lobbyNotFound", { message: "Lobby not found" });
       }
     });
+
+    socket.on("checkLobby", (lobbyId, callback) => {
+      const exists = !!lobbies[lobbyId];
+      callback(exists);
+    });
+
 
 
     socket.on("startRoundTimer", ({ lobbyId, roundTime }) => {

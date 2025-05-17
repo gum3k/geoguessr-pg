@@ -65,7 +65,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
     <ContainerComponent>
       <div
         className="map-wrapper mt-4"
-        style={{ position: "relative", height: "100vh", backgroundColor: "white" }}
+        style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
       >
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
