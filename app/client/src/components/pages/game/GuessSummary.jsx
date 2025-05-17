@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from '../../theme/ContainerComponent';
 import RoundButtonComponent from '../../theme/RoundButtonComponent';
@@ -14,39 +14,62 @@ const mapOptions = {
   minZoom: 2,
   restriction: {
     latLngBounds: {
-      north: 85, 
-      south: -85, 
+      north: 85,
+      south: -85,
       west: -180,
       east: 180
     },
-    strictBounds: true, 
+    strictBounds: true,
   },
-  
-  streetViewControl: false, 
-  mapTypeControl: false, 
-  fullscreenControl: false, 
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
 };
 
-const GuessSummary = ({ playerLocation, targetLocation, points, distance, handleRandomLocation, ifLast, handleGameSummary }) => {
-  const center = playerLocation
-  ? {
-      lat: (playerLocation.lat + targetLocation.lat) / 2,
-      lng: (playerLocation.lng + targetLocation.lng) / 2,
+const GuessSummary = ({
+  playerLocation,
+  targetLocation,
+  points,
+  distance,
+  handleRandomLocation,
+  ifLast,
+  handleGameSummary
+}) => {
+  const mapRef = useRef(null);
+  const bottomBarRef = useRef(null);
+
+  const onMapLoad = useCallback(map => {
+    mapRef.current = map;
+
+    const bounds = new window.google.maps.LatLngBounds();
+    if (playerLocation) bounds.extend(playerLocation);
+    if (targetLocation) bounds.extend(targetLocation);
+
+    if (!bounds.isEmpty()) {
+      const barHeight = bottomBarRef.current?.clientHeight || 0;
+
+      map.fitBounds(bounds, { // Adjust the bounds to fit the markers
+        top: 30,
+        right: 30,
+        left: 30,
+        bottom: barHeight,
+      });
     }
-  : targetLocation ?
-  { lat: targetLocation.lat, lng: targetLocation.lng }
-  : {lat: 0, lng: 0}
-  
+  }, [playerLocation, targetLocation]);
+
   return (
     <ContainerComponent>
-      <div className="map-wrapper mt-4" style={{ position: "relative", height: "100vh", backgroundColor: "white" }}>
+      <div
+        className="map-wrapper mt-4"
+        style={{ position: "relative", height: "100vh", backgroundColor: "white" }}
+      >
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          center={center}
+          center={{ lat: 0, lng: 0 }}
           zoom={4}
           options={mapOptions}
+          onLoad={onMapLoad}
         >
-          {/* marker for the guess location */}
           {playerLocation && (
             <Marker
               position={playerLocation}
@@ -57,41 +80,40 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             />
           )}
 
-          {/* marker for the actual location */}
-          {}
-          <Marker
-            position={targetLocation}
-            icon={{
-              url: process.env.PUBLIC_URL + "/locationicon.png",
-              scaledSize: new window.google.maps.Size(40, 40), 
-            }}
-          />
+          {targetLocation && (
+            <Marker
+              position={targetLocation}
+              icon={{
+                url: process.env.PUBLIC_URL + "/locationicon.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+              }}
+            />
+          )}
 
-          {/* line between guess and actual location */}
-          <Polyline
-            path={[playerLocation, targetLocation]}
-            options={{
-              strokeColor: "#FF0000",
-              strokeOpacity: 0,
-              strokeWeight: 2,
-              icons: [
-                {
+          {playerLocation && targetLocation && (
+            <Polyline
+              path={[playerLocation, targetLocation]}
+              options={{
+                strokeColor: "#FF0000",
+                strokeOpacity: 0,
+                strokeWeight: 2,
+                icons: [{
                   icon: {
-                    path: "M 0,-1 0,1", 
+                    path: "M 0,-1 0,1",
                     strokeOpacity: 0.8,
                     scale: 4,
                   },
                   offset: "0%",
-                  repeat: "20px", 
- 
-                }
-              ],
-            }}
-          />
+                  repeat: "20px",
+                }],
+              }}
+            />
+          )}
         </GoogleMap>
-        
-        {/* bottom bar */}
+
+        {/* bottom bar: attach the ref here */}
         <div
+          ref={bottomBarRef}
           style={{
             position: "absolute",
             bottom: 0,
@@ -103,37 +125,39 @@ const GuessSummary = ({ playerLocation, targetLocation, points, distance, handle
             justifyContent: "space-between",
             alignItems: "center",
             zIndex: 2,
-            borderRadius: "10px 10px 0 0", // rounded corners
+            borderRadius: "10px 10px 0 0",
           }}
         >
-        {/* points and distance */}
-        <div style={{ color: "white", fontSize: "24px", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", display: "flex", width: "100%", marginLeft: "37%" }}>
-          <div style={{ textAlign: "center", marginRight: "20px" }}>
-            <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
-            <p style={{ margin: 0, fontSize: "32px" }}>{points !== null ? points : "0"}</p>
+          <div style={{
+            color: "white",
+            fontSize: "24px",
+            fontWeight: "bold",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            display: "flex",
+            width: "100%",
+            marginLeft: "37%",
+          }}>
+            <div style={{ textAlign: "center", marginRight: "20px" }}>
+              <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
+              <p style={{ margin: 0, fontSize: "32px" }}>{points ?? 0}</p>
+            </div>
+            <div style={{ textAlign: "center", marginLeft: "20px" }}>
+              <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
+              <p style={{ margin: 0, fontSize: "32px" }}>
+                {distance != null ? `${distance.toFixed(2)} km` : "- km"}
+              </p>
+            </div>
           </div>
 
-          <div style={{ textAlign: "center", marginLeft: "20px" }}>
-            <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
-            <p style={{ margin: 0, fontSize: "32px" }}>
-               {distance !== null ? `${distance.toFixed(2)} km` : "- km"}
-            </p>
-          </div>
+          {!ifLast ? (
+            <RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round" />
+          ) : (
+            <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
+          )}
         </div>
-
-        {!ifLast && (
-          <RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round" />
-        )}
-        {ifLast && (
-          <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
-        )}
-
       </div>
-    </div>
-  </ContainerComponent>
+    </ContainerComponent>
   );
-  
-
 };
 
 export default GuessSummary;

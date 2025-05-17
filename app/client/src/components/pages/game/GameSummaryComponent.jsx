@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from "../../theme/ContainerComponent";
 import RoundButtonComponent from "../../theme/RoundButtonComponent";
@@ -29,17 +29,37 @@ const mapOptions = {
 
 const GameSummaryComponent = ({ roundInfo = [] }) => {
   const navigate = useNavigate();
+  const mapRef = useRef(null);
+  const bottomBarRef = useRef(null);
 
   const mainMenu = () => {
     navigate("/");
   };
 
-  const totalPoints = roundInfo.reduce((acc, round) => acc + (round.points || 0), 0);
+  const onMapLoad = useCallback(
+    (map) => {
+      mapRef.current = map;
 
-  const defaultCenter = {
-    lat: roundInfo[0]?.playerLocation?.lat || 0,
-    lng: roundInfo[0]?.playerLocation?.lng || 0,
-  };
+      const bounds = new window.google.maps.LatLngBounds();
+      roundInfo.forEach(({ playerLocation, targetLocation }) => {
+        if (playerLocation) bounds.extend(playerLocation);
+        if (targetLocation) bounds.extend(targetLocation);
+      });
+
+      if (!bounds.isEmpty()) {
+        const barHeight = bottomBarRef.current?.clientHeight || 0;
+        map.fitBounds(bounds, {
+          top: 30,
+          right: 30,
+          left: 30,
+          bottom: barHeight,
+        });
+      }
+    },
+    [roundInfo]
+  );
+
+  const totalPoints = roundInfo.reduce((acc, { points = 0 }) => acc + points, 0);
 
   return (
     <ContainerComponent>
@@ -49,13 +69,13 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
       >
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          center={defaultCenter}
-          zoom={4}
+          center={{ lat: 0, lng: 0 }}
+          zoom={2}
           options={mapOptions}
+          onLoad={onMapLoad}
         >
-          {/* rysowanie markerów i linii dla wszystkich rund */}
-          {roundInfo.map((round, index) => (
-            <React.Fragment key={index}>
+          {roundInfo.map((round, i) => (
+            <React.Fragment key={i}>
               {round.playerLocation && (
                 <Marker
                   position={round.playerLocation}
@@ -84,14 +104,13 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
                     icons: [
                       {
                         icon: {
-                          path: "M 0,-1 0,1", 
+                          path: "M 0,-1 0,1",
                           strokeOpacity: 0.8,
                           scale: 4,
                         },
                         offset: "0%",
-                        repeat: "20px", 
-       
-                      }
+                        repeat: "20px",
+                      },
                     ],
                   }}
                 />
@@ -101,6 +120,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
         </GoogleMap>
 
         <div
+          ref={bottomBarRef}
           style={{
             position: "absolute",
             bottom: 0,

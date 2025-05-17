@@ -153,7 +153,6 @@ const GameView = () => {
       setLocations(data.locations || []);
       state.roundTime = data.roundTime;
 
-      // Startowanie timera w backendzie
       socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
     };
 
