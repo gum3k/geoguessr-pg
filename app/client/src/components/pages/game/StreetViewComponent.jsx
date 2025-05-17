@@ -3,11 +3,27 @@ import React, { useEffect } from "react";
 const StreetViewComponent = ({ location, apiKey, mode }) => {
 
   useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      /* Disable interaction with report/shortcuts without hiding attribution */
+      #street-view .gm-style-cc, 
+      #street-view .gmnoprint, 
+      #street-view a[title="Report a problem"], 
+      #street-view .gm-bundled-control {
+        pointer-events: none !important;
+        cursor: default !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+    }, []);
+
+  useEffect(() => {
     if (!location) return;
     
     const panoramaOptions = {
       position: location,
-      pov: { heading: Math.random() * 360, pitch: 0, zoom: 0 },
+      pov: { heading: location.pov.heading * 360, pitch: location.pov.pitch, zoom: location.pov.zoom },
       visible: true,
       addressControl: false,
       showRoadLabels: false,
@@ -15,6 +31,8 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
       clickToGo: mode !== "No Move" && mode !== "NMPZ",
       scrollwheel: mode !== "NMPZ",
       panControl: true,
+      disableDefaultUI: true,
+      linksControl: false,
       zoomControl: true,
       fullscreenControl: false,
     };

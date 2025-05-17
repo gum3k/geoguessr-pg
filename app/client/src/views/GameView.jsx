@@ -24,7 +24,7 @@ const GameView = () => {
   const [locations, setLocations] = useLocations();
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
   const [playerLocation, setPlayerLocation] = useState(null);
-  const [actuallLocation, setActuallLocation] = useState(null);
+  const [actualLocation, setActualLocation] = useState(null);
   const [score, setScore] = useState(null);
   const [distance, setDistance] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
@@ -70,15 +70,15 @@ const GameView = () => {
   };
 
   const handleLocationSelect = async (location) => {
-      setActuallLocation(locations[currentLocationIndex]);
+      setActualLocation(locations[currentLocationIndex]);
       await submitGuessToServer(location);
   };
 
   const handleGuess = useCallback(() => {
-    addRoundInfo(playerLocation, actuallLocation, score);
+    addRoundInfo(playerLocation, actualLocation, score);
     setShowSummary(true);
     setIsPaused(true);
-  }, [playerLocation, actuallLocation, score, addRoundInfo]);
+  }, [playerLocation, actualLocation, score, addRoundInfo]);
 
   /*
   const pauseTimer = () => {
@@ -93,11 +93,11 @@ const GameView = () => {
   */
 
   const handleTimer = (timeLeft) => {
-    setActuallLocation(locations[currentLocationIndex]);
+    setActualLocation(locations[currentLocationIndex]);
     const time = state?.roundTime;
     if (timeLeft <= 0 && time !== 0){
       if (playerLocation === null){
-        addRoundInfo(playerLocation, actuallLocation, score);
+        addRoundInfo(playerLocation, actualLocation, score);
         setShowSummary(true);
         setTimeUp(true);
         setTimeLeft(time);
@@ -205,6 +205,20 @@ const GameView = () => {
 
   const currentLocation = locations[currentLocationIndex];
 
+  useEffect(() => {
+    setCurrentLocationIndex(0);
+    setPlayerLocation(null);
+    setActualLocation(null);
+    setScore(null);
+    setDistance(null);
+    setShowSummary(false);
+    setShowSummaryEnd(false);
+    setTimeUp(false);
+    setRoundInfo([]);
+    setTimeLeft(state?.roundTime || 0);
+  }, [lobbyId, state?.roundTime]);
+
+
   return (
     <div style={{ position: "relative", height: "100%" }}>
         {!showSummary && (
@@ -246,7 +260,7 @@ const GameView = () => {
       {(showSummary || timeUp) && !showSummaryEnd && (
         <GuessSummary
           playerLocation={playerLocation}
-          targetLocation={actuallLocation}
+          targetLocation={actualLocation}
           points={score}
           distance={distance}
           handleRandomLocation={handleRandomLocation}
