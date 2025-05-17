@@ -9,7 +9,7 @@ const ProfileView = () => {
         <ContainerComponent>
             <NavigationComponent/>
             <ContentComponent >
-                <MainProfileComponent></MainProfileComponent>
+                <MainProfileComponent/>
             </ContentComponent>
         </ContainerComponent>
     )

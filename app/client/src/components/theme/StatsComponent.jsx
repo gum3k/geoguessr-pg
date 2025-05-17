@@ -1,7 +1,4 @@
 const StatsComponent = () => {
-    //const username = "Guest";
-    //const email = "eloelo@elo.elo";
-
     return (
         <div style={styles.container}>
             <div style={styles.wrapper}>

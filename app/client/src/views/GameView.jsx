@@ -128,10 +128,16 @@ const GameView = () => {
 
   const handleGameSummary = async () => {
     try {
-        const response = await fetch(`http://localhost:5000/api/game/round-info/${lobbyId || "singleplayer"}`);
-        const data = await response.json();
-        setRoundInfo(data);
-        setShowSummaryEnd(true);
+      const gameId = lobbyId || "singleplayer";
+      const response = await fetch(`http://localhost:5000/api/game/round-info/${gameId}`);
+      const data = await response.json();
+      if(gameId == "singleplayer"){
+        await fetch(`http://localhost:5000/api/game/round-info/singleplayer`, {
+          method: 'DELETE'
+        });
+      }
+      setRoundInfo(data);
+      setShowSummaryEnd(true);
     } catch (error) {
         console.error('Błąd pobierania historii rund:', error);
     }
@@ -271,9 +277,9 @@ const GameView = () => {
       {showSummaryEnd && (
         <GameSummaryComponent
         roundInfo={roundInfo}
-      />
+        />
       )}
-      
+  
     </div>
   );
 };

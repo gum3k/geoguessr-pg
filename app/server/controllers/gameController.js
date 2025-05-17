@@ -32,3 +32,14 @@ exports.getRoundStatus = (req, res) => {
 
     res.json(roundData);
 };
+
+exports.endGame = (req, res) => {
+    const lobbyId = req.params.lobbyId;
+
+    if (!lobbyId) {
+        return res.status(404).json({ error: "Gra nie istnieje" });
+    }
+
+    gameService.endGame(lobbyId);
+    return res.sendStatus(204);
+}

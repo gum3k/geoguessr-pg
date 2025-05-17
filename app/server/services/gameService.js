@@ -65,3 +65,9 @@ exports.getRoundStatus = (lobbyId) => {
     return gameSessions[sessionId].rounds;
 };
 
+exports.endGame = (lobbyId) => {
+    const sessionId = lobbyId || "singleplayer";
+    if (!gameSessions[sessionId]) return [];
+
+    delete gameSessions[sessionId];
+}

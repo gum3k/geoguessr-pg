@@ -111,9 +111,14 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
     setSelectedLocation({ lat, lng });
-    onLocationSelect({ lat, lng });
   };
 
+  const handleGuessClick = () => {
+    if(selectedLocation){
+      onLocationSelect(selectedLocation);
+      handleGuess();
+    }
+  }
   // Handle mouse hover events for the map
   const handleMouseEnter = () => {
     setIsMapHovered(true);
@@ -176,7 +181,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
       >
         <button
           style={buttonStyle(!!selectedLocation)}
-          onClick={selectedLocation ? handleGuess : null}
+          onClick={handleGuessClick}
         >
           Guess Location
         </button>

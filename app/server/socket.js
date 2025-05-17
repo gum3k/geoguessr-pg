@@ -129,8 +129,6 @@ module.exports = function (io) {
       callback(exists);
     });
 
-
-
     socket.on("startRoundTimer", ({ lobbyId, roundTime }) => {
       timerService.startRoundTimer(io, lobbyId, roundTime);
     });

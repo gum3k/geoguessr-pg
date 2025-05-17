@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
-import MovingImageComponent from '../components/theme/MovingImageComponent'; 
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import io from 'socket.io-client';
-import { fetchLocations } from '../utils/fetchLocations';
 
 const socket = io('http://localhost:5000');
+const { v4: uuidv4 } = require('uuid');
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
@@ -20,12 +19,14 @@ const RoundSelectionScreen = () => {
 
 
   const startGame = async () => {
+      const singleId = uuidv4(); 
       navigate('/game', {
         state: {
           rounds,
           roundTime,
           selectedMode,
-          mapName
+          mapName,
+          singleId
         },
       });
   };
