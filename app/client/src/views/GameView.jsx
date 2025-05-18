@@ -158,7 +158,7 @@ const GameView = () => {
       setGameSettings(data);
       setLocations(data.locations || []);
       state.roundTime = data.roundTime;
-
+      state.map = data.map;
       socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
     };
 
@@ -188,7 +188,7 @@ const GameView = () => {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
         const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds, state?.mapName);  // mapName should be a map directory in locations_sets
+        const newLocations = await fetchLocations(rounds, state?.map.directory);  // mapName should be a map directory in locations_sets
         setLocations(newLocations);
       };
       loadLocations();
@@ -253,7 +253,7 @@ const GameView = () => {
           />
           <div style={{ top: "10%", position: "absolute", width: "8%", right: 0 }}>
             <RoundInfoComponent
-              mapName={state?.mapName}
+              mapName={state?.map.name}
               roundNumber={currentLocationIndex + 1} 
               maxRounds={locations.length} 
               currentPoints={roundInfo.reduce((total, round) => total + (round.points || 0), 0)} // suma punktów z dotychczasowych rund

@@ -27,7 +27,7 @@ const LobbyPage = () => {
 
   // Move startGame above the useEffect where it is used
   const startGame = useCallback(async () => {
-    const locations = await fetchLocations(lobbyData.rounds);
+    const locations = await fetchLocations(lobbyData.rounds, lobbyData.map.directory);
     socket.emit('setLocations', { lobbyId, locations });
     console.log('Starting the game...');
     socket.emit('startGame', lobbyId); // Notify the server to start the game
@@ -97,7 +97,7 @@ const LobbyPage = () => {
 
             <h2>Game Details</h2>
             <p><strong>Rounds:</strong> {lobbyData.rounds}</p>
-            <p><strong>Map:</strong> {lobbyData.mapName}</p>
+            <p><strong>Map:</strong> {lobbyData.map.name}</p>
             <p><strong>Game Mode:</strong> {lobbyData.selectedMode}</p>
 
             {isHost && (

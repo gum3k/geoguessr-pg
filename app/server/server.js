@@ -46,6 +46,12 @@ app.use(express.json());
 // Serve React app from the client build directory
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 
+// Routing for location sets
+app.use(
+  '/locations/locations_sets',
+  express.static(path.join(__dirname, '..', '..', 'locations', 'locations_sets'))
+);
+
 // API routes
 app.use('/api', routes);  // Dodajemy routing, który obsłuży rejestrację i inne API
 app.use('/game', express.static(path.join(__dirname, 'public')));

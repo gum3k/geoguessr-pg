@@ -1,4 +1,4 @@
-Map Name: equally_distributed_world_5mln
+Map Name: World
 Map Directory: locations_sets/equally_distributed_world_5mln
 Points Generated: 1536107
 Street View Locations Found: 122976

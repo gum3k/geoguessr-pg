@@ -6,6 +6,7 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import PopupInputComponent from '../components/theme/PopupInputComponent';
+import MapSelectionComponent from '../components/pages/settings/MapSelectionComponent';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5000');
@@ -15,7 +16,7 @@ const RoundSelectionScreen = () => {
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
-  const [mapName] = useState('equally_distributed_world_5mln');
+  const [map, setMap] = useState(null);
   const [lobbyCreated, setLobbyCreated] = useState(false);
   const [lobbyId, setLobbyId] = useState(null);
   const [showJoinPopup, setShowJoinPopup] = useState(false);
@@ -38,9 +39,12 @@ const RoundSelectionScreen = () => {
   }, [lobbyId, joinLobbyId, navigate]);
 
   const createLobby = () => {
-    if (!lobbyCreated) {
+    if (!lobbyCreated && map) {
       console.log("Creating a lobby...");
-      socket.emit('createLobby', { rounds, roundTime, selectedMode, mapName });
+      socket.emit('createLobby', { rounds, roundTime, selectedMode, map });
+    }
+    else {
+      console.log("Cannot read map");
     }
   };
 
@@ -77,6 +81,7 @@ const RoundSelectionScreen = () => {
     <ContainerComponent>
       <NavigationComponent />
       <ContentComponent>
+        <MapSelectionComponent onMapSelected={setMap}></MapSelectionComponent>
         <h2>Select settings of your lobby</h2>
         <SliderComponent
           min={1}
@@ -135,7 +140,7 @@ const RoundSelectionScreen = () => {
           <BasicButtonComponent 
             buttonText="Create Lobby" 
             onClick={createLobby} 
-            disabled={lobbyCreated} 
+            disabled={lobbyCreated || !map} 
           />
           <BasicButtonComponent 
             buttonText="Join Lobby" 

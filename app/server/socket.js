@@ -14,7 +14,7 @@ module.exports = function (io) {
         rounds: data.rounds,
         roundTime: data.roundTime,
         selectedMode: data.selectedMode,
-        mapName: data.mapName,
+        map: data.map,
         locations: [],
         players: [],
       };
@@ -74,7 +74,7 @@ module.exports = function (io) {
           rounds: lobby.rounds,
           roundTime: lobby.roundTime,
           selectedMode: lobby.selectedMode,
-          mapName: lobby.mapName,
+          map: lobby.map.name,
           locations: lobby.locations,
         });
 

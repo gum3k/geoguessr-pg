@@ -66,6 +66,55 @@ router.get('/locations/random/', (req, res) => {
   });
 });
 
+// fetch location sets
+router.get('/locations/locations_sets', (req, res) => {
+  const basePath = path.join(__dirname, '..', '..', 'locations', 'locations_sets');
+
+  fs.readdir(basePath, { withFileTypes: true }, (err, entries) => {
+    if (err) {
+      console.error('Błąd przy odczycie katalogu:', err);
+      return res.status(500).json({ error: 'Server Error' });
+    }
+
+    const folders = entries.filter(entry => entry.isDirectory());
+
+    const results = folders.map(folder => {
+      const folderName = folder.name;
+      const infoPath = path.join(basePath, folderName, 'info.txt');
+      const thumbnailPath = path.join(basePath, folderName, 'images', 'thumbnail.jpg');
+
+
+      let mapName = '';
+      let mapDescription = '';
+
+      if (fs.existsSync(infoPath)) {
+        const content = fs.readFileSync(infoPath, 'utf-8');
+        const lines = content.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('Map Name: ')) {
+            mapName = line.replace('Map Name: ', '').trim();
+          }
+          if (line.startsWith('Map Description:')) {
+            mapDescription = line.replace('Map Description:', '').trim();
+          }
+        }
+      }
+
+      const thumbnailExists = fs.existsSync(thumbnailPath);
+      return {
+        name: mapName,
+        description: mapDescription,
+        directory: folderName,
+        thumbnail: thumbnailExists ? `locations/locations_sets/${folderName}/images/thumbnail.jpg` : null
+      };
+    });
+
+    res.json(results);
+  });
+});
+
+
 // Register new user
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;

@@ -5,28 +5,26 @@ import ContainerComponent from '../components/theme/ContainerComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
+import MapChoiceComponent from '../components/pages/settings/MapSelectionComponent';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5000');
-const { v4: uuidv4 } = require('uuid');
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
   const [selectedMode, setSelectedMode] = useState('Move');
   const [roundTime, setRoundTime] = useState(0);
-  const [mapName] = useState('equally_distributed_world_5mln');
+  const [map, setMap] = useState(null);
   const navigate = useNavigate();
 
 
   const startGame = async () => {
-      const singleId = uuidv4(); 
       navigate('/game', {
         state: {
           rounds,
           roundTime,
           selectedMode,
-          mapName,
-          singleId
+          map
         },
       });
   };
@@ -46,6 +44,7 @@ const RoundSelectionScreen = () => {
     <ContainerComponent>
       <NavigationComponent />
       <ContentComponent>
+        <MapChoiceComponent onMapSelected={setMap}></MapChoiceComponent>
         <h2>Select settings of your game</h2>
         <SliderComponent
           min={1}
