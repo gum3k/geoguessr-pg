@@ -4,11 +4,10 @@ import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
-import io from 'socket.io-client';
+import socket from "../socket";
 import { fetchLocations } from '../utils/fetchLocations';
 
-// Connect to the server
-const socket = io('http://localhost:5000');
+
 
 const LobbyPage = () => {
   const { lobbyId } = useParams();

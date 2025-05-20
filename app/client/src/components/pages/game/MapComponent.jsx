@@ -47,7 +47,7 @@ const center = {
   lng: 0,
 };
 
-const MapComponent = ({ onLocationSelect, handleGuess }) => {
+const MapComponent = ({ onLocationSelect, handleGuess, disabled = false, buttonLabel = "Guess Location" }) => {
   const [apiKey] = useApiKey();
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -180,10 +180,11 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
         onMouseLeave={() => setIsButtonHovered(false)}
       >
         <button
-          style={buttonStyle(!!selectedLocation)}
+          style={buttonStyle(!!selectedLocation && !disabled)}
           onClick={handleGuessClick}
+          disabled={!selectedLocation || disabled}
         >
-          Guess Location
+          {buttonLabel}
         </button>
       </div>
     </div>

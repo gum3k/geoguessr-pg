@@ -12,10 +12,7 @@ import TimerComponent from "../components/pages/game/TimerComponent";
 import BlockComponent from "../components/pages/game/BlockComponent";
 import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
-import io from 'socket.io-client';
-
-
-const socket = io('http://localhost:5000');
+import socket from "../socket";
 
 const GameView = () => {
   const { state } = useLocation();
@@ -32,10 +29,12 @@ const GameView = () => {
   const [timeUp, setTimeUp] = useState(false);
   const [timeLeft, setTimeLeft] = useState(state?.roundTime);
   const [isPaused, setIsPaused] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const [mode, setMode] = useState('Move');
   const navigate = useNavigate();
   const [, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
+  const [hasGuessed, setHasGuessed] = useState(false);
 
   const addRoundInfo = useCallback((pLocation, tLocation, npoints) => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
@@ -75,11 +74,17 @@ const GameView = () => {
   };
 
   const handleGuess = useCallback(() => {
+    if (hasGuessed) return; 
+    setHasGuessed(true);
     addRoundInfo(playerLocation, actualLocation, score);
-    setShowSummary(true);
-    setIsPaused(true);
-  }, [playerLocation, actualLocation, score, addRoundInfo]);
-
+    
+    if (lobbyId) {
+      setTimeout(() => socket.emit("playerGuessed", lobbyId), 100);
+    } else {
+      setShowSummary(true);
+      setIsPaused(true);
+    }
+  }, [hasGuessed, playerLocation, actualLocation, score, addRoundInfo, lobbyId]);
   /*
   const pauseTimer = () => {
     socket.emit("pauseTimer", lobbyId);
@@ -123,6 +128,7 @@ const GameView = () => {
       setDistance(null);
       setShowSummary(false);
       setIsPaused(false);
+      setHasGuessed(false);
     }
   };
 
@@ -152,6 +158,7 @@ const GameView = () => {
     if (!lobbyId) return;
 
     socket.emit("getLobbyData", lobbyId);
+    
 
     const handleLobbyData = (data) => {
       console.log("Received lobby data:", data);
@@ -159,6 +166,7 @@ const GameView = () => {
       setLocations(data.locations || []);
       state.roundTime = data.roundTime;
       state.map = data.map;
+      setIsHost(data.players[0].id === socket.id);
       socket.emit("startRoundTimer", { lobbyId, roundTime: data.roundTime });
     };
 
@@ -167,21 +175,52 @@ const GameView = () => {
     };
 
     const handleTimerEnded = () => {
-      setTimeUp(true);
-      setIsPaused(true); 
-      handleGuessRef.current();
+      const time = state?.roundTime;
+      if (time === 0) return; 
+    
+      if (lobbyId) {
+        if (!playerLocation) {
+          addRoundInfo(playerLocation, actualLocation, score);
+        }
+        socket.emit("playerGuessed", lobbyId);
+      } else {
+        setTimeUp(true);
+        setIsPaused(true);
+        handleGuessRef.current();
+      }
     };
 
-    socket.on("lobbyData", handleLobbyData);
-    socket.on("timerUpdate", handleTimerUpdate);
-    socket.on("timerEnded", handleTimerEnded);
+    const handleRoundEnded = () => {
+      setShowSummary(true);
+      setIsPaused(true);
+      setTimeUp(false);
+      setTimeLeft(state.roundTime || 0);
+      setHasGuessed(false);
+    };
+
+    const handleStartNext = () => {
+      setShowSummary(false);
+      setIsPaused(false);
+      setTimeUp(false);
+      setTimeLeft(state.roundTime || 0);
+      setHasGuessed(false);
+      handleRandomLocation(); 
+    };
+      
+    socket.on("lobbyData",    handleLobbyData);
+    socket.on("timerUpdate",  handleTimerUpdate);
+    socket.on("timerEnded",   handleTimerEnded);
+    socket.on("roundEnded",   handleRoundEnded);
+    socket.on("startNextRound", handleStartNext);
 
     return () => {
-      socket.off("lobbyData", handleLobbyData);
-      socket.off("timerUpdate", handleTimerUpdate);
-      socket.off("timerEnded", handleTimerEnded);
+      socket.off("lobbyData",     handleLobbyData);
+      socket.off("timerUpdate",   handleTimerUpdate);
+      socket.off("timerEnded",    handleTimerEnded);
+      socket.off("roundEnded",    handleRoundEnded);
+      socket.off("startNextRound", handleStartNext);
     };
-  }, [lobbyId, navigate, setLocations, state]);
+  }, [lobbyId]);
 
   useEffect(() => {
     if (locations.length === 0 && !lobbyId) {
@@ -250,6 +289,8 @@ const GameView = () => {
           <MapComponent
             onLocationSelect={handleLocationSelect}
             handleGuess={handleGuess}
+            disabled={hasGuessed}
+            buttonLabel={hasGuessed ? "Waiting for others…" : "Guess Location"}
           />
           <div style={{ top: "10%", position: "absolute", width: "8%", right: 0 }}>
             <RoundInfoComponent
@@ -264,15 +305,16 @@ const GameView = () => {
  
       {/* display summaries */}
       {(showSummary || timeUp) && !showSummaryEnd && (
-        <GuessSummary
-          playerLocation={playerLocation}
-          targetLocation={actualLocation}
-          points={score}
-          distance={distance}
-          handleRandomLocation={handleRandomLocation}
-          ifLast={(currentLocationIndex >= locations.length - 1)}
-          handleGameSummary={handleGameSummary}
-        />
+      <GuessSummary
+        playerLocation={playerLocation}
+        targetLocation={actualLocation}
+        points={score}
+        distance={distance}
+        handleRandomLocation={handleRandomLocation}
+        isHost={isHost}
+        ifLast={currentLocationIndex >= locations.length - 1}
+        handleGameSummary={handleGameSummary}
+      />
       )}
       {showSummaryEnd && (
         <GameSummaryComponent

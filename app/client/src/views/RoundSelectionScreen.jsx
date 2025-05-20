@@ -6,9 +6,7 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import MapChoiceComponent from '../components/pages/settings/MapSelectionComponent';
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:5000');
+import socket from "../socket";
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);

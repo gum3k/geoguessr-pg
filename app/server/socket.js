@@ -3,7 +3,7 @@ const timerService = require("./services/timerService");
 
 module.exports = function (io) {
   let lobbies = {}; // Store lobbies and their players
-  
+
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
 
@@ -17,6 +17,7 @@ module.exports = function (io) {
         map: data.map,
         locations: [],
         players: [],
+        guessCount: 0,
       };
 
       lobbies[lobbyId] = newLobby;
@@ -24,21 +25,17 @@ module.exports = function (io) {
       socket.join(lobbyId);
     });
 
-    socket.on("joinLobby", (lobbyId) => {
-      console.log(`Player ${socket.id} joining lobby ${lobbyId}`);
-
-      if (!lobbies[lobbyId]) {
-        lobbies[lobbyId] = { players: [] };
-      }
-
+    socket.on("joinLobby", lobbyId => {
       const lobby = lobbies[lobbyId];
-
-      if (!lobby.players.find((player) => player.id === socket.id)) {
-        lobby.players.push({ id: socket.id, name: `Player ${socket.id}`, host: false });
+      if (!lobby) {
+        socket.emit("error", "Lobby nie istnieje");
+        return;
       }
-      io.to(lobbyId).emit("lobbyData", lobby);
-      socket.emit("lobbyData", lobby);
+      if (!lobby.players.find(p => p.id === socket.id)) {
+        lobby.players.push({ id: socket.id });
+      }
       socket.join(lobbyId);
+      io.to(lobbyId).emit("lobbyData", lobby);
     });
 
     socket.on("leaveLobby", (lobbyId) => {
@@ -139,6 +136,31 @@ module.exports = function (io) {
 
     socket.on("resumeTimer", (lobbyId) => {
       timerService.resumeTimer(io, lobbyId);
+    });
+
+    socket.on("playerGuessed", lobbyId => {
+      const lobby = lobbies[lobbyId];
+      if (!lobby) return;
+      if (!lobby.guessedPlayers) {
+        lobby.guessedPlayers = new Set();
+      }
+      
+      lobby.guessedPlayers.add(socket.id);
+      console.log(`[playerGuessed] lobby ${lobbyId}: ${lobby.guessedPlayers.size}/${lobby.players.length}`);
+      
+      if (lobby.guessedPlayers.size >= lobby.players.length) {
+        console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundEnded`);
+        io.to(lobbyId).emit("roundEnded");
+        lobby.guessedPlayers.clear();
+      }
+    });
+
+    socket.on("nextRound", (lobbyId) => {
+      const lobby = lobbies[lobbyId];
+      if (lobby) {
+        lobby.guessedPlayers = new Set();
+        io.to(lobbyId).emit("startNextRound");
+      }
     });
     
   });
