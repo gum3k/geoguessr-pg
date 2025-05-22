@@ -1,15 +1,20 @@
-const { Pool } = require('pg');
+const { Client } = require('pg');
 
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'GeoGuessrDatabase',
-  password: '1928',
-  port: 5432,
+const isProduction = process.env.NODE_ENV === 'production';
+
+const client = new Client({
+  connectionString: 'postgresql://postgres:Dziwka556@ornqngpjocvyudkwhnxb.supabase.co:5432/postgres',
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-const query = (text, params) => pool.query(text, params);
+console.log(process.env.DATABASE_URL);
 
-module.exports = {
-  query,
-};
+client.connect()
+  .then(() => console.log('Połączono z bazą danych Render!'))
+  .catch(err => console.error('Błąd połączenia:', err));
+
+const query = (text, params) => client.query(text, params);
+
+module.exports = { query };
