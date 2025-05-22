@@ -76,6 +76,9 @@ async def check_street_view_wrapper_async(point, session, pbar):
 async def filter_points_with_street_view_async(points):
     street_view_points = set()
 
+    min_lat, min_lng = float('inf'), float('inf')
+    max_lat, max_lng = float('-inf'), float('-inf')
+
     async with aiohttp.ClientSession() as session:
         with tqdm(total=len(points), desc="Checking Street View", dynamic_ncols=True) as pbar:
             tasks = []
@@ -87,14 +90,26 @@ async def filter_points_with_street_view_async(points):
         with tqdm(total=len(results), desc="Filtering Street View Results", dynamic_ncols=True) as filter_pbar:
             for has_street_view, new_coords in results:
                 if has_street_view:
+                    lat, lng = new_coords
                     if COUNTRY_NAME:
-                        if is_point_in_country(new_coords[0], new_coords[1]):
+                        if is_point_in_country(lat, lng):
                             street_view_points.add(new_coords)
+                        else:
+                            filter_pbar.update(1)
+                            continue
                     else:
                         street_view_points.add(new_coords)
+
+                    if COUNTRY_NAME:
+                        min_lat = min(min_lat, lat)
+                        min_lng = min(min_lng, lng)
+                        max_lat = max(max_lat, lat)
+                        max_lng = max(max_lng, lng)
                 filter_pbar.update(1)
 
-    return street_view_points
+    min_point = (min_lat, min_lng) if COUNTRY_NAME and street_view_points else None
+    max_point = (max_lat, max_lng) if COUNTRY_NAME and street_view_points else None
+    return street_view_points, min_point, max_point
 
 
 def lookup_street_view_points(points):

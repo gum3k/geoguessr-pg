@@ -1,5 +1,7 @@
 Map Name: Iceland
 Map Description: Description
+Lower Left Corner: (63.40295521743384, -24.52945218551716)
+Upper Right Corner: (66.51666279858901, -13.58156192833769)
 Points Generated: 42231
 Street View Locations Found: 17428
 

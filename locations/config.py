@@ -8,7 +8,7 @@ POINT_DEGREE_BUFFER = 0.2                   #? Buffer distance around the point 
 SAMPLES = 200000                           #? Number of points to generate on the Earth's surface
                                             #? - 5mln gives around 120k points with Street View coverage
                                             #? - large number causes more processing before making progress tracked by a progress bar (just wait a minute)
-COUNTRY_NAME = "South Africa"                         #? Name of the country to generate points in (None for whole Earth), list of countries under options 
+COUNTRY_NAME = "Poland"                         #? Name of the country to generate points in (None for whole Earth), list of countries under options 
         
                                             
 #####   PARAMETERS FOR STREET VIEW COVERAGE CHECK   #####

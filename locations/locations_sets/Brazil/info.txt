@@ -1,5 +1,7 @@
 Map Name: Brazil
 Map Description: Description
+Lower Left Corner: (-32.66203954483498, -73.0622680900933)
+Upper Right Corner: (4.430654513907859, -34.80574867112305)
 Points Generated: 356579
 Street View Locations Found: 34952
 

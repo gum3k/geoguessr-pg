@@ -30,10 +30,10 @@ if __name__ == "__main__":
     if not ONLY_GENERATE_POINTS:
         if LOOKUP_POINTS:
             looked_up, remaining = lookup_street_view_points(points)
-            street_view_points = asyncio.run(filter_points_with_street_view_async(remaining))
+            street_view_points, min_point, max_point = asyncio.run(filter_points_with_street_view_async(remaining))
             street_view_points.update(looked_up)
         else:
-            street_view_points = asyncio.run(filter_points_with_street_view_async(points))
+            street_view_points, min_point, max_point = asyncio.run(filter_points_with_street_view_async(points))
         
         logger.info(f"Found {len(street_view_points)} locations with Street View coverage")
         
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         if not POINTS_LOAD or not os.path.exists(POINTS_LOAD_MAP_PATH + "/locations.html"):
             visualize_points.visualize_points(maps_path=MAPS_DIRECTORY, MAP_DIRECTORY=MAP_DIRECTORY)
 
-    save_map_data(map_directory, MAP_NAME, len(points), len(street_view_points))
+    save_map_data(map_directory, MAP_NAME, len(points), len(street_view_points), min_point, max_point)
     images_dir = os.path.join(map_directory, "images")
     os.makedirs(images_dir, exist_ok=True)
     shutil.copyfile("mapito.jpg", os.path.join(images_dir, "thumbnail.jpg"))

@@ -1,6 +1,7 @@
 Map Name: Poland
 Map Description: Description
-Map Directory: locations_sets/Poland_50k_test
+Lower Left Corner: (49.15263735542556, 14.1433632699182)
+Upper Right Corner: (54.77090356549614, 24.11917462239081)
 Points Generated: 49766
 Street View Locations Found: 24993
 

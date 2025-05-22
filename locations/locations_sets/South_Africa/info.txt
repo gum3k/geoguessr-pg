@@ -1,5 +1,7 @@
 Map Name: South Africa
 Map Description: Description
+Lower Left Corner: (-34.82268020791979, 16.48062774279438)
+Upper Right Corner: (-22.43836008391391, 32.82936723748005)
 Points Generated: 62293
 Street View Locations Found: 13089
 
