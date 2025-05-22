@@ -1,17 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import UsernameDisplayComponent from "./UsernameDisplayComponent";
 
 const ProfileMenuComponent = () => {
-    const username = useState(null);
-    const [isMenuVisible, setMenuVisible] = useState(false);
-    const [fontSize, setFontSize] = useState(null);
+  const [token, setToken] = useState(null);
+  const [username, setUsername] = useState('Guest');
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const [fontSize, setFontSize] = useState(24);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token && token.username) {
+      setUsername(token.username);
+    } else {
+      setUsername("Guest");
+    }
+  }, [token]);
 
   useEffect(() => {
     const textLength = username.length;
-    const newFontSize = Math.max(24 - 2*(textLength), 12);
+    const minSize = Math.max(36 - 1 * textLength, 12)
+    const newFontSize = Math.min(minSize, 24);
     setFontSize(`${newFontSize}px`);
   }, [username]);
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        toast.success('Successfully logged out');
+        setToken(null);
+        setUsername("Guest");
+        navigate("/");
+      } else { 
+        const data = await res.json();
+        throw new Error(data.message);
+      }
+    }
+    catch (err){ 
+      console.error('Error of logging out:', err);
+      toast.error('Error of logging out:' + err);
+    };
+  };
 
   return (
     <div style={styles.container}>
@@ -25,7 +59,9 @@ const ProfileMenuComponent = () => {
         onMouseLeave={(e) => (e.target.style.textShadow = "none")}
         >
            <img src="/usericon.png" alt="prof_pic" style={styles.profileImage}/>  {/*Tymczasowo, docelowe fetchowanie profilowego */} 
-           <UsernameDisplayComponent/>
+          <span style={styles.username}>
+            <UsernameDisplayComponent onLoggedIn={setToken}/>
+          </span>
         </Link>
         
         <div 
@@ -36,20 +72,35 @@ const ProfileMenuComponent = () => {
             pointerEvents: isMenuVisible ? "auto" : "none"
           }}
         >
-          <Link to="/register" 
-            style={styles.dropdownItem}
-            onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
-            onMouseLeave={(e) => (e.target.style.textShadow = "none")}
-          >
-            REGISTER
-          </Link>
-          <Link to="/login"
-            style={styles.dropdownItem}
-            onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
-            onMouseLeave={(e) => (e.target.style.textShadow = "none")}
-          >
-            LOGIN
-          </Link>
+         {token ? (
+            <button
+              onClick={handleLogout}
+              style={styles.dropdownItem}
+              onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+              onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+            >
+              LOGOUT
+            </button>
+          ) : (
+            <>
+              <Link
+                to="/register"
+                style={styles.dropdownItem}
+                onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+                onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+              >
+                REGISTER
+              </Link>
+              <Link
+                to="/login"
+                style={styles.dropdownItem}
+                onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+                onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+              >
+                LOGIN
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -76,12 +127,17 @@ const styles = {
     height: "50px",
     transform: "translate(-10px, 5px)"
   },
+  username: {
+  display: "block",
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  maxWidth: "20em",
+  },
   button: {
     display: "flex",
     fontFamily: "Accuratist, sans-serif",
     fontWeight: "bold",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
     textDecoration: "none",
     color: "white",
     width: "200px",
@@ -110,15 +166,19 @@ const styles = {
     transition: "opacity 0.3s ease, transform 0.3s ease",
   },
   dropdownItem: {
+    all: "unset",
+    cursor: "pointer",
     fontFamily: "Accuratist, sans-serif",
     fontSize: "20px",
     fontWeight: "bold",
     textDecoration: "none",
     color: "white",
-    padding: "10px",
+    padding: "15px",
     textAlign: "center",
+    alignItems: "center",
     transition: "all 0.3s",
     borderRadius: "5px",
+    height: "1em"
   },
   buttonHover: {
     textShadow: `

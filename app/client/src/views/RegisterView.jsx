@@ -46,7 +46,7 @@ const RegisterView = () => {
       if (response.ok) {
         setSuccessMessage('Registration successful! You can now log in.');
         setTimeout(() => {
-          navigate('/');
+          navigate('/login');
         }, 2000);
       } else {
         setError(data.message || 'Registration failed');

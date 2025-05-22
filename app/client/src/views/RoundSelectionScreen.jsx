@@ -5,7 +5,7 @@ import ContainerComponent from '../components/theme/ContainerComponent';
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
-import MapChoiceComponent from '../components/pages/settings/MapSelectionComponent';
+import MapSelectionComponent from '../components/pages/settings/MapSelectionComponent';
 import socket from "../socket";
 
 const RoundSelectionScreen = () => {
@@ -15,8 +15,8 @@ const RoundSelectionScreen = () => {
   const [map, setMap] = useState(null);
   const navigate = useNavigate();
 
-
-  const startGame = async () => {
+  const startGame = () => {
+      if (!map) return;
       navigate('/game', {
         state: {
           rounds,
@@ -42,7 +42,7 @@ const RoundSelectionScreen = () => {
     <ContainerComponent>
       <NavigationComponent />
       <ContentComponent>
-        <MapChoiceComponent onMapSelected={setMap}></MapChoiceComponent>
+        <MapSelectionComponent onMapSelected={setMap}></MapSelectionComponent>
         <h2>Select settings of your game</h2>
         <SliderComponent
           min={1}
@@ -90,7 +90,7 @@ const RoundSelectionScreen = () => {
           </div>
         </div>
         <div style={{marginTop: '10px'}}>
-          <BasicButtonComponent buttonText="Start Game" onClick={startGame} />
+          <BasicButtonComponent buttonText="Start Game" onClick={startGame} disabled={!map}/>
         </div>
       </ContentComponent>
     </ContainerComponent>

@@ -1,32 +1,32 @@
 import { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { getToken } from '../../utils/getToken';
 
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-};
-
-const UsernameDisplayComponent = () => {
-  const [username, setUsername] = useState('');
+const UsernameDisplayComponent = ({ onLoggedIn }) => {
+  const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    const token = getCookie('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        console.log('Zdekodowany token:', decoded);
-        setUsername(decoded.username);
-      } catch (e) {
-        console.error('Błąd dekodowania tokenu', e); 
+    try {
+      const token = getToken();
+      if (!token) {
+        console.log('No token found – treating user as guest');
+        setDisplayName('Guest');
+        onLoggedIn(null);
+      } else if (token.username) {
+        setDisplayName(token.username);
+        onLoggedIn(token);
+      } else {
+        console.warn('Token exists, but does not contain "username" field');
+        setDisplayName('Undefined');
+        onLoggedIn(null);
       }
-    } else {
-      console.log('Token nie znaleziony w ciasteczkach');
+    } catch (error) {
+      console.error("An error occurred while trying to fetch token:", error);
+      setDisplayName('Guest');
+      onLoggedIn(null);
     }
   }, []);
 
-  return username || 'Guest';
+  return displayName;
 };
 
 export default UsernameDisplayComponent;

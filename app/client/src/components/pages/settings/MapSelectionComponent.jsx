@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const MapSelectionComponent = ({ onMapSelected }) => {
-   const [maps, setMaps] = useState([]);
+  const [maps, setMaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMap, setSelectedMap] = useState(null);
@@ -39,7 +39,7 @@ const MapSelectionComponent = ({ onMapSelected }) => {
   return (
     <div>
       <h2>Select a map</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1em" }}>
+      <div style={styles.mapContainer}>
         {maps.map((map) => {
           const isSelected = selectedMap?.name === map.name;
           return (
@@ -47,23 +47,19 @@ const MapSelectionComponent = ({ onMapSelected }) => {
               key={map.name}
               onClick={() => handleMapSelect(map)}
               style={{
-                cursor: "pointer",
+                ...styles.map,
                 border: isSelected ? "3px solid rgb(24, 150, 41)" : "1px solid rgb(14, 30, 80)",
-                borderRadius: 8,
-                padding: 10,
-                textAlign: "center",
-                width: 150,
-                backgroundColor: isSelected ? "rgb(144, 18, 148)" : "rgb(74, 11, 90)"
+                backgroundColor: isSelected ? "rgb(144, 18, 148)" : "rgb(74, 11, 90)",
               }}
             >
               {map.thumbnail ? (
                 <img
                   src={map.thumbnail}
                   alt={`Thumbnail_${map.name}`}
-                  style={{ width: "8em", height: "5em", borderRadius: 4 }}
+                  style={styles.mapImageExists}
                 />
               ) : (
-                <div style={{ width: "100%", height: 75, backgroundColor: "#FFF", borderRadius: 4 }} />
+                <div style={styles.mapImageNotExists} />
               )}
               <div style={{ marginTop: 8, fontWeight: isSelected ? "bold" : "normal" }}>
                 {map.name}
@@ -81,5 +77,31 @@ const MapSelectionComponent = ({ onMapSelected }) => {
     </div>
   );
 };
+
+const styles = {
+  mapContainer:{
+    display: "flex", 
+    flexWrap: "wrap", 
+    gap: "1em"
+  },
+  map: {
+    cursor: "pointer",
+    borderRadius: 8,
+    padding: 10,
+    textAlign: "center",
+    width: 150
+  },
+  mapImageExists: {
+    width: "8em",
+    height: "5em", 
+    borderRadius: 4 
+  },
+  mapImageNotExists: {
+    width: "100%",
+    height: 75, 
+    backgroundColor: "#FFF", 
+    borderRadius: 4
+  }
+}
 
 export default MapSelectionComponent;

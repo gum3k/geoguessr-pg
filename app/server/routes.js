@@ -195,4 +195,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
+//Log out user and destroy cookies
+router.post('/logout', (req, res) => {
+  try {
+    res.clearCookie('token', {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    });
+
+    return res.status(200).json({ message: 'Successfully logged out' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Block other methods for logging out
+router.all('/logout', (req, res) => {
+  return res.status(405).json({ message: 'Method Not Allowed.' });
+});
+
 module.exports = router;
