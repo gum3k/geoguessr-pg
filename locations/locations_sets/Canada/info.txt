@@ -1,5 +1,7 @@
 Map Name: Canada
 Map Description: Description
+Lower Left Corner: (42.07067107012123, -140.9858058536185)
+Upper Right Corner: (81.63917342066038, -52.73751821962159)
 Points Generated: 341792
 Street View Locations Found: 9447
 

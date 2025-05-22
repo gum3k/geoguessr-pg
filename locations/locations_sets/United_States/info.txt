@@ -1,5 +1,7 @@
 Map Name: United States
 Map Description: Description
+Lower Left Corner: (17.75605662471544, -159.3556299373728)
+Upper Right Corner: (65.53976942617166, -64.56694976656422)
 Points Generated: 209457
 Street View Locations Found: 5971
 
