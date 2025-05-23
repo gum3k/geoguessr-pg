@@ -1,15 +1,27 @@
 const gameService = require("../services/gameService");
 
-exports.submitGuess = (req, res) => {
-    const { lobbyId, playerLocation, targetLocation } = req.body;
+exports.submitGuess = async (req, res) => {
+  const { lobbyId, playerLocation, targetLocation, userId, roundNumber, gameId } = req.body;
 
-    if (!playerLocation || !targetLocation) {
-        return res.status(400).json({ error: "Brak wymaganych danych" });
-    }
+  try {
+    const result = await gameService.processGuess(
+      lobbyId,
+      playerLocation,
+      targetLocation,
+      userId,
+      roundNumber,
+      gameId
+    );
 
-    const result = gameService.processGuess(lobbyId, playerLocation, targetLocation);
-    res.json(result);
+    console.log("Zwracany wynik:", result);
+
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error("Błąd w submitGuess:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
 
 exports.startRound = (req, res) => {
     const { lobbyId, roundTime, targetLocation, roundNumber, gameId } = req.body;
@@ -22,15 +34,20 @@ exports.startRound = (req, res) => {
     res.json({ message: "Runda rozpoczęta!", roundTime });
 };
 
-exports.getRoundStatus = (req, res) => {
-    const lobbyId = req.params.lobbyId;
-    const roundData = gameService.getRoundStatus(lobbyId);
+exports.getRoundStatus = async (req, res) => {
+  const lobbyId = req.params.lobbyId;
+  const userId = req.user.id;
 
-    if (!roundData) {
-        return res.status(404).json({ error: "Lobby nie istnieje" });
-    }
+  console.log("userId:", userId);
+  console.log("lobbyId:", lobbyId);
 
-    res.json(roundData);
+  const roundData = await gameService.getRoundStatus(lobbyId, userId);
+
+  if (!roundData) {
+    return res.status(404).json({ error: "Lobby nie istnieje" });
+  }
+
+  res.json(roundData);
 };
 
 exports.endGame = (req, res) => {

@@ -13,6 +13,7 @@ import BlockComponent from "../components/pages/game/BlockComponent";
 import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
+import { getUserIdFromToken } from '../utils/getToken';
 
 const GameView = () => {
   const { state } = useLocation();
@@ -48,6 +49,12 @@ const GameView = () => {
         return;
     }
 
+    const userId = getUserIdFromToken();
+
+    console.log("CWELUCH " + userId);
+
+    const roundNumber = currentLocationIndex + 1;
+
     try {
         const response = await fetch('http://localhost:5000/api/game/submit-guess', {
             method: 'POST',
@@ -55,11 +62,18 @@ const GameView = () => {
             body: JSON.stringify({
                 lobbyId: lobbyId || "singleplayer",
                 playerLocation: location,
-                targetLocation: locations[currentLocationIndex]
+                targetLocation: locations[currentLocationIndex],
+                userId: userId,
+                roundNumber: roundNumber,
+                gameId: state?.gameId
             })
         });
 
         const data = await response.json();
+
+        console.log("Dystans:", data.distance);
+        console.log("Wynik:", data.score);
+
         setDistance(data.distance ?? 0);
         setScore(data.score ?? 0);
         setPlayerLocation(location);
@@ -133,14 +147,14 @@ const GameView = () => {
 
   const handleGameSummary = async () => {
     try {
-      const gameId = lobbyId || "singleplayer";
-      const response = await fetch(`http://localhost:5000/api/game/round-info/${gameId}`);
+      const resolvedLobbyId = lobbyId || state?.gameId;
+      const response = await fetch(`http://localhost:5000/api/game/round-info/${resolvedLobbyId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
       const data = await response.json();
-      if(gameId == "singleplayer"){
-        await fetch(`http://localhost:5000/api/game/round-info/singleplayer`, {
-          method: 'DELETE'
-        });
-      }
+      
       setRoundInfo(data);
       setShowSummaryEnd(true);
     } catch (error) {
@@ -225,19 +239,48 @@ const GameView = () => {
     if (locations.length === 0 && !lobbyId) {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
-        const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds, state?.map.directory);  // mapName should be a map directory in locations_sets
+        const rounds = state?.rounds || 5;
+        const newLocations = await fetchLocations(rounds, state?.map.directory);
         setLocations(newLocations);
+
+        const gameId = state?.gameId;
+        if (!gameId) {
+          console.warn("Brak gameId – nie dodano rund do bazy");
+          return;
+        }
+
+        newLocations.forEach(async (loc, index) => {
+          try {
+            await fetch('http://localhost:5000/api/game/add-round', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              credentials: 'include',
+              body: JSON.stringify({
+                gameId: gameId,
+                roundNumber: index + 1,
+                lat: loc.lat,
+                lon: loc.lng
+              })
+            });
+          } catch (error) {
+            console.error("Błąd podczas dodawania rundy:", error);
+          }
+        });
       };
+
       loadLocations();
     }
 
     const handleMode = () => {
       const selectedMode = state?.selectedMode;
       setMode(selectedMode || "Move");
-    }
+    };
+
     handleMode();
-  });
+  }, [locations.length, lobbyId, state]);
+
 
   useEffect(() => {
     if (state?.roundTime) {
