@@ -60,11 +60,12 @@ const GameView = () => {
     const roundNumber = currentLocationIndex + 1;
 
     try {
+      console.log("GraID: ", state?.gameId);
         const response = await fetch('http://localhost:5000/api/game/submit-guess', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                lobbyId: lobbyId || "singleplayer",
+                lobbyId: lobbyId,
                 playerLocation: location,
                 targetLocation: locations[currentLocationIndex],
                 userId: userId,
@@ -164,24 +165,14 @@ const GameView = () => {
       setShowSummaryEnd(true);
       return;
     }
-
-
     try {
       const resolvedLobbyId = lobbyId || state?.gameId;
       const response = await fetch(`http://localhost:5000/api/game/round-info/${resolvedLobbyId}`, {
       method: 'GET',
       credentials: 'include',
     });
-
       const data = await response.json();
-      const converted = data.map(entry => ({
-        ...entry,
-        points: entry.score,
-      }));
-      setRoundInfo(converted);
-      await fetch(`http://localhost:5000/api/game/round-info/singleplayer`, {
-        method: 'DELETE'
-      });
+      setRoundInfo(data);
       setShowSummaryEnd(true);
     } catch (error) {
       console.error('Błąd pobierania historii rund:', error);
@@ -198,7 +189,6 @@ const GameView = () => {
 
     socket.emit("getLobbyData", lobbyId);
     
-
     const handleLobbyData = (data) => {
       console.log("Received lobby data:", data);
       setGameSettings(data);

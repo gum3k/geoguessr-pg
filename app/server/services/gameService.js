@@ -8,8 +8,8 @@ const roundTimers = {};
 exports.processGuess = async (lobbyId, playerLocation, targetLocation, userId, roundNumber, gameId) => {
   const distance = gameUtils.calculateDistance(playerLocation, targetLocation);
   const score = gameUtils.calculateScore(distance);
-  const sessionId = lobbyId || "singleplayer";
-
+  const sessionId =  !lobbyId || lobbyId.length > 10 ? gameId : lobbyId;
+  
   if (!gameSessions[sessionId]) {
     gameSessions[sessionId] = { rounds: [] };
   }
@@ -45,7 +45,7 @@ exports.processGuess = async (lobbyId, playerLocation, targetLocation, userId, r
 
 
 exports.startRound = (lobbyId, roundTime, targetLocation, roundNumber, gameId) => {
-    const sessionId = lobbyId || "singleplayer";
+    const sessionId =  !lobbyId || lobbyId.length > 10 ? "singleplayer" : lobbyId;
 
     if (!gameSessions[sessionId]) {
         gameSessions[sessionId] = { rounds: [] };
@@ -87,9 +87,11 @@ exports.endRound = (lobbyId) => {
 };
 
 exports.getRoundStatus = async (lobbyId, userId) => {
-    const sessionId = !lobbyId || lobbyId.length > 10 ? "singleplayer" : lobbyId; //tu trzeba zrobić że z gameId działa a nie że każdy singleplayer to singleplayer
+    const sessionId =  lobbyId; //tu trzeba zrobić że z gameId działa a nie że każdy singleplayer to singleplayer
 
     const totalPoints = gameSessions[sessionId].rounds.reduce((sum, round) => sum + (round.points || 0), 0);
+
+    console.log("sesje:", gameSessions[sessionId])
     console.log("Suma punktów:", totalPoints);
 
     try {
@@ -98,20 +100,13 @@ exports.getRoundStatus = async (lobbyId, userId) => {
         VALUES ($1, $2, $3)
         ON CONFLICT ("userid", "gameid")
         DO UPDATE SET "gamePoints" = EXCLUDED."gamePoints"
-    `, [userId, lobbyId, totalPoints]);
+    `, [userId, sessionId, totalPoints]);
 
-    console.log("Zapisano punkty do user_game:", { userId, gameId: lobbyId, totalPoints });
-} catch (err) {
-    console.error("Błąd przy zapisie do user_game:", err);
-}
+    console.log("Zapisano punkty do user_game:", { userId, gameId: sessionId, totalPoints });
+    } catch (err) {
+        console.error("Błąd przy zapisie do user_game:", err);
+    }
 
     if (!gameSessions[sessionId]) return [];
     return gameSessions[sessionId].rounds;
 };
-
-exports.endGame = (lobbyId) => {
-    const sessionId = lobbyId || "singleplayer";
-    if (!gameSessions[sessionId]) return [];
-
-    delete gameSessions[sessionId];
-}
