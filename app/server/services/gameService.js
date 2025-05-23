@@ -1,5 +1,6 @@
 const io = require("../socket");
 const gameUtils = require("../utils/gameUtils");
+const { query } = require('../database');
 
 const gameSessions = {};
 const roundTimers = {};
@@ -8,6 +9,8 @@ exports.processGuess = (lobbyId, playerLocation, targetLocation) => {
     const distance = gameUtils.calculateDistance(playerLocation, targetLocation);
     const score = gameUtils.calculateScore(distance);
     const sessionId = lobbyId || "singleplayer";
+
+    console.log("TEST TEST TEST");
 
     if (!gameSessions[sessionId]) {
         gameSessions[sessionId] = { rounds: [] };
@@ -18,12 +21,13 @@ exports.processGuess = (lobbyId, playerLocation, targetLocation) => {
 };
 
 
-exports.startRound = (lobbyId, roundTime) => {
+exports.startRound = (lobbyId, roundTime, targetLocation, roundNumber, gameId) => {
     const sessionId = lobbyId || "singleplayer";
 
     if (!gameSessions[sessionId]) {
         gameSessions[sessionId] = { rounds: [] };
     }
+
 
     gameSessions[sessionId].roundActive = true;
     gameSessions[sessionId].timeLeft = roundTime;

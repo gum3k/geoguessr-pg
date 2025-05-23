@@ -12,13 +12,13 @@ exports.submitGuess = (req, res) => {
 };
 
 exports.startRound = (req, res) => {
-    const { lobbyId, roundTime } = req.body;
+    const { lobbyId, roundTime, targetLocation, roundNumber, gameId } = req.body;
 
     if (!lobbyId || roundTime === undefined) {
         return res.status(400).json({ error: "Brak wymaganych danych" });
     }
 
-    gameService.startRound(lobbyId, roundTime);
+    gameService.startRound(lobbyId, roundTime, targetLocation, roundNumber, gameId);
     res.json({ message: "Runda rozpoczęta!", roundTime });
 };
 
