@@ -117,18 +117,19 @@ const GameView = () => {
   }
 
   const handleRandomLocation = () => {
-    if (currentLocationIndex >= locations.length - 1) {
-      navigate("/"); // redirecting to summary
-    } else {
-      setShowSummary(true);
-      setCurrentLocationIndex((prevIndex) => prevIndex + 1);
-      setScore(null);
-      setPlayerLocation(null);
-      setDistance(null);
-      setShowSummary(false);
-      setIsPaused(false);
-      setHasGuessed(false);
+    const nextIndex = currentLocationIndex + 1;
+    if (nextIndex >= locations.length) {
+      setShowSummaryEnd(true);
+      return;
     }
+
+    setCurrentLocationIndex(nextIndex);
+    setScore(null);
+    setPlayerLocation(null);
+    setDistance(null);
+    setShowSummary(false);
+    setIsPaused(false);
+    setHasGuessed(false);
   };
 
   const handleGameSummary = async () => {
@@ -197,15 +198,18 @@ const GameView = () => {
       setHasGuessed(false);
     };
 
-    const handleStartNext = () => {
+    const handleStartNext = ({ nextIndex, roundTime }) => {
+      setCurrentLocationIndex(nextIndex); 
+      setScore(null);
+      setPlayerLocation(null);
+      setDistance(null);
       setShowSummary(false);
       setIsPaused(false);
-      setTimeUp(false);
-      setTimeLeft(state.roundTime || 0);
+      setTimeLeft(roundTime);
       setHasGuessed(false);
-      handleRandomLocation(); 
     };
       
+    
     socket.on("lobbyData",    handleLobbyData);
     socket.on("timerUpdate",  handleTimerUpdate);
     socket.on("timerEnded",   handleTimerEnded);
@@ -314,6 +318,7 @@ const GameView = () => {
         isHost={isHost}
         ifLast={currentLocationIndex >= locations.length - 1}
         handleGameSummary={handleGameSummary}
+        lobbyId={lobbyId}
       />
       )}
       {showSummaryEnd && (

@@ -18,6 +18,7 @@ module.exports = function (io) {
         locations: [],
         players: [],
         guessCount: 0,
+        currentRoundIndex: 0,
       };
 
       lobbies[lobbyId] = newLobby;
@@ -157,10 +158,18 @@ module.exports = function (io) {
 
     socket.on("nextRound", (lobbyId) => {
       const lobby = lobbies[lobbyId];
-      if (lobby) {
-        lobby.guessedPlayers = new Set();
-        io.to(lobbyId).emit("startNextRound");
+      if (!lobby || !lobby.locations) return;
+
+      if (lobby.currentRoundIndex + 1 >= lobby.locations.length) {
+        io.to(lobbyId).emit("gameOver");
+        return;
       }
+
+      lobby.currentRoundIndex += 1; 
+      io.to(lobbyId).emit("startNextRound", {
+        nextIndex: lobby.currentRoundIndex,
+        roundTime: lobby.roundTime,
+      });
     });
     
   });

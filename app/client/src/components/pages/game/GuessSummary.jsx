@@ -2,6 +2,7 @@ import React, { useRef, useCallback } from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from '../../theme/ContainerComponent';
 import RoundButtonComponent from '../../theme/RoundButtonComponent';
+import socket from "../../../socket";
 
 const mapContainerStyle = {
   width: "100%",
@@ -32,8 +33,10 @@ const GuessSummary = ({
   points,
   distance,
   handleRandomLocation,
+  isHost,
   ifLast,
-  handleGameSummary
+  handleGameSummary,
+  lobbyId,
 }) => {
   const mapRef = useRef(null);
   const bottomBarRef = useRef(null);
@@ -153,7 +156,20 @@ const GuessSummary = ({
           </div>
 
           {!ifLast ? (
-            <RoundButtonComponent onClick={handleRandomLocation} buttonText="Next Round" />
+            !lobbyId || isHost ? (
+              <RoundButtonComponent
+                onClick={() => {
+                  if (lobbyId) {
+                    socket.emit("nextRound", lobbyId);
+                  } else {
+                    handleRandomLocation(); 
+                  }
+                }}
+                buttonText="Next Round"
+              />
+            ) : (
+              <RoundButtonComponent disabled buttonText="Waiting for host…" />
+            )
           ) : (
             <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
           )}
