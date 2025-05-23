@@ -18,6 +18,7 @@ module.exports = function (io) {
         locations: [],
         players: [],
         guessCount: 0,
+        currentRoundIndex: 0,
       };
 
       lobbies[lobbyId] = newLobby;
@@ -148,6 +149,13 @@ module.exports = function (io) {
       lobby.guessedPlayers.add(socket.id);
       console.log(`[playerGuessed] lobby ${lobbyId}: ${lobby.guessedPlayers.size}/${lobby.players.length}`);
       
+      const player = lobby.players.find(p => p.id === socket.id);
+        io.to(lobbyId).emit("playerGuessedNotification", {
+          playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
+          playerId: socket.id,
+        });
+
+
       if (lobby.guessedPlayers.size >= lobby.players.length) {
         console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundEnded`);
         io.to(lobbyId).emit("roundEnded");
@@ -157,10 +165,18 @@ module.exports = function (io) {
 
     socket.on("nextRound", (lobbyId) => {
       const lobby = lobbies[lobbyId];
-      if (lobby) {
-        lobby.guessedPlayers = new Set();
-        io.to(lobbyId).emit("startNextRound");
+      if (!lobby || !lobby.locations) return;
+
+      if (lobby.currentRoundIndex + 1 >= lobby.locations.length) {
+        io.to(lobbyId).emit("gameOver");
+        return;
       }
+
+      lobby.currentRoundIndex += 1; 
+      io.to(lobbyId).emit("startNextRound", {
+        nextIndex: lobby.currentRoundIndex,
+        roundTime: lobby.roundTime,
+      });
     });
     
   });
