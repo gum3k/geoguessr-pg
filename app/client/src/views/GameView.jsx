@@ -16,6 +16,7 @@ import socket from "../socket";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { getUserIdFromToken } from '../utils/getToken';
 
 const GameView = () => {
   const { state } = useLocation();
@@ -52,16 +53,25 @@ const GameView = () => {
       return;
     }
 
+    const userId = getUserIdFromToken();
+
+    console.log("CWELUCH " + userId);
+
+    const roundNumber = currentLocationIndex + 1;
+
     try {
-      const response = await fetch('http://localhost:5000/api/game/submit-guess', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lobbyId: lobbyId || "singleplayer",
-          playerLocation: location,
-          targetLocation: locations[currentLocationIndex]
-        })
-      });
+        const response = await fetch('http://localhost:5000/api/game/submit-guess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                lobbyId: lobbyId || "singleplayer",
+                playerLocation: location,
+                targetLocation: locations[currentLocationIndex],
+                userId: userId,
+                roundNumber: roundNumber,
+                gameId: state?.gameId
+            })
+        });
 
       const data = await response.json();
       setDistance(data.distance ?? 0);
@@ -155,8 +165,14 @@ const GameView = () => {
       return;
     }
 
+
     try {
-      const response = await fetch(`http://localhost:5000/api/game/round-info/singleplayer`);
+      const resolvedLobbyId = lobbyId || state?.gameId;
+      const response = await fetch(`http://localhost:5000/api/game/round-info/${resolvedLobbyId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
       const data = await response.json();
       const converted = data.map(entry => ({
         ...entry,
@@ -290,19 +306,48 @@ const GameView = () => {
     if (locations.length === 0 && !lobbyId) {
       console.log("Loading NEW locations...");
       const loadLocations = async () => {
-        const rounds = state?.rounds || 5; // default value is 5
-        const newLocations = await fetchLocations(rounds, state?.map.directory);  // mapName should be a map directory in locations_sets
+        const rounds = state?.rounds || 5;
+        const newLocations = await fetchLocations(rounds, state?.map.directory);
         setLocations(newLocations);
+
+        const gameId = state?.gameId;
+        if (!gameId) {
+          console.warn("Brak gameId – nie dodano rund do bazy");
+          return;
+        }
+
+        newLocations.forEach(async (loc, index) => {
+          try {
+            await fetch('http://localhost:5000/api/game/add-round', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              credentials: 'include',
+              body: JSON.stringify({
+                gameId: gameId,
+                roundNumber: index + 1,
+                lat: loc.lat,
+                lon: loc.lng
+              })
+            });
+          } catch (error) {
+            console.error("Błąd podczas dodawania rundy:", error);
+          }
+        });
       };
+
       loadLocations();
     }
 
     const handleMode = () => {
       const selectedMode = state?.selectedMode;
       setMode(selectedMode || "Move");
-    }
+    };
+
     handleMode();
-  });
+  }, [locations.length, lobbyId, state]);
+
 
   useEffect(() => {
     if (state?.roundTime) {

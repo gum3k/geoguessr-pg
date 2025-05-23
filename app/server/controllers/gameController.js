@@ -1,28 +1,28 @@
 const gameService = require("../services/gameService");
 const { calculateDistance, calculateScore } = require("../utils/gameUtils");
 
-exports.submitGuess = (req, res) => {
-    const { lobbyId, playerLocation, targetLocation } = req.body;
+exports.submitGuess = async (req, res) => {
+  const { lobbyId, playerLocation, targetLocation, userId, roundNumber, gameId } = req.body;
 
-    if (!playerLocation || !targetLocation) {
-        return res.status(400).json({ error: "Brak wymaganych danych" });
-    }
+  try {
+    const result = await gameService.processGuess(
+      lobbyId,
+      playerLocation,
+      targetLocation,
+      userId,
+      roundNumber,
+      gameId
+    );
 
-    const distance = calculateDistance(playerLocation, targetLocation);
-    const score = calculateScore(distance);
+    console.log("Zwracany wynik:", result);
 
-    if (lobbyId === "singleplayer") {
-        if (!global.singleplayerRounds) global.singleplayerRounds = [];
-        global.singleplayerRounds.push({
-            playerLocation,
-            targetLocation,
-            score,
-            distance
-        });
-    }
-
-    res.json({ score, distance });
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error("Błąd w submitGuess:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
 
 exports.startRound = (req, res) => {
     const { lobbyId, roundTime, targetLocation, roundNumber, gameId } = req.body;
@@ -35,19 +35,20 @@ exports.startRound = (req, res) => {
     res.json({ message: "Runda rozpoczęta!", roundTime });
 };
 
-exports.getRoundStatus = (req, res) => {
-    const lobbyId = req.params.lobbyId;
+exports.getRoundStatus = async (req, res) => {
+  const lobbyId = req.params.lobbyId;
+  const userId = req.user.id;
 
-    if (lobbyId === "singleplayer") {
-        return res.json(global.singleplayerRounds || []);
-    }
+  console.log("userId:", userId);
+  console.log("lobbyId:", lobbyId);
 
-    const roundData = gameService.getRoundStatus(lobbyId);
-    if (!roundData) {
-        return res.status(404).json({ error: "Lobby nie istnieje" });
-    }
+  const roundData = await gameService.getRoundStatus(lobbyId, userId);
 
-    res.json(roundData);
+  if (!roundData) {
+    return res.status(404).json({ error: "Lobby nie istnieje" });
+  }
+
+  res.json(roundData);
 };
 
 exports.endGame = (req, res) => {

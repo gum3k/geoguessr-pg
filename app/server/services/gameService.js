@@ -5,19 +5,42 @@ const { query } = require('../database');
 const gameSessions = {};
 const roundTimers = {};
 
-exports.processGuess = (lobbyId, playerLocation, targetLocation) => {
-    const distance = gameUtils.calculateDistance(playerLocation, targetLocation);
-    const score = gameUtils.calculateScore(distance);
-    const sessionId = lobbyId || "singleplayer";
+exports.processGuess = async (lobbyId, playerLocation, targetLocation, userId, roundNumber, gameId) => {
+  const distance = gameUtils.calculateDistance(playerLocation, targetLocation);
+  const score = gameUtils.calculateScore(distance);
+  const sessionId = lobbyId || "singleplayer";
 
-    console.log("TEST TEST TEST");
+  if (!gameSessions[sessionId]) {
+    gameSessions[sessionId] = { rounds: [] };
+  }
 
-    if (!gameSessions[sessionId]) {
-        gameSessions[sessionId] = { rounds: [] };
+  gameSessions[sessionId].rounds.push({ playerLocation, targetLocation, distance, points: score });
+
+  try {
+    const result = await query(
+      `SELECT roundid FROM round WHERE "gameid" = $1 AND "roundNumber" = $2`,
+      [gameId, roundNumber]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Nie znaleziono rundy dla podanego gameId i roundNumber");
     }
 
-    gameSessions[sessionId].rounds.push({ playerLocation, targetLocation, distance, points: score });
-    return { distance: Math.round(distance), score };
+    const roundId = result.rows[0].roundid;
+
+    await query(
+      `INSERT INTO guess ("roundid", "userid", "guessLocationLat", "guessLocationLon", "distance", "points", "guessTime")
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+      [roundId, userId, playerLocation.lat, playerLocation.lng, distance, score]
+    );
+
+  } catch (err) {
+    console.error("Błąd przy zapisie guessa:", err);
+  }
+  console.log("Dystans:", distance);
+  console.log("Wynik:", score);
+
+  return { distance: Math.round(distance), score };
 };
 
 
@@ -63,8 +86,25 @@ exports.endRound = (lobbyId) => {
     }
 };
 
-exports.getRoundStatus = (lobbyId) => {
-    const sessionId = lobbyId || "singleplayer";
+exports.getRoundStatus = async (lobbyId, userId) => {
+    const sessionId = !lobbyId || lobbyId.length > 10 ? "singleplayer" : lobbyId; //tu trzeba zrobić że z gameId działa a nie że każdy singleplayer to singleplayer
+
+    const totalPoints = gameSessions[sessionId].rounds.reduce((sum, round) => sum + (round.points || 0), 0);
+    console.log("Suma punktów:", totalPoints);
+
+    try {
+    await query(`
+        INSERT INTO user_game ("userid", "gameid", "gamePoints")
+        VALUES ($1, $2, $3)
+        ON CONFLICT ("userid", "gameid")
+        DO UPDATE SET "gamePoints" = EXCLUDED."gamePoints"
+    `, [userId, lobbyId, totalPoints]);
+
+    console.log("Zapisano punkty do user_game:", { userId, gameId: lobbyId, totalPoints });
+} catch (err) {
+    console.error("Błąd przy zapisie do user_game:", err);
+}
+
     if (!gameSessions[sessionId]) return [];
     return gameSessions[sessionId].rounds;
 };

@@ -6,7 +6,7 @@ const { query } = require('..//database');
 
 router.post("/game/submit-guess", gameController.submitGuess);
 router.post("/game/start-round", gameController.startRound);
-router.get("/game/round-info/:lobbyId", gameController.getRoundStatus);
+router.get("/game/round-info/:lobbyId", authenticate, gameController.getRoundStatus);
 router.delete("/game/round-info/:lobbyId", gameController.endGame);
 router.post('/game/create-game', authenticate, async (req, res) => {
   const { roundAmount, timePerRound, mapName } = req.body;
@@ -32,6 +32,22 @@ router.post('/game/create-game', authenticate, async (req, res) => {
   } catch (err) {
     console.error("Błąd przy tworzeniu gry:", err);
     return res.status(500).json({ message: "Nie udało się utworzyć gry" });
+  }
+});
+
+router.post('/game/add-round', authenticate, async (req, res) => {
+  const { gameId, roundNumber, lat, lon } = req.body;
+
+  try {
+    await query(`
+      INSERT INTO round ("roundid", "gameid", "roundNumber", "targetLocationLat", "targetLocationLon")
+      VALUES (gen_random_uuid(), $1, $2, $3, $4)
+    `, [gameId, roundNumber, lat, lon]);
+
+    res.status(201).json({ message: "Round added" });
+  } catch (err) {
+    console.error("Insert round error:", err);
+    res.status(500).json({ error: "Database error" });
   }
 });
 

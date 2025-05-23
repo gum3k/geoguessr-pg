@@ -23,3 +23,20 @@ export const getToken = () => {
     return null;
   }
 };
+
+export const getUserIdFromToken = () => {
+  const token = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('token='))
+    ?.split('=')[1];
+
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.id || null;
+  } catch (e) {
+    console.error("Token decode error:", e);
+    return null;
+  }
+};
