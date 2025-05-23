@@ -45,7 +45,7 @@ exports.processGuess = async (lobbyId, playerLocation, targetLocation, userId, r
 
 
 exports.startRound = (lobbyId, roundTime, targetLocation, roundNumber, gameId) => {
-    const sessionId =  !lobbyId || lobbyId.length > 10 ? "singleplayer" : lobbyId;
+    const sessionId =  !lobbyId || lobbyId.length > 10 ? gameId : lobbyId;
 
     if (!gameSessions[sessionId]) {
         gameSessions[sessionId] = { rounds: [] };
@@ -87,7 +87,7 @@ exports.endRound = (lobbyId) => {
 };
 
 exports.getRoundStatus = async (lobbyId, userId) => {
-    const sessionId =  lobbyId; //tu trzeba zrobić że z gameId działa a nie że każdy singleplayer to singleplayer
+    const sessionId =  lobbyId;
 
     const totalPoints = gameSessions[sessionId].rounds.reduce((sum, round) => sum + (round.points || 0), 0);
 
