@@ -116,7 +116,6 @@ const MapComponent = ({ onLocationSelect, handleGuess, disabled = false, buttonL
   const handleGuessClick = () => {
     if(selectedLocation){
       onLocationSelect(selectedLocation);
-      handleGuess();
     }
   }
   // Handle mouse hover events for the map

@@ -28,10 +28,8 @@ const mapOptions = {
 };
 
 const GuessSummary = ({
-  playerLocation,
+  guesses = [], 
   targetLocation,
-  points,
-  distance,
   handleRandomLocation,
   isHost,
   ifLast,
@@ -45,10 +43,14 @@ const GuessSummary = ({
     mapRef.current = map;
 
     const bounds = new window.google.maps.LatLngBounds();
-    if (playerLocation) bounds.extend(playerLocation);
+
+    guesses.forEach(g => {
+      if (g.playerLocation) bounds.extend(g.playerLocation);
+    });
+
     if (targetLocation) bounds.extend(targetLocation);
 
-    if (!bounds.isEmpty() && (playerLocation && targetLocation)) {
+    if (!bounds.isEmpty()) {
       const barHeight = bottomBarRef.current?.clientHeight || 0;
       map.fitBounds(bounds, {
         top: 30,
@@ -56,126 +58,130 @@ const GuessSummary = ({
         left: 30,
         bottom: barHeight,
       });
-    } else if (playerLocation || targetLocation) {
-      const singleLocation = playerLocation || targetLocation;
-      map.setCenter(singleLocation);
-      map.setZoom(4);
     }
-  }, [playerLocation, targetLocation]);
+  }, [guesses, targetLocation]);
 
   return (
-    <ContainerComponent>
-      <div
-        className="map-wrapper mt-4"
-        style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
+  <ContainerComponent>
+    <div
+      className="map-wrapper mt-4"
+      style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
+    >
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={{ lat: 0, lng: 0 }}
+        zoom={6}
+        options={mapOptions}
+        onLoad={onMapLoad}
       >
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={{ lat: 0, lng: 0 }}
-          zoom={6}
-          options={mapOptions}
-          onLoad={onMapLoad}
-        >
-          {playerLocation && (
+        {targetLocation && (
+          <Marker
+            position={targetLocation}
+            icon={{
+              url: process.env.PUBLIC_URL + "/locationicon.png",
+              scaledSize: new window.google.maps.Size(40, 40),
+            }}
+          />
+        )}
+
+        {guesses.map((g) => (
+          <React.Fragment key={g.playerId}>
             <Marker
-              position={playerLocation}
+              position={g.playerLocation}
+              label={{ text: g.playerName, className: "guess-label" }}
               icon={{
                 url: process.env.PUBLIC_URL + "/usericon.png",
                 scaledSize: new window.google.maps.Size(40, 40),
               }}
             />
-          )}
-
-          {targetLocation && (
-            <Marker
-              position={targetLocation}
-              icon={{
-                url: process.env.PUBLIC_URL + "/locationicon.png",
-                scaledSize: new window.google.maps.Size(40, 40),
-              }}
-            />
-          )}
-
-          {playerLocation && targetLocation && (
             <Polyline
-              path={[playerLocation, targetLocation]}
+              path={[g.playerLocation, targetLocation]}
               options={{
                 strokeColor: "#FF0000",
                 strokeOpacity: 0,
                 strokeWeight: 2,
-                icons: [{
-                  icon: {
-                    path: "M 0,-1 0,1",
-                    strokeOpacity: 0.8,
-                    scale: 4,
-                  },
-                  offset: "0%",
-                  repeat: "20px",
-                }],
-              }}
+                icons: [
+                      {
+                        icon: {
+                          path: "M 0,-1 0,1",
+                          strokeOpacity: 0.8,
+                          scale: 4,
+                        },
+                        offset: "0%",
+                        repeat: "20px",
+                      },
+                    ],
+                  }}
             />
-          )}
-        </GoogleMap>
+          </React.Fragment>
+        ))}
+      </GoogleMap>
 
-        {/* bottom bar: attach the ref here */}
-        <div
-          ref={bottomBarRef}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            background: "linear-gradient(to right, #00aaff, #0055ff)",
-            padding: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            zIndex: 2,
-            borderRadius: "10px 10px 0 0",
-          }}
-        >
-          <div style={{
-            color: "white",
-            fontSize: "24px",
-            fontWeight: "bold",
-            textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            display: "flex",
-            width: "100%",
-            marginLeft: "37%",
-          }}>
-            <div style={{ textAlign: "center", marginRight: "20px" }}>
-              <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
-              <p style={{ margin: 0, fontSize: "32px" }}>{points ?? 0}</p>
-            </div>
-            <div style={{ textAlign: "center", marginLeft: "20px" }}>
-              <p style={{ margin: 0, fontSize: "28px" }}>Distance Difference</p>
-              <p style={{ margin: 0, fontSize: "32px" }}>
-                {distance != null ? `${distance.toFixed(2)} km` : "- km"}
-              </p>
-            </div>
+      {/* bottom bar */}
+      <div
+        ref={bottomBarRef}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          background: "linear-gradient(to right, #00aaff, #0055ff)",
+          padding: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          zIndex: 2,
+          borderRadius: "10px 10px 0 0",
+        }}
+      >
+        <div style={{
+          color: "white",
+          fontSize: "24px",
+          fontWeight: "bold",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+          display: "flex",
+          width: "100%",
+          marginLeft: "37%",
+        }}>
+          <div style={{ textAlign: "center", marginRight: "20px" }}>
+            <p style={{ margin: 0, fontSize: "28px" }}>Points Earned</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>
+              {guesses.find(g => g.playerId === socket.id)?.points ?? 0}
+            </p>
           </div>
-
-          {!ifLast ? (
-            !lobbyId || isHost ? (
-              <RoundButtonComponent
-                onClick={() => {
-                  if (lobbyId) {
-                    socket.emit("nextRound", lobbyId);
-                  } else {
-                    handleRandomLocation(); 
-                  }
-                }}
-                buttonText="Next Round"
-              />
-            ) : (
-              <RoundButtonComponent disabled buttonText="Waiting for host…" />
-            )
-          ) : (
-            <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
-          )}
+          <div style={{ textAlign: "center", marginLeft: "20px" }}>
+            <p style={{ margin: 0, fontSize: "28px" }}>Your Distance</p>
+            <p style={{ margin: 0, fontSize: "32px" }}>
+              {(() => {
+                const guess = guesses.find(g => g.playerId === socket.id);
+                if (!guess?.distance) return "-";
+                return `${guess.distance.toFixed(2)} km`;
+              })()}
+            </p>
+          </div>
         </div>
+
+        {!ifLast ? (
+          !lobbyId || isHost ? (
+            <RoundButtonComponent
+              onClick={() => {
+                if (lobbyId) {
+                  socket.emit("nextRound", lobbyId);
+                } else {
+                  handleRandomLocation();
+                }
+              }}
+              buttonText="Next Round"
+            />
+          ) : (
+            <RoundButtonComponent disabled buttonText="Waiting for host…" />
+          )
+        ) : (
+          <RoundButtonComponent onClick={handleGameSummary} buttonText="Game Summary" />
+        )}
       </div>
-    </ContainerComponent>
+    </div>
+  </ContainerComponent>
   );
 };
 

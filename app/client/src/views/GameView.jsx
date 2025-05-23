@@ -38,6 +38,7 @@ const GameView = () => {
   const [, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
   const [hasGuessed, setHasGuessed] = useState(false);
+  const [roundResults, setRoundResults] = useState(null);
 
   const addRoundInfo = useCallback((pLocation, tLocation, npoints) => {
     const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
@@ -46,48 +47,60 @@ const GameView = () => {
 
   const submitGuessToServer = async (location) => {
     if (!location) {
-        setScore(0);
-        setDistance(0);
-        return;
+      setScore(0);
+      setDistance(0);
+      return;
     }
 
     try {
-        const response = await fetch('http://localhost:5000/api/game/submit-guess', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                lobbyId: lobbyId || "singleplayer",
-                playerLocation: location,
-                targetLocation: locations[currentLocationIndex]
-            })
-        });
+      const response = await fetch('http://localhost:5000/api/game/submit-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lobbyId: lobbyId || "singleplayer",
+          playerLocation: location,
+          targetLocation: locations[currentLocationIndex]
+        })
+      });
 
-        const data = await response.json();
-        setDistance(data.distance ?? 0);
-        setScore(data.score ?? 0);
-        setPlayerLocation(location);
+      const data = await response.json();
+      setDistance(data.distance ?? 0);
+      setScore(data.score ?? 0);
+      setPlayerLocation(location);
+      return data; 
     } catch (error) {
-        console.error('Błąd podczas wysyłania zgadywania:', error);
+      console.error('Błąd podczas wysyłania zgadywania:', error);
     }
   };
 
   const handleLocationSelect = async (location) => {
-      setActualLocation(locations[currentLocationIndex]);
-      await submitGuessToServer(location);
+    setActualLocation(locations[currentLocationIndex]);
+    const result = await submitGuessToServer(location);
+    if (result?.score != null) {
+      handleGuess(location, result.score, result.distance); 
+    } else {
+    }
   };
 
-  const handleGuess = useCallback(() => {
-    if (hasGuessed) return; 
+  const handleGuess = useCallback((location, scoreValue, distanceValue) => {
+    if (hasGuessed) return;
     setHasGuessed(true);
-    addRoundInfo(playerLocation, actualLocation, score);
+    addRoundInfo(location, actualLocation, scoreValue);
+
     if (lobbyId) {
-      setTimeout(() => socket.emit("playerGuessed", lobbyId), 100);
+      socket.emit("playerGuessed", {
+        lobbyId,
+        playerLocation: location,
+        points: scoreValue,
+        distance: distanceValue
+      });
     } else {
       setShowSummary(true);
       setIsPaused(true);
     }
-  }, [hasGuessed, playerLocation, actualLocation, score, addRoundInfo, lobbyId]);
-  /*
+
+  }, [hasGuessed, actualLocation, lobbyId, addRoundInfo]);
+    /*
   const pauseTimer = () => {
     socket.emit("pauseTimer", lobbyId);
     setIsPaused(true);
@@ -136,19 +149,26 @@ const GameView = () => {
   };
 
   const handleGameSummary = async () => {
+    if (lobbyId) {
+      // multiplayer – nie pobieramy niczego, roundInfo już jest lokalnie
+      setShowSummaryEnd(true);
+      return;
+    }
+
     try {
-      const gameId = lobbyId || "singleplayer";
-      const response = await fetch(`http://localhost:5000/api/game/round-info/${gameId}`);
+      const response = await fetch(`http://localhost:5000/api/game/round-info/singleplayer`);
       const data = await response.json();
-      if(gameId == "singleplayer"){
-        await fetch(`http://localhost:5000/api/game/round-info/singleplayer`, {
-          method: 'DELETE'
-        });
-      }
-      setRoundInfo(data);
+      const converted = data.map(entry => ({
+        ...entry,
+        points: entry.score,
+      }));
+      setRoundInfo(converted);
+      await fetch(`http://localhost:5000/api/game/round-info/singleplayer`, {
+        method: 'DELETE'
+      });
       setShowSummaryEnd(true);
     } catch (error) {
-        console.error('Błąd pobierania historii rund:', error);
+      console.error('Błąd pobierania historii rund:', error);
     }
   };
 
@@ -185,7 +205,11 @@ const GameView = () => {
         if (!playerLocation) {
           addRoundInfo(playerLocation, actualLocation, score);
         }
-        socket.emit("playerGuessed", lobbyId);
+        socket.emit("playerGuessed", {
+          lobbyId,
+          playerLocation: playerLocation,
+          points: score
+        });
       } else {
         setTimeUp(true);
         setIsPaused(true);
@@ -210,11 +234,36 @@ const GameView = () => {
       setIsPaused(false);
       setTimeLeft(roundTime);
       setHasGuessed(false);
+      setRoundResults(null);
     };
 
     const handleGuessedNotification = ({ playerName, playerId }) => {
       if (playerId !== socket.id) {
         toast.info(`${playerName} has made a guess!`);
+      }
+    };
+
+    const handleRoundResults = ({ targetLocation, guesses }) => {
+      setRoundResults({ targetLocation, guesses });
+
+      const playerGuess = guesses.find(g => g.playerId === socket.id);
+      if (playerGuess) {
+        setRoundInfo(prev => {
+          const alreadyExists = prev.some(
+            r =>
+              r.playerLocation?.lat === playerGuess.playerLocation?.lat &&
+              r.playerLocation?.lng === playerGuess.playerLocation?.lng &&
+              r.targetLocation?.lat === targetLocation?.lat &&
+              r.targetLocation?.lng === targetLocation?.lng
+          );
+          if (alreadyExists) return prev;
+
+          return [...prev, {
+            playerLocation: playerGuess.playerLocation,
+            targetLocation,
+            points: playerGuess.points
+          }];
+        });
       }
     };
       
@@ -224,6 +273,7 @@ const GameView = () => {
     socket.on("timerEnded",   handleTimerEnded);
     socket.on("roundEnded",   handleRoundEnded);
     socket.on("startNextRound", handleStartNext);
+    socket.on("roundResults", handleRoundResults);
 
     return () => {
       socket.off("playerGuessedNotification", handleGuessedNotification);
@@ -232,6 +282,7 @@ const GameView = () => {
       socket.off("timerEnded",    handleTimerEnded);
       socket.off("roundEnded",    handleRoundEnded);
       socket.off("startNextRound", handleStartNext);
+      socket.off("roundResults", handleRoundResults);
     };
   }, [lobbyId]);
 
@@ -311,7 +362,9 @@ const GameView = () => {
               mapName={state?.map.name}
               roundNumber={currentLocationIndex + 1} 
               maxRounds={locations.length} 
-              currentPoints={roundInfo.reduce((total, round) => total + (round.points || 0), 0)} // suma punktów z dotychczasowych rund
+              currentPoints={roundInfo
+                .filter(round => round.playerId === socket.id)
+                .reduce((total, round) => total + (round.points || 0), 0)} 
             />
           </div>
         </>
@@ -320,10 +373,14 @@ const GameView = () => {
       {/* display summaries */}
       {(showSummary || timeUp) && !showSummaryEnd && (
       <GuessSummary
-        playerLocation={playerLocation}
-        targetLocation={actualLocation}
-        points={score}
-        distance={distance}
+        guesses={roundResults?.guesses || [{
+          playerId: socket.id,
+          playerName: 'You',
+          playerLocation: playerLocation,
+          points: score,
+          distance: distance
+        }]}
+        targetLocation={roundResults?.targetLocation || actualLocation}
         handleRandomLocation={handleRandomLocation}
         isHost={isHost}
         ifLast={currentLocationIndex >= locations.length - 1}

@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const timerService = require("./services/timerService");
+const { calculateDistance } = require("./utils/gameUtils");
 
 module.exports = function (io) {
   let lobbies = {}; // Store lobbies and their players
@@ -139,27 +140,51 @@ module.exports = function (io) {
       timerService.resumeTimer(io, lobbyId);
     });
 
-    socket.on("playerGuessed", lobbyId => {
+    socket.on("playerGuessed", ({ lobbyId, playerLocation, points }) => {
       const lobby = lobbies[lobbyId];
       if (!lobby) return;
+
       if (!lobby.guessedPlayers) {
         lobby.guessedPlayers = new Set();
+        lobby.currentGuesses = [];
       }
-      
-      lobby.guessedPlayers.add(socket.id);
-      console.log(`[playerGuessed] lobby ${lobbyId}: ${lobby.guessedPlayers.size}/${lobby.players.length}`);
-      
-      const player = lobby.players.find(p => p.id === socket.id);
-        io.to(lobbyId).emit("playerGuessedNotification", {
-          playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
-          playerId: socket.id,
-        });
 
+      if (lobby.guessedPlayers.has(socket.id)) return;
+
+      lobby.guessedPlayers.add(socket.id);
+
+      const player = lobby.players.find(p => p.id === socket.id);
+      
+      const targetLocation = lobby.locations[lobby.currentRoundIndex];
+      const distance = calculateDistance(playerLocation, targetLocation);
+
+      lobby.currentGuesses.push({
+        playerId: socket.id,
+        playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
+        playerLocation: playerLocation,
+        points: points ?? 0,
+        distance: distance,
+      });
+
+      io.to(lobbyId).emit("playerGuessedNotification", {
+        playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
+        playerId: socket.id,
+      });
 
       if (lobby.guessedPlayers.size >= lobby.players.length) {
-        console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundEnded`);
+        const targetLocation = lobby.locations[lobby.currentRoundIndex];
+
+        console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundResults and roundEnded`);
+
+        io.to(lobbyId).emit("roundResults", {
+          targetLocation,
+          guesses: lobby.currentGuesses,
+        });
+
         io.to(lobbyId).emit("roundEnded");
+
         lobby.guessedPlayers.clear();
+        lobby.currentGuesses = [];
       }
     });
 
