@@ -149,6 +149,13 @@ module.exports = function (io) {
       lobby.guessedPlayers.add(socket.id);
       console.log(`[playerGuessed] lobby ${lobbyId}: ${lobby.guessedPlayers.size}/${lobby.players.length}`);
       
+      const player = lobby.players.find(p => p.id === socket.id);
+        io.to(lobbyId).emit("playerGuessedNotification", {
+          playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
+          playerId: socket.id,
+        });
+
+
       if (lobby.guessedPlayers.size >= lobby.players.length) {
         console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundEnded`);
         io.to(lobbyId).emit("roundEnded");

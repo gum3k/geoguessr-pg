@@ -13,6 +13,9 @@ import BlockComponent from "../components/pages/game/BlockComponent";
 import RoundInfoComponent from "../components/pages/game/RoundInfoComponent";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const GameView = () => {
   const { state } = useLocation();
@@ -208,8 +211,14 @@ const GameView = () => {
       setTimeLeft(roundTime);
       setHasGuessed(false);
     };
+
+    const handleGuessedNotification = ({ playerName, playerId }) => {
+      if (playerId !== socket.id) {
+        toast.info(`${playerName} has made a guess!`);
+      }
+    };
       
-    
+    socket.on("playerGuessedNotification", handleGuessedNotification);
     socket.on("lobbyData",    handleLobbyData);
     socket.on("timerUpdate",  handleTimerUpdate);
     socket.on("timerEnded",   handleTimerEnded);
@@ -217,6 +226,7 @@ const GameView = () => {
     socket.on("startNextRound", handleStartNext);
 
     return () => {
+      socket.off("playerGuessedNotification", handleGuessedNotification);
       socket.off("lobbyData",     handleLobbyData);
       socket.off("timerUpdate",   handleTimerUpdate);
       socket.off("timerEnded",    handleTimerEnded);
@@ -326,7 +336,7 @@ const GameView = () => {
         roundInfo={roundInfo}
         />
       )}
-  
+      <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar />
     </div>
   );
 };
