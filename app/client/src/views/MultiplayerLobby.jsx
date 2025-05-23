@@ -24,18 +24,17 @@ const LobbyPage = () => {
     socket.emit('leaveLobby', lobbyId);
   }, [isHost, lobbyId]);
 
-  // Move startGame above the useEffect where it is used
   const startGame = useCallback(async () => {
     const locations = await fetchLocations(lobbyData.rounds, lobbyData.map.directory);
     socket.emit('setLocations', { lobbyId, locations });
     console.log('Starting the game...');
-    socket.emit('startGame', lobbyId); // Notify the server to start the game
+    socket.emit('startGame', lobbyId);
   }, [lobbyData, lobbyId]);
 
   useEffect(() => {
     const gameStarting = () => {
       console.log('Game is starting!');
-      navigate(`/game/${lobbyId}`, { state: { lobbyId } });
+      navigate(`/game/multi/${lobbyId}`, { state: { lobbyId } });
     };
 
     socket.on('lobbyData', async (data) => {

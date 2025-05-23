@@ -14,18 +14,44 @@ const RoundSelectionScreen = () => {
   const [roundTime, setRoundTime] = useState(0);
   const [map, setMap] = useState(null);
   const navigate = useNavigate();
+  const [gameId, setGameId] = useState(null);
 
-  const startGame = () => {
-      if (!map) return;
-      navigate('/game', {
-        state: {
-          rounds,
-          roundTime,
-          selectedMode,
-          map
-        },
-      });
-  };
+  const startGame = async () => {
+  if (!map) return;
+
+  try {
+    const response = await fetch('http://localhost:5000/api/game/create-game', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        roundAmount: rounds,
+        timePerRound: roundTime,
+        mapName: map.name
+      })
+    });
+
+    const data = await response.json();
+
+    const newGameId = data.gameId;
+    setGameId(newGameId);
+
+    navigate(`/game/single/${newGameId}`, {
+      state: {
+        gameId: newGameId,
+        rounds,
+        roundTime,
+        selectedMode,
+        map
+      },
+    });
+  } catch (error) {
+    console.error("Błąd przy tworzeniu gry:", error);
+  }
+};
+
 
   const handleModeSelect = (mode) => {
     setSelectedMode(mode); 

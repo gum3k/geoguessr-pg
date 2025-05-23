@@ -77,7 +77,6 @@ const GameView = () => {
     if (hasGuessed) return; 
     setHasGuessed(true);
     addRoundInfo(playerLocation, actualLocation, score);
-    
     if (lobbyId) {
       setTimeout(() => socket.emit("playerGuessed", lobbyId), 100);
     } else {
@@ -232,6 +231,7 @@ const GameView = () => {
       };
       loadLocations();
     }
+
     const handleMode = () => {
       const selectedMode = state?.selectedMode;
       setMode(selectedMode || "Move");
