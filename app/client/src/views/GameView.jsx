@@ -101,7 +101,6 @@ const GameView = () => {
   const handleGuess = useCallback((location, scoreValue, distanceValue) => {
     if (hasGuessed) return;
     setHasGuessed(true);
-    addRoundInfo(location, actualLocation, scoreValue);
 
     if (lobbyId) {
       socket.emit("playerGuessed", {
@@ -111,11 +110,12 @@ const GameView = () => {
         distance: distanceValue
       });
     } else {
+      addRoundInfo(location, actualLocation, scoreValue);
       setShowSummary(true);
       setIsPaused(true);
     }
-
   }, [hasGuessed, actualLocation, lobbyId, addRoundInfo]);
+
     /*
   const pauseTimer = () => {
     socket.emit("pauseTimer", lobbyId);
