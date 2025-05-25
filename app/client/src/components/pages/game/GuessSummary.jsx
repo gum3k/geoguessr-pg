@@ -3,6 +3,7 @@ import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from '../../theme/ContainerComponent';
 import RoundButtonComponent from '../../theme/RoundButtonComponent';
 import socket from "../../../socket";
+import LeaderboardTable from "./LeaderboardTable";
 
 const mapContainerStyle = {
   width: "100%",
@@ -35,6 +36,7 @@ const GuessSummary = ({
   ifLast,
   handleGameSummary,
   lobbyId,
+  allRounds = []
 }) => {
   const mapRef = useRef(null);
   const bottomBarRef = useRef(null);
@@ -67,6 +69,7 @@ const GuessSummary = ({
       className="map-wrapper mt-4"
       style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
     >
+      <LeaderboardTable guesses={guesses} allRounds={allRounds} />
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={{ lat: 0, lng: 0 }}

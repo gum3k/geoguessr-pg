@@ -42,7 +42,12 @@ const GameView = () => {
   const [roundResults, setRoundResults] = useState(null);
 
   const addRoundInfo = useCallback((pLocation, tLocation, npoints) => {
-    const newRoundInfo = {playerLocation: pLocation, targetLocation: tLocation, points: npoints};
+    const newRoundInfo = {
+      playerId: socket.id,
+      playerLocation: pLocation,
+      targetLocation: tLocation,
+      points: npoints
+    };
     setRoundInfo((prevRoundInfo) => [...prevRoundInfo, newRoundInfo]);
   }, []);
 
@@ -252,25 +257,28 @@ const GameView = () => {
     const handleRoundResults = ({ targetLocation, guesses }) => {
       setRoundResults({ targetLocation, guesses });
 
-      const playerGuess = guesses.find(g => g.playerId === socket.id);
-      if (playerGuess) {
-        setRoundInfo(prev => {
+      setRoundInfo(prev => {
+        const newEntries = guesses.map(playerGuess => {
           const alreadyExists = prev.some(
             r =>
+              r.playerId === playerGuess.playerId &&
               r.playerLocation?.lat === playerGuess.playerLocation?.lat &&
               r.playerLocation?.lng === playerGuess.playerLocation?.lng &&
               r.targetLocation?.lat === targetLocation?.lat &&
               r.targetLocation?.lng === targetLocation?.lng
           );
-          if (alreadyExists) return prev;
+          if (alreadyExists) return null;
 
-          return [...prev, {
+          return {
+            playerId: playerGuess.playerId,
             playerLocation: playerGuess.playerLocation,
             targetLocation,
             points: playerGuess.points
-          }];
-        });
-      }
+          };
+        }).filter(Boolean);
+
+        return [...prev, ...newEntries];
+      });
     };
       
     socket.on("playerGuessedNotification", handleGuessedNotification);
@@ -421,6 +429,7 @@ const GameView = () => {
         ifLast={currentLocationIndex >= locations.length - 1}
         handleGameSummary={handleGameSummary}
         lobbyId={lobbyId}
+        allRounds={roundInfo}
       />
       )}
       {showSummaryEnd && (

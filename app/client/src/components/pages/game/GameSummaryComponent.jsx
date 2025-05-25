@@ -3,6 +3,7 @@ import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from "../../theme/ContainerComponent";
 import RoundButtonComponent from "../../theme/RoundButtonComponent";
 import { useNavigate } from "react-router-dom";
+import LeaderboardTable from "./LeaderboardTable";
 
 const mapContainerStyle = {
   width: "100%",
@@ -67,6 +68,11 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
         className="map-wrapper mt-4"
         style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
       >
+        <LeaderboardTable
+          guesses={[]}              // niepotrzebne, więc pusta tablica
+          allRounds={roundInfo}     // historia graczy z wielu rund
+          showRoundColumn={false}   // wyłącza kolumnę "+Round"
+        />
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={{ lat: 0, lng: 0 }}
