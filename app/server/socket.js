@@ -23,6 +23,7 @@ module.exports = function (io) {
         currentRoundIndex: 0,
         maxPlayers: data.maxPlayers || 8,
         gameId: null,
+        allGuesses: []
       };
 
       lobbies[lobbyId] = newLobby;
@@ -184,7 +185,7 @@ module.exports = function (io) {
       timerService.resumeTimer(io, lobbyId, lobbies);
     });
 
-    socket.on("playerGuessed", ({ lobbyId, playerLocation, points }) => {
+    socket.on("playerGuessed", async ({ lobbyId, playerLocation, points }) => {
       const lobby = lobbies[lobbyId];
       if (!lobby) return;
 
@@ -220,6 +221,53 @@ module.exports = function (io) {
 
         console.log(`[playerGuessed] ALL_GUESSED in ${lobbyId}, emitting roundResults and roundEnded`);
 
+        lobby.allGuesses.push(...lobby.currentGuesses);
+
+
+        if (lobby.currentRoundIndex + 1 >= lobby.locations.length) {
+          console.log("Wszyscy zgadli w ostatniej rundzie, koniec gry.");
+
+          for (const player of lobby.players) {
+            const userId = player.accountId;
+            if (!userId) continue;
+
+            const totalPoints = (lobby.allGuesses || [])
+            .filter(g => g.playerId === player.id)
+            .reduce((sum, g) => sum + (g.points ?? 0), 0);
+
+            try {
+                  await query(`
+                    INSERT INTO user_game ("userid", "gameid", "gamePoints")
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT ("userid", "gameid")
+                    DO UPDATE SET "gamePoints" = EXCLUDED."gamePoints"
+                  `, [userId, lobby.gameId, totalPoints]);
+
+                  console.log("Zapisano punkty do user_game:", {
+                    userId,
+                    gameId: lobby.gameId,
+                    totalPoints,
+                  });
+                } catch (err) {
+                  console.error("Błąd przy zapisie do user_game:", err);
+                }
+              }
+
+              io.to(lobbyId).emit("roundResults", {
+                targetLocation,
+                guesses: lobby.currentGuesses,
+              });
+
+              io.to(lobbyId).emit("roundEnded");
+              io.to(lobbyId).emit("gameOver");
+
+              lobby.guessedPlayers.clear();
+              lobby.currentGuesses = [];
+              return;
+            }
+
+
+
         io.to(lobbyId).emit("roundResults", {
           targetLocation,
           guesses: lobby.currentGuesses,
@@ -234,14 +282,18 @@ module.exports = function (io) {
 
     socket.on("nextRound", async (lobbyId) => {
       const lobby = lobbies[lobbyId];
-      if (!lobby || !lobby.locations) return;
-
-      if (lobby.currentRoundIndex + 1 >= lobby.locations.length) {
-        io.to(lobbyId).emit("gameOver");
+      if (!lobby || !lobby.locations) {
+        console.error("\nPYK PYK PYK PYK PYK\n");
         return;
       }
 
       lobby.currentRoundIndex += 1;
+
+      if (lobby.currentRoundIndex >= lobby.locations.length) {
+      io.to(lobbyId).emit("gameOver");
+      return;
+    }
+
       const roundNumber = lobby.currentRoundIndex + 1;
       const targetLocation = lobby.locations[lobby.currentRoundIndex];
       const lat = targetLocation.lat;
