@@ -43,6 +43,7 @@ const GameView = () => {
   const addRoundInfo = useCallback((pLocation, tLocation, npoints) => {
     const newRoundInfo = {
       playerId: socket.id,
+      playerName: `Player ${socket.id.substring(0, 5)}`,
       playerLocation: pLocation,
       targetLocation: tLocation,
       points: npoints
@@ -162,7 +163,6 @@ const GameView = () => {
 
   const handleGameSummary = async () => {
     if (lobbyId) {
-      // multiplayer – nie pobieramy niczego, roundInfo już jest lokalnie
       setShowSummaryEnd(true);
       return;
     }
@@ -266,6 +266,7 @@ const GameView = () => {
 
           return {
             playerId: playerGuess.playerId,
+            playerName: playerGuess.playerName, 
             playerLocation: playerGuess.playerLocation,
             targetLocation,
             points: playerGuess.points
@@ -429,6 +430,7 @@ const GameView = () => {
       {showSummaryEnd && (
         <GameSummaryComponent
         roundInfo={roundInfo}
+        guesses={roundResults?.guesses || []}
         lobbyId={lobbyId}
         />
       )}
