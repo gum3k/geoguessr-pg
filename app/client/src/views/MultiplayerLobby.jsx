@@ -27,18 +27,15 @@ const LobbyPage = () => {
   const startGame = useCallback(async () => {
     const locations = await fetchLocations(lobbyData.rounds, lobbyData.map.directory);
     socket.emit('setLocations', { lobbyId, locations });
-    console.log('Starting the game...');
     socket.emit('startGame', lobbyId);
   }, [lobbyData, lobbyId]);
 
   useEffect(() => {
     const gameStarting = () => {
-      console.log('Game is starting!');
       navigate(`/game/multi/${lobbyId}`, { state: { lobbyId } });
     };
 
     socket.on('lobbyData', async (data) => {
-      console.log('Received updated lobby data:', data);
       setLobbyData(data);
       setPlayers(data.players.length);
       setIsHost(data.players[0].id === socket.id);
@@ -58,8 +55,7 @@ const LobbyPage = () => {
   }, [lobbyId, isHost, navigate, startGame, handleBeforeUnload]);
 
   useEffect(() => {
-    console.log(`Joining lobby with ID: ${lobbyId}`);
-    socket.emit('joinLobby', lobbyId); // Join the existing lobby
+    socket.emit('joinLobby', lobbyId);
   }, [lobbyId]);
 
   useEffect(() => {

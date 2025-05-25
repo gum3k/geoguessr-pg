@@ -60,24 +60,21 @@ const GameView = () => {
 
     const userId = getUserIdFromToken();
 
-    console.log("CWELUCH " + userId);
-
     const roundNumber = currentLocationIndex + 1;
 
     try {
-      console.log("GraID: ", state?.gameId);
-        const response = await fetch('http://localhost:5000/api/game/submit-guess', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                lobbyId: lobbyId,
-                playerLocation: location,
-                targetLocation: locations[currentLocationIndex],
-                userId: userId,
-                roundNumber: roundNumber,
-                gameId: state?.gameId
-            })
-        });
+      const response = await fetch('http://localhost:5000/api/game/submit-guess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              lobbyId: lobbyId,
+              playerLocation: location,
+              targetLocation: locations[currentLocationIndex],
+              userId: userId,
+              roundNumber: roundNumber,
+              gameId: state?.gameId
+          })
+      });
 
       const data = await response.json();
       setDistance(data.distance ?? 0);
@@ -195,7 +192,6 @@ const GameView = () => {
     socket.emit("getLobbyData", lobbyId);
     
     const handleLobbyData = (data) => {
-      console.log("Received lobby data:", data);
       setGameSettings(data);
       setLocations(data.locations || []);
       state.roundTime = data.roundTime;
@@ -302,7 +298,6 @@ const GameView = () => {
 
   useEffect(() => {
     if (locations.length === 0 && !lobbyId) {
-      console.log("Loading NEW locations...");
       const loadLocations = async () => {
         const rounds = state?.rounds || 5;
         const newLocations = await fetchLocations(rounds, state?.map.directory);

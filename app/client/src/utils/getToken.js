@@ -12,14 +12,12 @@ export const getToken = () => {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      console.log('Zdekodowany token:', decoded);
       return decoded;
     } catch (e) {
       console.error('Błąd dekodowania tokenu', e); 
       return null;
     }
   } else {
-    console.log('Token nie znaleziony w ciasteczkach');
     return null;
   }
 };

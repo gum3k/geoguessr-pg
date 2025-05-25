@@ -183,8 +183,6 @@ router.post('/login', async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 dzień
     });
 
-    console.log('Token ustawiony w ciasteczku:', token);
-
     return res.status(200).json({
       message: 'Login successful',
       user: { id: user.userid, username: user.username, email: user.email }

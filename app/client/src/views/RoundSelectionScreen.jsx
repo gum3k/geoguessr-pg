@@ -6,7 +6,6 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
 import MapSelectionComponent from '../components/pages/settings/MapSelectionComponent';
-import socket from "../socket";
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
@@ -17,40 +16,40 @@ const RoundSelectionScreen = () => {
   const [gameId, setGameId] = useState(null);
 
   const startGame = async () => {
-  if (!map) return;
+    if (!map) return;
 
-  try {
-    const response = await fetch('http://localhost:5000/api/game/create-game', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        roundAmount: rounds,
-        timePerRound: roundTime,
-        mapName: map.name
-      })
-    });
+    try {
+      const response = await fetch('http://localhost:5000/api/game/create-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          roundAmount: rounds,
+          timePerRound: roundTime,
+          mapName: map.name
+        })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    const newGameId = data.gameId;
-    setGameId(newGameId);
+      const newGameId = data.gameId;
+      setGameId(newGameId);
 
-    navigate(`/game/single/${newGameId}`, {
-      state: {
-        gameId: newGameId,
-        rounds,
-        roundTime,
-        selectedMode,
-        map
-      },
-    });
-  } catch (error) {
-    console.error("Błąd przy tworzeniu gry:", error);
-  }
-};
+      navigate(`/game/single/${newGameId}`, {
+        state: {
+          gameId: newGameId,
+          rounds,
+          roundTime,
+          selectedMode,
+          map
+        },
+      });
+    } catch (error) {
+      console.error("Błąd przy tworzeniu gry:", error);
+    }
+  };
 
 
   const handleModeSelect = (mode) => {

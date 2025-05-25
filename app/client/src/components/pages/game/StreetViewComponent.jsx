@@ -42,9 +42,6 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
         document.getElementById("street-view"),
         panoramaOptions
       );
-      console.log(
-        `Displayed location: Latitude ${location.lat}, Longitude ${location.lng}`
-      );
       if (mode === "NMPZ" || mode === "No Move") {
         panorama.addListener('pano_changed', () => {
           const streetViewContainer = document.querySelector('#street-view');
@@ -52,7 +49,6 @@ const StreetViewComponent = ({ location, apiKey, mode }) => {
             streetViewContainer.addEventListener(
               'keydown',
               (event) => {
-                console.log(event.key);
                 if (
                   (
                     event.key === 'ArrowUp' ||
