@@ -91,10 +91,14 @@ const GuessSummary = ({
           <React.Fragment key={g.playerId}>
             <Marker
               position={g.playerLocation}
-              label={{ text: g.playerName, className: "guess-label" }}
+              label={{
+                text: g.playerName,
+                className: "guess-label"
+              }}
               icon={{
                 url: process.env.PUBLIC_URL + "/usericon.png",
                 scaledSize: new window.google.maps.Size(40, 40),
+                labelOrigin: new window.google.maps.Point(20, -10) 
               }}
             />
             <Polyline

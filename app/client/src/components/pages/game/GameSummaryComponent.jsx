@@ -91,9 +91,14 @@ const GameSummaryComponent = ({ roundInfo = [], guesses = [], lobbyId }) => {
               {round.playerLocation && (
                 <Marker
                   position={round.playerLocation}
+                  label={{
+                    text: round.playerName || `Player`,
+                    className: "guess-label"
+                  }}
                   icon={{
                     url: process.env.PUBLIC_URL + "/usericon.png",
                     scaledSize: new window.google.maps.Size(40, 40),
+                    labelOrigin: new window.google.maps.Point(20, -10)
                   }}
                 />
               )}
