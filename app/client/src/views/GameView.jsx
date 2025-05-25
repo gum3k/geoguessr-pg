@@ -384,7 +384,7 @@ const GameView = () => {
         {!showSummary && (
           <div style={{position: "absolute", left: "50%", transform: "translateX(-50%)", zIndex: 20, width: "100%"}}>
           <TimerComponent
-            initialTime={timeLeft}
+            initialTime={state?.roundTime}
             isPaused={isPaused}
             handleTimer={handleTimer}
           />

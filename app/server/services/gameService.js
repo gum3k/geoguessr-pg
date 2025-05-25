@@ -88,9 +88,17 @@ exports.endRound = (lobbyId) => {
 
 exports.getRoundStatus = async (lobbyId, userId) => {
     const sessionId =  lobbyId;
+  
+    if (!gameSessions[sessionId]) {
+        console.warn("Brak gameSession dla lobbyId:", sessionId);
+        return [];
+    }
 
-    const totalPoints = gameSessions[sessionId].rounds.reduce((sum, round) => sum + (round.points || 0), 0);
-
+    const totalPoints = gameSessions[sessionId].rounds.reduce(
+        (sum, round) => sum + (round.points || 0),
+        0
+    );
+    
     console.log("sesje:", gameSessions[sessionId])
     console.log("Suma punktów:", totalPoints);
 
