@@ -82,6 +82,10 @@ const ProfileInfoComponent = ({ profile }) => {
                 toast.success(passwordData.message || 'Password updated successfully');
             }
             setIsEditing(false);
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         } catch (error) {
             console.error('Error updating profile:', error);
             toast.error(error.message || 'Something went wrong while updating profile');

@@ -332,6 +332,19 @@ router.put('/profile', authenticate, async (req, res) => {
       [username, email, userId]
     );
 
+    const newToken = jwt.sign(
+      { id: userId, username, email },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    res.cookie('token', newToken, {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({ message: 'Profile updated successfully.' });
   } catch (error) {
     console.error('Error updating profile:', error);
