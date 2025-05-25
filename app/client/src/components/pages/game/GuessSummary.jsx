@@ -100,7 +100,7 @@ const GuessSummary = ({
             <Polyline
               path={[g.playerLocation, targetLocation]}
               options={{
-                strokeColor: "#FF0000",
+                strokeColor: g.playerId === socket.id ? "#FF0000" : "#000000",
                 strokeOpacity: 0,
                 strokeWeight: 2,
                 icons: [
