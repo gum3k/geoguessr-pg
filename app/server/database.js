@@ -11,8 +11,8 @@ const client = new Client({
 // console.log(process.env.DATABASE_URL);
 
 client.connect()
-  .then(() => console.log('Połączono z bazą danych PostgreSQL (Supabase)!'))
-  .catch(err => console.error('Błąd połączenia:', err));
+  .then(() => console.log('Connected PostgreSQL (Supabase)!'))
+  .catch(err => console.error('Connection error:', err));
 
 const query = (text, params) => client.query(text, params);
 

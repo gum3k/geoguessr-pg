@@ -8,7 +8,6 @@ const UsernameDisplayComponent = ({ onLoggedIn }) => {
     try {
       const token = getToken();
       if (!token) {
-        console.log('No token found – treating user as guest');
         setDisplayName('Guest');
         onLoggedIn(null);
       } else if (token.username) {

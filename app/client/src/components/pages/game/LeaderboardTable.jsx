@@ -2,11 +2,6 @@ import React from 'react';
 
 
 const LeaderboardTable = ({ guesses = [], allRounds = [], showRoundColumn = true }) => {
-    
-
-
-    console.log("Guesses", guesses);
-    console.log("AllRounds", allRounds);
   const totalPointsMap = {};
   allRounds.forEach(round => {
     if (round.playerId && round.points != null) {

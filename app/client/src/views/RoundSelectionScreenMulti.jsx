@@ -23,7 +23,6 @@ const RoundSelectionScreen = () => {
 
   useEffect(() => {
     const handleLobbyCreated = (lobbyData) => {
-      console.log('Lobby Created:', lobbyData);
       setLobbyCreated(true);
       setLobbyId(lobbyData.lobbyId);
       navigate(`/lobby/${lobbyData.lobbyId}`, { state: { lobbyData } });
@@ -38,11 +37,10 @@ const RoundSelectionScreen = () => {
 
   const createLobby = () => {
     if (!lobbyCreated && map) {
-      console.log("Creating a lobby...");
       socket.emit('createLobby', { rounds, roundTime, selectedMode, map });
     }
     else {
-      console.log("Cannot read map");
+      console.error("Cannot read map");
     }
   };
 
