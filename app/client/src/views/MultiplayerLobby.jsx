@@ -100,6 +100,15 @@ const LobbyPage = () => {
             <p>{players} / {lobbyData.maxPlayers} players</p>
             <p>Waiting for other players...</p>
 
+            <h3>Players in Lobby:</h3>
+            <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
+              {lobbyData.players.map((player) => (
+                <li key={player.id} style={{ margin: "5px 0" }}>
+                  {player.name || `Player ${player.id.slice(0, 5)}`} {player.id === socket.id && "(You)"}
+                </li>
+              ))}
+            </ul>
+
             <h2>Game Details</h2>
             <p><strong>Rounds:</strong> {lobbyData.rounds}</p>
             <p><strong>Map:</strong> {lobbyData.map.name}</p>
