@@ -6,7 +6,7 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import socket from "../socket";
 import { fetchLocations } from '../utils/fetchLocations';
-import { getUserIdFromToken } from '../utils/getToken';
+import { getUserIdFromToken, getUsernameFromToken } from '../utils/getToken';
 
 const LobbyPage = () => {
   const { lobbyId } = useParams();
@@ -65,6 +65,7 @@ const LobbyPage = () => {
     socket.emit('joinLobby', {
       lobbyId,
       accountId: getUserIdFromToken(),
+      username: getUsernameFromToken(),
     });
   }, [lobbyId]);
 

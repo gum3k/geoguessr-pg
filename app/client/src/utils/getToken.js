@@ -38,3 +38,16 @@ export const getUserIdFromToken = () => {
     return null;
   }
 };
+
+export const getUsernameFromToken = () => {
+  const token = getCookie('token');
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.username || null;
+  } catch (e) {
+    console.error('Token decode error:', e);
+    return null;
+  }
+};

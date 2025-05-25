@@ -29,7 +29,7 @@ module.exports = function (io) {
       socket.join(lobbyId);
     });
 
-    socket.on("joinLobby", ({ lobbyId, accountId }) => {
+    socket.on("joinLobby", ({ lobbyId, accountId, username }) => {
       const lobby = lobbies[lobbyId];
       if (!lobby) {
       socket.emit("error", "Lobby nie istnieje");
@@ -40,9 +40,9 @@ module.exports = function (io) {
         socket.emit("error", "Lobby jest pełne");
         return;
       }
-      lobby.players.push({ id: socket.id, accountId });
+      lobby.players.push({ id: socket.id, accountId, name: username });
 
-      console.log(`User ${accountId} joined lobby ${lobbyId}`);
+      console.log(`User ${username} joined lobby ${lobbyId}`);
       socket.join(lobbyId);
       io.to(lobbyId).emit("lobbyData", lobby);
     });
