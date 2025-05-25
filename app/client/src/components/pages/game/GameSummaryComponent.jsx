@@ -110,7 +110,7 @@ const GameSummaryComponent = ({ roundInfo = [], guesses = [], lobbyId }) => {
                 <Polyline
                   path={[round.playerLocation, round.targetLocation]}
                   options={{
-                    strokeColor: "#FF0000",
+                    strokeColor: round.playerId === socket.id ? "#FF0000" : "#000000",
                     strokeOpacity: 0,
                     strokeWeight: 2,
                     icons: [

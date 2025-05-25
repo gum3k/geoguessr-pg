@@ -182,11 +182,6 @@ router.post('/login', async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 dzień
     });
 
-<<<<<<< Updated upstream
-=======
-    console.log('Token set in cookie: ', token);
-
->>>>>>> Stashed changes
     return res.status(200).json({
       message: 'Login successful',
       user: { id: user.userid, username: user.username, email: user.email }
