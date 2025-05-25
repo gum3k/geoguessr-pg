@@ -106,7 +106,7 @@ module.exports = function (io) {
           }
         }
 
-        timerService.startRoundTimer(io, lobbyId, lobby.roundTime);
+        timerService.startRoundTimer(io, lobbyId, lobby.roundTime, lobbies);
       } catch (error) {
         console.error("Błąd startGame:", error);
         io.to(lobbyId).emit("error", "Błąd podczas uruchamiania gry.");
@@ -160,7 +160,7 @@ module.exports = function (io) {
     });
 
     socket.on("startRoundTimer", ({ lobbyId, roundTime }) => {
-      timerService.startRoundTimer(io, lobbyId, roundTime);
+      timerService.startRoundTimer(io, lobbyId, roundTime, lobbies);
     });
 
     socket.on("pauseTimer", (lobbyId) => {
@@ -168,7 +168,7 @@ module.exports = function (io) {
     });
 
     socket.on("resumeTimer", (lobbyId) => {
-      timerService.resumeTimer(io, lobbyId);
+      timerService.resumeTimer(io, lobbyId, lobbies);
     });
 
     socket.on("playerGuessed", ({ lobbyId, playerLocation, points }) => {
@@ -187,14 +187,14 @@ module.exports = function (io) {
       const player = lobby.players.find(p => p.id === socket.id);
       
       const targetLocation = lobby.locations[lobby.currentRoundIndex];
-      const distance = calculateDistance(playerLocation, targetLocation);
+      const distance = playerLocation ? calculateDistance(playerLocation, targetLocation) : null;
 
       lobby.currentGuesses.push({
         playerId: socket.id,
         playerName: player?.name || `Player ${socket.id.slice(0, 5)}`,
         playerLocation: playerLocation,
         points: points ?? 0,
-        distance: distance,
+        distance: distance ?? 0,
       });
 
       io.to(lobbyId).emit("playerGuessedNotification", {
@@ -246,6 +246,9 @@ module.exports = function (io) {
       }
 
       lobby.currentRoundIndex += 1;
+      lobby.guessedPlayers = new Set();
+      lobby.currentGuesses = [];
+      
       io.to(lobbyId).emit("startNextRound", {
         nextIndex: lobby.currentRoundIndex,
         roundTime: lobby.roundTime,

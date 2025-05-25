@@ -52,14 +52,18 @@ const GuessSummary = ({
 
     if (targetLocation) bounds.extend(targetLocation);
 
-    if (!bounds.isEmpty()) {
-      const barHeight = bottomBarRef.current?.clientHeight || 0;
-      map.fitBounds(bounds, {
-        top: 30,
-        right: 30,
-        left: 30,
-        bottom: barHeight,
-      });
+    try {
+      if (!bounds.isEmpty()) {
+        const barHeight = bottomBarRef.current?.clientHeight || 0;
+        map.fitBounds(bounds, {
+          top: 30,
+          right: 30,
+          left: 30,
+          bottom: barHeight,
+        });
+      }
+    } catch (error) {
+      console.warn("fitBounds failed:", error);
     }
   }, [guesses, targetLocation]);
 
@@ -89,37 +93,41 @@ const GuessSummary = ({
 
         {guesses.map((g) => (
           <React.Fragment key={g.playerId}>
-            <Marker
-              position={g.playerLocation}
-              label={{
-                text: g.playerName,
-                className: "guess-label"
-              }}
-              icon={{
-                url: process.env.PUBLIC_URL + "/usericon.png",
-                scaledSize: new window.google.maps.Size(40, 40),
-                labelOrigin: new window.google.maps.Point(20, -10) 
-              }}
-            />
-            <Polyline
-              path={[g.playerLocation, targetLocation]}
-              options={{
-                strokeColor: g.playerId === socket.id ? "#FF0000" : "#000000",
-                strokeOpacity: 0,
-                strokeWeight: 2,
-                icons: [
-                      {
-                        icon: {
-                          path: "M 0,-1 0,1",
-                          strokeOpacity: 0.8,
-                          scale: 4,
+            {g.playerLocation && (
+              <Marker
+                position={g.playerLocation}
+                label={{
+                  text: g.playerName,
+                  className: "guess-label"
+                }}
+                icon={{
+                  url: process.env.PUBLIC_URL + "/usericon.png",
+                  scaledSize: new window.google.maps.Size(40, 40),
+                  labelOrigin: new window.google.maps.Point(20, -10)
+                }}
+              />
+            )}
+            {g.playerLocation && targetLocation && (
+              <Polyline
+                path={[g.playerLocation, targetLocation]}
+                options={{
+                  strokeColor: g.playerId === socket.id ? "#FF0000" : "#000000",
+                  strokeOpacity: 0,
+                  strokeWeight: 2,
+                  icons: [
+                        {
+                          icon: {
+                            path: "M 0,-1 0,1",
+                            strokeOpacity: 0.8,
+                            scale: 4,
+                          },
+                          offset: "0%",
+                          repeat: "20px",
                         },
-                        offset: "0%",
-                        repeat: "20px",
-                      },
-                    ],
-                  }}
-            />
+                      ],
+                    }}
+              />
+            )}
           </React.Fragment>
         ))}
       </GoogleMap>
