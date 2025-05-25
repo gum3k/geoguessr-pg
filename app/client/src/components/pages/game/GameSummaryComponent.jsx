@@ -60,11 +60,11 @@ const GameSummaryComponent = ({ roundInfo = [], guesses = [], lobbyId }) => {
     },
     [roundInfo]
   );
-
+  
   const totalPoints = roundInfo
-    .filter(round => round.playerId === socket.id)
+    .filter(round => !round?.playerId || round.playerId === socket.id)
     .reduce((acc, { points = 0 }) => acc + points, 0);
-
+  
   return (
     <ContainerComponent>
       <div

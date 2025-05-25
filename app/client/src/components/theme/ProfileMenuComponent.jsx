@@ -36,6 +36,7 @@ const ProfileMenuComponent = () => {
         setToken(null);
         setUsername("Guest");
         navigate("/");
+        window.location.reload();
       } else { 
         const data = await res.json();
         throw new Error(data.message);
