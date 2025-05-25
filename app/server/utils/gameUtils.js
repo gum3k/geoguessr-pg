@@ -1,4 +1,7 @@
 exports.calculateDistance = (loc1, loc2) => {
+    if (!loc1 || !loc2 || loc1.lat == null || loc1.lng == null || loc2.lat == null || loc2.lng == null) {
+        return null; 
+    }
     const R = 6371; // Promień Ziemi w km
     const dLat = ((loc2.lat - loc1.lat) * Math.PI) / 180;
     const dLng = ((loc2.lng - loc1.lng) * Math.PI) / 180;
@@ -13,6 +16,7 @@ exports.calculateDistance = (loc1, loc2) => {
 };
 
 exports.calculateScore = (distance) => {
+    if (typeof distance !== 'number' || isNaN(distance)) return 0;
     const e = 2.718281828459045;
     return Math.max(0, Math.round(5000 * e ** (-10 * distance / 20037.852)));
 };

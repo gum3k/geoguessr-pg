@@ -205,26 +205,34 @@ const GameView = () => {
 
     const handleTimerEnded = () => {
       const time = state?.roundTime;
-      if (time === 0) return; 
-    
+      if (time === 0 || showSummary) return; 
+
+      setTimeUp(true);
+      setIsPaused(true);
+
       if (lobbyId) {
-        if (!playerLocation) {
-          addRoundInfo(playerLocation, actualLocation, score);
+        const guessed = !!playerLocation;
+
+        if (!guessed) {
+          setScore(0);
+          setDistance(0);
+          addRoundInfo(null, actualLocation, 0);
         }
+
         socket.emit("playerGuessed", {
           lobbyId,
-          playerLocation: playerLocation,
-          points: score
+          playerLocation: playerLocation ?? null,
+          points: score ?? 0,
+          distance: distance ?? 0
         });
       } else {
-        setTimeUp(true);
-        setIsPaused(true);
+        // tryb singleplayer
         handleGuessRef.current();
       }
     };
 
     const handleRoundEnded = () => {
-      setShowSummary(true);
+      console.log("ROUND ENDED")
       setIsPaused(true);
       setTimeUp(false);
       setTimeLeft(state.roundTime || 0);
@@ -241,6 +249,7 @@ const GameView = () => {
       setTimeLeft(roundTime);
       setHasGuessed(false);
       setRoundResults(null);
+      socket.emit("startRoundTimer", { lobbyId, roundTime });
     };
 
     const handleGuessedNotification = ({ playerName, playerId }) => {
@@ -263,7 +272,7 @@ const GameView = () => {
               r.targetLocation?.lng === targetLocation?.lng
           );
           if (alreadyExists) return null;
-
+          setShowSummary(true);
           return {
             playerId: playerGuess.playerId,
             playerName: playerGuess.playerName, 
