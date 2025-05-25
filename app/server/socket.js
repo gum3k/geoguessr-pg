@@ -27,15 +27,13 @@ module.exports = function (io) {
       socket.join(lobbyId);
     });
 
-    socket.on("joinLobby", lobbyId => {
+    socket.on("joinLobby", ({ lobbyId, accountId }) => {
       const lobby = lobbies[lobbyId];
       if (!lobby) {
-        socket.emit("error", "Lobby nie istnieje");
-        return;
+      socket.emit("error", "Lobby nie istnieje");
+      return;
       }
-      if (!lobby.players.find(p => p.id === socket.id)) {
-        lobby.players.push({ id: socket.id });
-      }
+      lobby.players.push({ id: socket.id, accountId });
       socket.join(lobbyId);
       io.to(lobbyId).emit("lobbyData", lobby);
     });

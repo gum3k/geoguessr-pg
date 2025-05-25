@@ -6,8 +6,7 @@ import ContentComponent from '../components/theme/ContentComponent';
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import socket from "../socket";
 import { fetchLocations } from '../utils/fetchLocations';
-
-
+import { getUserIdFromToken } from '../utils/getToken';
 
 const LobbyPage = () => {
   const { lobbyId } = useParams();
@@ -55,7 +54,10 @@ const LobbyPage = () => {
   }, [lobbyId, isHost, navigate, startGame, handleBeforeUnload]);
 
   useEffect(() => {
-    socket.emit('joinLobby', lobbyId);
+    socket.emit('joinLobby', {
+      lobbyId,
+      accountId: getUserIdFromToken(),
+    });
   }, [lobbyId]);
 
   useEffect(() => {
