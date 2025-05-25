@@ -1,6 +1,4 @@
-const ProfileInfoComponent = () => {
-    const username = "Guest";
-    const email = "eloelo@elo.elo";
+const ProfileInfoComponent = ({profile}) => {
 
     return (
         <div style={styles.container}>
@@ -9,9 +7,8 @@ const ProfileInfoComponent = () => {
                     <img src="./earth.png" alt="profile" style={styles.image}></img>
                 </div>
                 <div style={styles.profileInfo}>
-                    <h2 style={styles.username}>Username: {username}</h2>
-                    <h2 style={styles.email}>E-mail: {email}</h2>
-                    <h2 style={styles.country}>Country: Poland</h2>
+                    <h2>Username: {profile.username}</h2>
+                    <h2>E-mail: {profile.email}</h2>
                     <h3>Edit profile</h3>
                 </div>
             </div>
