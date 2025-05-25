@@ -435,6 +435,7 @@ const GameView = () => {
       {showSummaryEnd && (
         <GameSummaryComponent
         roundInfo={roundInfo}
+        lobbyId={lobbyId}
         />
       )}
       <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar />

@@ -69,7 +69,7 @@ const GuessSummary = ({
       className="map-wrapper mt-4"
       style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
     >
-      <LeaderboardTable guesses={guesses} allRounds={allRounds} />
+      <LeaderboardTable guesses={guesses} allRounds={allRounds} lobbyId={lobbyId} />
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={{ lat: 0, lng: 0 }}

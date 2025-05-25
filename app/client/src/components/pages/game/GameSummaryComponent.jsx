@@ -28,7 +28,7 @@ const mapOptions = {
   fullscreenControl: false,
 };
 
-const GameSummaryComponent = ({ roundInfo = [] }) => {
+const GameSummaryComponent = ({ roundInfo = [], lobbyId }) => {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const bottomBarRef = useRef(null);
@@ -68,11 +68,14 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
         className="map-wrapper mt-4"
         style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
       >
+      {lobbyId && (
         <LeaderboardTable
-          guesses={[]}              // niepotrzebne, więc pusta tablica
-          allRounds={roundInfo}     // historia graczy z wielu rund
-          showRoundColumn={false}   // wyłącza kolumnę "+Round"
+          guesses={[]} 
+          allRounds={roundInfo}
+          showRoundColumn={false}
+          lobbyId={lobbyId}
         />
+      )}
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={{ lat: 0, lng: 0 }}
