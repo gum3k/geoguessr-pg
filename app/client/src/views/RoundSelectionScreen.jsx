@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
@@ -9,11 +9,11 @@ import MapSelectionComponent from '../components/pages/settings/MapSelectionComp
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
-  const [selectedMode, setSelectedMode] = useState('Move');
+  const [selectedMode, setSelectedMode] = useState('No Move');
   const [roundTime, setRoundTime] = useState(0);
   const [map, setMap] = useState(null);
   const navigate = useNavigate();
-  const [gameId, setGameId] = useState(null);
+  const [, setGameId] = useState(null);
 
   const startGame = async () => {
     if (!map) return;

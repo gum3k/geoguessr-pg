@@ -11,7 +11,7 @@ import socket from "../socket";
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
-  const [selectedMode, setSelectedMode] = useState('Move');
+  const [selectedMode, setSelectedMode] = useState('No Move');
   const [roundTime, setRoundTime] = useState(0);
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [map, setMap] = useState(null);

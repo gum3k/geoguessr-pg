@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import useApiKey from "../hooks/useApiKey";
 import useLocations from "../hooks/useLocations";
 import { fetchLocations } from "../utils/fetchLocations";
@@ -35,7 +35,6 @@ const GameView = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [mode, setMode] = useState('Move');
-  const navigate = useNavigate();
   const [, setGameSettings] = useState({});
   const [roundInfo, setRoundInfo] = useState([]);
   const [hasGuessed, setHasGuessed] = useState(false);
