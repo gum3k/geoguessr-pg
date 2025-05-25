@@ -23,7 +23,7 @@ exports.processGuess = async (lobbyId, playerLocation, targetLocation, userId, r
     );
 
     if (result.rows.length === 0) {
-      throw new Error("Nie znaleziono rundy dla podanego gameId i roundNumber");
+      throw new Error(`Nie znaleziono rundy dla gameId: ${gameId} i roundNumber: ${roundNumber}`);
     }
 
     const roundId = result.rows[0].roundid;

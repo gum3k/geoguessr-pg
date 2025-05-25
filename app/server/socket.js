@@ -72,46 +72,59 @@ module.exports = function (io) {
     });
 
     socket.on("startGame", async (lobbyId) => {
-      const lobby = lobbies[lobbyId];
-      if (!lobby) return;
+  const lobby = lobbies[lobbyId];
+  if (!lobby) return;
 
-      console.log(`Rozpoczynanie gry w lobby ${lobbyId}`);
+  try {
+    const result = await query(`
+      INSERT INTO game ("roundAmount", "timePerRound", "mapName")
+      VALUES ($1, $2, $3)
+      RETURNING gameid
+    `, [lobby.rounds, lobby.roundTime, lobby.map.name]);
 
-      io.to(lobbyId).emit("gameStarting", {
-        message: "The game is starting!",
-        lobbyId,
-        rounds: lobby.rounds,
-        roundTime: lobby.roundTime,
-        selectedMode: lobby.selectedMode,
-        map: lobby.map.name,
-        locations: lobby.locations,
-      });
+    const gameId = result.rows[0].gameid;
+    lobby.gameId = gameId;
 
-      try {
-        const result = await query(`
-          INSERT INTO game ("roundAmount", "timePerRound", "mapName")
-          VALUES ($1, $2, $3)
-          RETURNING gameid
-        `, [lobby.rounds, lobby.roundTime, lobby.map.name]);
+    console.log(`Rozpoczynanie gry w lobby ${lobbyId}, gameId: ${gameId}`);
 
-        const gameId = result.rows[0].gameid;
-        lobby.gameId = gameId;
-
-        for (const player of lobby.players) {
-          if (player.accountId) {
-            await query(`
-              INSERT INTO user_game ("userid", "gameid", "gamePoints")
-              VALUES ($1, $2, 0)
-            `, [player.accountId, gameId]);
-          }
-        }
-
-        timerService.startRoundTimer(io, lobbyId, lobby.roundTime, lobbies);
-      } catch (error) {
-        console.error("Błąd startGame:", error);
-        io.to(lobbyId).emit("error", "Błąd podczas uruchamiania gry.");
-      }
+    io.to(lobbyId).emit("gameStarting", {
+      message: "The game is starting!",
+      lobbyId,
+      rounds: lobby.rounds,
+      roundTime: lobby.roundTime,
+      selectedMode: lobby.selectedMode,
+      map: lobby.map.name,
+      locations: lobby.locations,
+      gameId: gameId
     });
+
+    for (const player of lobby.players) {
+      if (player.accountId) {
+        await query(`
+          INSERT INTO user_game ("userid", "gameid", "gamePoints")
+          VALUES ($1, $2, 0)
+        `, [player.accountId, gameId]);
+      }
+    }
+
+    const targetLocation = lobby.locations[0];
+    const lat = targetLocation.lat;
+    const lon = targetLocation.lng;
+
+    console.log(`\nRozpoczynanie rundy ${1} w grze ${lobby.gameId}\n`);
+
+    await query(`
+      INSERT INTO round ("roundid", "gameid", "roundNumber", "targetLocationLat", "targetLocationLon")
+      VALUES (gen_random_uuid(), $1, $2, $3, $4)
+    `, [gameId, 1, lat, lon]);
+
+    timerService.startRoundTimer(io, lobbyId, lobby.roundTime, lobbies);
+  } catch (error) {
+    console.error("Błąd startGame:", error);
+    io.to(lobbyId).emit("error", "Błąd podczas uruchamiania gry.");
+  }
+});
+
 
     socket.on("disconnect", () => {
       console.log("A user disconnected:", socket.id);
@@ -228,12 +241,14 @@ module.exports = function (io) {
         return;
       }
 
-      try {
-        const roundNumber = lobby.currentRoundIndex + 1;
-        const targetLocation = lobby.locations[roundNumber];
-        const lat = targetLocation.lat;
-        const lon = targetLocation.lng;
+      lobby.currentRoundIndex += 1;
+      const roundNumber = lobby.currentRoundIndex + 1;
+      const targetLocation = lobby.locations[lobby.currentRoundIndex];
+      const lat = targetLocation.lat;
+      const lon = targetLocation.lng;
 
+      console.log(`\nRozpoczynanie rundy ${roundNumber} w grze ${lobby.gameId}\n`);
+      try {
         await query(`
           INSERT INTO round ("roundid", "gameid", "roundNumber", "targetLocationLat", "targetLocationLon")
           VALUES (gen_random_uuid(), $1, $2, $3, $4)
@@ -245,15 +260,15 @@ module.exports = function (io) {
         return;
       }
 
-      lobby.currentRoundIndex += 1;
       lobby.guessedPlayers = new Set();
       lobby.currentGuesses = [];
-      
+
       io.to(lobbyId).emit("startNextRound", {
         nextIndex: lobby.currentRoundIndex,
         roundTime: lobby.roundTime,
       });
     });
+
 
     
   });

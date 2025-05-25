@@ -59,7 +59,6 @@ const GameView = () => {
     }
 
     const userId = getUserIdFromToken();
-
     const roundNumber = currentLocationIndex + 1;
 
     try {
