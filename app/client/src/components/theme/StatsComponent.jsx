@@ -51,9 +51,9 @@ const styles = {
     },
     heading: {
         fontFamily: 'Accuratist',
-        fontSize: '32px',
+        fontSize: '40px',
         color: 'rgb(255, 255, 255)',
-        marginBottom: '10px',
+        marginBottom: '20px',
     },
     row: {
         display: 'flex',

@@ -280,4 +280,30 @@ router.get('/profile-info', authenticate, async (req, res) => {
 });
 
 
+//Fetching 10 games with offset
+router.get('/user/games', authenticate, async (req, res) => {
+    const userId = req.user.id;
+    const offset = parseInt(req.query.offset || '0');
+    const limit = parseInt(req.query.limit || '10');
+
+    const result = await query(
+        `SELECT 
+           g.gameid,
+           g."gameDate",
+           g."roundAmount",
+           g."timePerRound",
+           g."mapName",
+           ug."gamePoints"
+         FROM user_game ug
+         JOIN game g ON ug.gameid = g.gameid
+         WHERE ug.userid = $1
+         ORDER BY g."gameDate" DESC
+         LIMIT $2 OFFSET $3`,
+        [userId, limit, offset]
+    );
+
+    res.json({ games: result.rows });
+});
+
+
 module.exports = router;

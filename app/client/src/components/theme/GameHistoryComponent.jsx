@@ -1,16 +1,34 @@
 import React, { useState } from 'react';
+import BasicButtonComponent from './BasicButtonComponent';
 
 const GameHistoryComponent = ({ games }) => {
     const increment = 10;
-    const [visibleCount, setVisibleCount] = useState(increment);
 
-    const handleShowMore = () => {
-        setVisibleCount(prev => Math.min(prev + increment, games.length));
+    const [displayedGames, setDisplayedGames] = useState(games);
+    const [offset, setOffset] = useState(games.length);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+
+    const fetchMoreGames = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/user/games?offset=${offset}&limit=${increment}`);
+            const data = await response.json();
+
+            if (data.games.length < increment) {
+                setHasMore(false);
+            }
+            setDisplayedGames(prev => [...prev, ...data.games]);
+            setOffset(prev => prev + increment);
+        } catch (err) {
+            console.error('Error fetching games:', err);
+            setHasMore(false);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const visibleGames = games.slice(0, visibleCount);
-
-    return (
+        return (
         <div style={styles.container}>
             <div style={styles.wrapper}>
                 <h1 style={styles.heading}>Game History</h1>
@@ -21,12 +39,12 @@ const GameHistoryComponent = ({ games }) => {
                                 <th>Date</th>
                                 <th>Map</th>
                                 <th>Rounds</th>
-                                <th>Round length (s)</th>
+                                <th>Round length [s]</th>
                                 <th>Points</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {visibleGames.map((game, index) => (
+                            {displayedGames.map((game, index) => (
                                 <tr key={game.gameid || index} style={styles.tbodyRow}>
                                     <td>{new Date(game.gameDate).toLocaleString('pl-PL')}</td>
                                     <td>{game.mapName}</td>
@@ -38,9 +56,14 @@ const GameHistoryComponent = ({ games }) => {
                         </tbody>
                     </table>
                 </div>
-                <button style={styles.loadMoreButton} onClick={handleShowMore}>
-                    Load previous {increment} games
-                </button>
+                {hasMore && (
+                    <BasicButtonComponent
+                        style={styles.loadMoreButton}
+                        onClick={fetchMoreGames}
+                        disabled={loading}
+                        buttonText={loading ? 'Loading...' : `Load previous ${increment} games`}
+                    />
+                )}
             </div>
         </div>
     );
