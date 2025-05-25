@@ -30,8 +30,16 @@ const LobbyPage = () => {
   }, [lobbyData, lobbyId]);
 
   useEffect(() => {
-    const gameStarting = () => {
-      navigate(`/game/multi/${lobbyId}`, { state: { lobbyId } });
+    const gameStarting = (data) => {
+      navigate(`/game/multi/${lobbyId}`, {
+        state: {
+          lobbyId,
+          roundTime: data.roundTime,
+          selectedMode: data.selectedMode,
+          map: data.map,
+          gameId: data.gameId 
+        },
+      });
     };
 
     socket.on('lobbyData', async (data) => {
@@ -88,7 +96,7 @@ const LobbyPage = () => {
         {lobbyData ? (
           <>
             <h1>Lobby: {lobbyData.lobbyId}</h1>
-            <p>{players} / 4 players</p>
+            <p>{players} / {lobbyData.maxPlayers} players</p>
             <p>Waiting for other players...</p>
 
             <h2>Game Details</h2>

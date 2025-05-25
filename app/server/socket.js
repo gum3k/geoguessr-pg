@@ -21,6 +21,7 @@ module.exports = function (io) {
         players: [],
         guessCount: 0,
         currentRoundIndex: 0,
+        maxPlayers: data.maxPlayers || 8
       };
 
       lobbies[lobbyId] = newLobby;
@@ -33,6 +34,11 @@ module.exports = function (io) {
       if (!lobby) {
       socket.emit("error", "Lobby nie istnieje");
       return;
+      }
+
+      if (lobby.players.length >= lobby.maxPlayers) {
+        socket.emit("error", "Lobby jest pełne");
+        return;
       }
       lobby.players.push({ id: socket.id, accountId });
 

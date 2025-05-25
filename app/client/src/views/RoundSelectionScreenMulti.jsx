@@ -37,7 +37,7 @@ const RoundSelectionScreen = () => {
 
   const createLobby = () => {
     if (!lobbyCreated && map) {
-      socket.emit('createLobby', { rounds, roundTime, selectedMode, map });
+      socket.emit('createLobby', { rounds, roundTime, selectedMode, map, maxPlayers: numberOfPlayers });
     }
     else {
       console.error("Cannot read map");
