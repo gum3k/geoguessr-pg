@@ -2,9 +2,8 @@ const StatsComponent = () => {
     return (
         <div style={styles.container}>
             <div style={styles.wrapper}>
-                <h1>Statistics</h1>
+                <h1>Stats</h1>
                 <h2>Average points per guess</h2>
-                <h2>Games played</h2>
                 <h2>Games played</h2>
             </div>
         </div>

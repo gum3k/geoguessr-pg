@@ -6,12 +6,12 @@ const { query } = require('./database');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const authenticate = require('./utils/authenticate');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 const JWT_EXPIRES_IN = '1d';
 
 router.use(cookieParser());
-
 
 // fetch API key
 router.get('/apikey', (req, res) => {
@@ -175,7 +175,6 @@ router.post('/login', async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-
     res.cookie('token', token, {
       httpOnly: false,
       secure: false,
@@ -183,6 +182,11 @@ router.post('/login', async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 dzień
     });
 
+<<<<<<< Updated upstream
+=======
+    console.log('Token set in cookie: ', token);
+
+>>>>>>> Stashed changes
     return res.status(200).json({
       message: 'Login successful',
       user: { id: user.userid, username: user.username, email: user.email }
@@ -213,5 +217,53 @@ router.post('/logout', (req, res) => {
 router.all('/logout', (req, res) => {
   return res.status(405).json({ message: 'Method Not Allowed.' });
 });
+
+// Fetch profile info from token in cookie
+router.get('/profile-info', authenticate, async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token in session' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.id;
+
+    const userResult = await query(
+      'SELECT userid, username, email FROM users WHERE userid = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const gamesResult = await query(
+      `SELECT 
+        g.gameid,
+        g."gameDate",
+        g."roundAmount",
+        g."timePerRound",
+        g."mapName",
+        ug."gamePoints"
+      FROM user_game ug
+      JOIN game g ON ug.gameid = g.gameid
+      WHERE ug.userid = $1
+      ORDER BY g."gameDate" DESC
+      LIMIT 10`,
+      [userId]
+    );
+
+    return res.status(200).json({
+      profile: userResult.rows,
+      games: gamesResult.rows
+    });
+  } catch (err) {
+    console.error('Error while verifying token', err);
+    return res.status(401).json({ message: 'Incorrect or non-existent token' });
+  }
+});
+
 
 module.exports = router;
