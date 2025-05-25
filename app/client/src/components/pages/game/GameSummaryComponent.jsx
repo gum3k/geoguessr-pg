@@ -4,6 +4,7 @@ import ContainerComponent from "../../theme/ContainerComponent";
 import RoundButtonComponent from "../../theme/RoundButtonComponent";
 import { useNavigate } from "react-router-dom";
 import LeaderboardTable from "./LeaderboardTable";
+import socket from "../../../socket";
 
 const mapContainerStyle = {
   width: "100%",
@@ -28,7 +29,7 @@ const mapOptions = {
   fullscreenControl: false,
 };
 
-const GameSummaryComponent = ({ roundInfo = [], lobbyId }) => {
+const GameSummaryComponent = ({ roundInfo = [], guesses = [], lobbyId }) => {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const bottomBarRef = useRef(null);
@@ -60,7 +61,9 @@ const GameSummaryComponent = ({ roundInfo = [], lobbyId }) => {
     [roundInfo]
   );
 
-  const totalPoints = roundInfo.reduce((acc, { points = 0 }) => acc + points, 0);
+  const totalPoints = roundInfo
+    .filter(round => round.playerId === socket.id)
+    .reduce((acc, { points = 0 }) => acc + points, 0);
 
   return (
     <ContainerComponent>
@@ -70,7 +73,7 @@ const GameSummaryComponent = ({ roundInfo = [], lobbyId }) => {
       >
       {lobbyId && (
         <LeaderboardTable
-          guesses={[]} 
+          guesses={guesses} 
           allRounds={roundInfo}
           showRoundColumn={false}
           lobbyId={lobbyId}
