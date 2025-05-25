@@ -21,7 +21,8 @@ module.exports = function (io) {
         players: [],
         guessCount: 0,
         currentRoundIndex: 0,
-        maxPlayers: data.maxPlayers || 8
+        maxPlayers: data.maxPlayers || 8,
+        gameId: null,
       };
 
       lobbies[lobbyId] = newLobby;
@@ -94,6 +95,7 @@ module.exports = function (io) {
         `, [lobby.rounds, lobby.roundTime, lobby.map.name]);
 
         const gameId = result.rows[0].gameid;
+        lobby.gameId = gameId;
 
         for (const player of lobby.players) {
           if (player.accountId) {
@@ -217,7 +219,7 @@ module.exports = function (io) {
       }
     });
 
-    socket.on("nextRound", (lobbyId) => {
+    socket.on("nextRound", async (lobbyId) => {
       const lobby = lobbies[lobbyId];
       if (!lobby || !lobby.locations) return;
 
@@ -225,14 +227,34 @@ module.exports = function (io) {
         io.to(lobbyId).emit("gameOver");
         return;
       }
-        lobby.guessedPlayers = new Set();
-        lobby.currentGuesses = [];
-      lobby.currentRoundIndex += 1; 
+
+      try {
+        const roundNumber = lobby.currentRoundIndex + 1;
+        const targetLocation = lobby.locations[roundNumber];
+        const lat = targetLocation.lat;
+        const lon = targetLocation.lng;
+
+        await query(`
+          INSERT INTO round ("roundid", "gameid", "roundNumber", "targetLocationLat", "targetLocationLon")
+          VALUES (gen_random_uuid(), $1, $2, $3, $4)
+        `, [lobby.gameId, roundNumber, lat, lon]);
+
+        console.log(`Dodano rundę ${roundNumber} do gry ${lobby.gameId}`);
+      } catch (err) {
+        console.error("Insert round error:", err);
+        return;
+      }
+
+      lobby.currentRoundIndex += 1;
+      lobby.guessedPlayers = new Set();
+      lobby.currentGuesses = [];
+      
       io.to(lobbyId).emit("startNextRound", {
         nextIndex: lobby.currentRoundIndex,
         roundTime: lobby.roundTime,
       });
     });
+
     
   });
 };
