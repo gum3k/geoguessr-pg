@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const timerService = require("./services/timerService");
 const { calculateDistance } = require("./utils/gameUtils");
+const { query } = require("./database");
 
 module.exports = function (io) {
   let lobbies = {}; // Store lobbies and their players
@@ -34,6 +35,8 @@ module.exports = function (io) {
       return;
       }
       lobby.players.push({ id: socket.id, accountId });
+
+      console.log(`User ${accountId} joined lobby ${lobbyId}`);
       socket.join(lobbyId);
       io.to(lobbyId).emit("lobbyData", lobby);
     });
@@ -61,22 +64,44 @@ module.exports = function (io) {
       }
     });
 
-    socket.on("startGame", (lobbyId) => {
+    socket.on("startGame", async (lobbyId) => {
       const lobby = lobbies[lobbyId];
-      if (lobby) {
-        console.log(`Game starting for lobby ${lobbyId}`);
-        io.to(lobbyId).emit("gameStarting", {
-          message: "The game is starting!",
-          lobbyId,
-          rounds: lobby.rounds,
-          roundTime: lobby.roundTime,
-          selectedMode: lobby.selectedMode,
-          map: lobby.map.name,
-          locations: lobby.locations,
-        });
+      if (!lobby) return;
 
-        // Start the timer when the game begins
+      console.log(`Rozpoczynanie gry w lobby ${lobbyId}`);
+
+      io.to(lobbyId).emit("gameStarting", {
+        message: "The game is starting!",
+        lobbyId,
+        rounds: lobby.rounds,
+        roundTime: lobby.roundTime,
+        selectedMode: lobby.selectedMode,
+        map: lobby.map.name,
+        locations: lobby.locations,
+      });
+
+      try {
+        const result = await query(`
+          INSERT INTO game ("roundAmount", "timePerRound", "mapName")
+          VALUES ($1, $2, $3)
+          RETURNING gameid
+        `, [lobby.rounds, lobby.roundTime, lobby.map.name]);
+
+        const gameId = result.rows[0].gameid;
+
+        for (const player of lobby.players) {
+          if (player.accountId) {
+            await query(`
+              INSERT INTO user_game ("userid", "gameid", "gamePoints")
+              VALUES ($1, $2, 0)
+            `, [player.accountId, gameId]);
+          }
+        }
+
         timerService.startRoundTimer(io, lobbyId, lobby.roundTime);
+      } catch (error) {
+        console.error("Błąd startGame:", error);
+        io.to(lobbyId).emit("error", "Błąd podczas uruchamiania gry.");
       }
     });
 
