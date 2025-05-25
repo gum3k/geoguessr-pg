@@ -15,6 +15,15 @@ const MapSelectionComponent = ({ onMapSelected }) => {
         }
         const data = await response.json();
         setMaps(data);
+
+        // select "Sparse World" by default
+        const sparseWorldMap = data.find((map) => map.name === "Sparse World");
+        if (sparseWorldMap) {
+          setSelectedMap(sparseWorldMap);
+          if (onMapSelected) {
+            onMapSelected(sparseWorldMap);
+          }
+        }
       } catch (err) {
         console.error("Error while loading available maps:", err);
         setError("Could not load the maps");
@@ -24,7 +33,7 @@ const MapSelectionComponent = ({ onMapSelected }) => {
     };
 
     fetchMaps();
-  }, []);
+  }, [onMapSelected]);
 
   const handleMapSelect = (map) => {
     setSelectedMap(map);
