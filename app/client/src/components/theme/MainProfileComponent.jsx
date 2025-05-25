@@ -10,8 +10,6 @@ const MainProfileComponent = ({ profileData, loading, error }) => {
 
     const { profile, games, stats = [] } = profileData;
 
-    console.log(profileData);
-
     return (
         <div style={styles.grid}>
             <div style={styles.gridLayout}>
