@@ -8,24 +8,14 @@ const MainProfileComponent = ({ profileData, loading, error }) => {
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
     if (!profileData) return <p>No profile data</p>;
 
-    const { profile, games = [] } = profileData;
-
-    const totalGames = games.length;
-    const totalPoints = games.reduce((acc, game) => acc + (game.gamePoints || 0), 0);
-    const averagePoints = totalGames > 0 ? Math.round(totalPoints / totalGames) : 0;
-
-    const stats = {
-        totalGames,
-        totalPoints,
-        averagePoints,
-    };
+    const { profile, games, stats = [] } = profileData;
 
     console.log(profileData);
 
     return (
         <div style={styles.grid}>
             <div style={styles.gridLayout}>
-                <ProfileInfoComponent profile={profile[0]} />
+                <ProfileInfoComponent profile={profile} />
                 <StatsComponent stats={stats} />
             </div>
             <div>

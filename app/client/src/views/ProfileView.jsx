@@ -28,7 +28,7 @@ const ProfileView = () => {
         }
     };
         fetchProfile();
-    }, []);
+    }, [loading]);
 
 
     return (

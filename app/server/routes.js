@@ -250,9 +250,28 @@ router.get('/profile-info', authenticate, async (req, res) => {
       [userId]
     );
 
+    const statsResult = await query(
+      `SELECT
+        COALESCE(ROUND(AVG(points)::numeric, 2), 0) AS avgPointsPerGuess,
+        (SELECT COUNT(DISTINCT gameid) FROM user_game WHERE userid = $1) AS totalGames,
+        (
+          SELECT "mapName"
+          FROM user_game ug
+          JOIN game g ON ug.gameid = g.gameid
+          WHERE ug.userid = $1
+          GROUP BY g."mapName"
+          ORDER BY COUNT(*) DESC
+          LIMIT 1
+        ) AS mostPlayedMap
+      FROM guess
+      WHERE userid = $1`,
+      [userId]
+    );
+
     return res.status(200).json({
-      profile: userResult.rows,
-      games: gamesResult.rows
+      profile: userResult.rows[0],
+      games: gamesResult.rows,
+      stats: statsResult.rows[0]
     });
   } catch (err) {
     console.error('Error while verifying token', err);

@@ -31,7 +31,7 @@ const GameHistoryComponent = ({ games }) => {
                                     <td>{new Date(game.gameDate).toLocaleString('pl-PL')}</td>
                                     <td>{game.mapName}</td>
                                     <td>{game.roundAmount}</td>
-                                    <td>{game.timePerRound}</td>
+                                    <td>{game.timePerRound === 0 ? '∞' : game.timePerRound}</td>
                                     <td style={styles.pointsCell}>{game.gamePoints}</td>
                                 </tr>
                             ))}
