@@ -7,7 +7,7 @@ if exist apikey.txt (
     set /p API_KEY=<apikey.txt
     echo Your current API key is: !API_KEY!
 ) else (
-    echo  > apikey.txt
+    echo > apikey.txt
     echo U got blessed with gum3k's API Key, use it wisely.
     echo It's possible that gum3k will change or remove it in the future, so be prepared.
 )
