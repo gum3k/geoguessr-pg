@@ -96,6 +96,3 @@ def fibonacci_sphere_lat_lon(samples=SAMPLES, batch_size=100, max_workers=None, 
     points_on_land = filter_points_on_land(points, batch_size=batch_size, max_workers=max_workers)
 
     return points_on_land
-
-
-

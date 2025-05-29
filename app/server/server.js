@@ -1,22 +1,69 @@
 const express = require('express');
 const path = require('path');
 const routes = require('./routes');
-require('dotenv').config(); // For environment variables
+
+const gameRoutes = require('./routes/gameRoutes');
+const http = require('http');
+const socketIo = require('socket.io');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Goog-Api-Key', 
+    'X-Goog-FieldMask', 
+    'Referer', 
+    'Accept', 
+    'Accept-Encoding', 
+    'User-Agent', 
+    'Origin', 
+    'Cache-Control'
+  ],
+  credentials: true,
+}));
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",  // adres frontendowego Reacta
+    methods: ["GET", "POST", "FETCH"],
+    allowedHeaders: "*",
+    credentials: true
+  }
+});
+
+// Import and initialize the socket logic
+require('./socket')(io);
+
+// Middleware: Parsowanie JSON w ciele żądań
+app.use(express.json());
 
 // Serve React app from the client build directory
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 
+// Routing for location sets
+app.use(
+  '/locations/locations_sets',
+  express.static(path.join(__dirname, '..', '..', 'locations', 'locations_sets'))
+);
+
 // API routes
-app.use('/api', routes);
+app.use('/api', routes);  // Dodajemy routing, który obsłuży rejestrację i inne API
+app.use('/game', express.static(path.join(__dirname, 'public')));
+app.use('/api', gameRoutes); // endpoint od obslugi gry
 
 // Catch-all route to serve React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+server.listen(5000, () => {
+  console.log(`Server running on http://localhost:5000`);
 });
+
+

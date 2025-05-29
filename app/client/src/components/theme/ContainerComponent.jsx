@@ -1,17 +1,29 @@
 import React from 'react';
 
 const ContainerComponent = ({ children }) => {
-  const styles = {
-    container: {
-      position: 'relative',
-      height: '100vh',
-      width: '100%',
-      background: 'linear-gradient(to bottom, green, blue)', 
-      overflow: 'hidden',
-    },
-  };
+  return (
+    <div>
+      <div >
+        <div className='main-background'></div>
+      </div>
+      <div style={styles.container}>    
+        <div style={styles.content}>{children}</div>
+      </div>
+    </div>
+  );
+};
 
-  return <div style={styles.container}>{children}</div>;
+const styles = {
+  container: {
+    overflowY: 'auto',
+    position: 'relative',
+    height: '100vh',
+    width: '100%',
+  },
+  content: {
+    position: 'relative',
+    zIndex: 1,
+  },
 };
 
 export default ContainerComponent;

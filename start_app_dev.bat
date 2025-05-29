@@ -10,4 +10,6 @@ echo Starting the client...
 cd ../client
 start cmd /k "npm start"
 
-pause
+sleep 5
+
+exit

@@ -2,32 +2,55 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavigationComponent from '../components/theme/NavigationComponent';
 import ContainerComponent from '../components/theme/ContainerComponent'; 
-import MovingImageComponent from '../components/theme/MovingImageComponent'; 
 import ContentComponent from '../components/theme/ContentComponent'; 
 import BasicButtonComponent from '../components/theme/BasicButtonComponent';
 import SliderComponent from '../components/pages/settings/SliderComponent';
-import { fetchLocations } from '../utils/fetchLocations';
+import MapSelectionComponent from '../components/pages/settings/MapSelectionComponent';
 
 const RoundSelectionScreen = () => {
   const [rounds, setRounds] = useState(5);
-  const [selectedMode, setSelectedMode] = useState('Move');
+  const [selectedMode, setSelectedMode] = useState('No Move');
   const [roundTime, setRoundTime] = useState(0);
-  const [mapName] = useState('equally_distributed_world_5mln');
+  const [map, setMap] = useState(null);
   const navigate = useNavigate();
+  const [, setGameId] = useState(null);
 
   const startGame = async () => {
-    const locations = await fetchLocations(rounds, mapName);
-    console.log('Fetched Locations:', locations);
+    if (!map) return;
 
-    navigate('/game', {
-      state: {
-        rounds,
-        roundTime,
-        selectedMode,
-        mapName
-      },
-    });
+    try {
+      const response = await fetch('http://localhost:5000/api/game/create-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          roundAmount: rounds,
+          timePerRound: roundTime,
+          mapName: map.name
+        })
+      });
+
+      const data = await response.json();
+
+      const newGameId = data.gameId;
+      setGameId(newGameId);
+
+      navigate(`/game/single/${newGameId}`, {
+        state: {
+          gameId: newGameId,
+          rounds,
+          roundTime,
+          selectedMode,
+          map
+        },
+      });
+    } catch (error) {
+      console.error("Błąd przy tworzeniu gry:", error);
+    }
   };
+
 
   const handleModeSelect = (mode) => {
     setSelectedMode(mode); 
@@ -43,9 +66,9 @@ const RoundSelectionScreen = () => {
   return (
     <ContainerComponent>
       <NavigationComponent />
-      <MovingImageComponent/>
       <ContentComponent>
-        <h2>Select Number of Rounds</h2>
+        <MapSelectionComponent onMapSelected={setMap}></MapSelectionComponent>
+        <h2>Select settings of your game</h2>
         <SliderComponent
           min={1}
           max={9}
@@ -91,7 +114,9 @@ const RoundSelectionScreen = () => {
             NMPZ
           </div>
         </div>
-        <BasicButtonComponent buttonText="Start Game" onClick={startGame}></BasicButtonComponent>
+        <div style={{marginTop: '10px'}}>
+          <BasicButtonComponent buttonText="Start Game" onClick={startGame} disabled={!map}/>
+        </div>
       </ContentComponent>
     </ContainerComponent>
   );
@@ -143,7 +168,5 @@ const styles = {
     boxShadow: '0 4px 16px rgba(128, 0, 255, 0.8)',
   },
 };
-
-
 
 export default RoundSelectionScreen;

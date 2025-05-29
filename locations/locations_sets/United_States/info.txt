@@ -1,0 +1,24 @@
+Map Name: United States
+Map Description: Description
+Lower Left Corner: (17.75605662471544, -159.3556299373728)
+Upper Right Corner: (65.53976942617166, -64.56694976656422)
+Points Generated: 209457
+Street View Locations Found: 5971
+
+Map Generation Parameters:
+BOUNDS: (-90.0, -180.0, 90.0, 180.0)
+POINT_DEGREE_BUFFER: 0.2 degrees
+SAMPLES: 500000
+COVERAGE_SEARCH_RADIUS: 7000 meters
+MAX_REQUESTS_PER_SECOND: 490
+RETRY_JITTER: 0.1
+RETRIES: 5
+
+Paths and Flags:
+MAPS_DIRECTORY: locations_sets/countries/
+POINTS_LOAD_MAP_PATH: None
+ONLY_GENERATE_POINTS: False
+UNOFFICIAL_COVERAGE: False
+LOGGING: True
+VISUALIZE_LOCATIONS: True
+VISUALIZE_POINTS: False

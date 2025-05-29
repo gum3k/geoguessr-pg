@@ -1,5 +1,7 @@
-Map Name: equally_distributed_world_5mln
-Map Directory: locations_sets/equally_distributed_world_5mln
+Map Name: Sparse World
+Map Description: description
+Lower Left Corner: None
+Upper Right Corner: None
 Points Generated: 1536107
 Street View Locations Found: 122976
 

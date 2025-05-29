@@ -46,12 +46,14 @@ def load_existing_street_view_points(file_path):
                     points.append((float(row[0]), float(row[1])))
     return points
 
-def save_map_data(map_directory, map_name, points_generated, street_view_found):
+def save_map_data(map_directory, map_name, points_generated, street_view_found, min_point, max_point):
     info_filename = os.path.join(map_directory, f"info.txt")
     with open(info_filename, 'w') as file:
         # write general map generation info
         file.write(f"Map Name: {map_name}\n")
-        file.write(f"Map Directory: {map_directory}\n")
+        file.write(f"Map Description: {DESCRIPTION}\n")
+        file.write(f"Lower Left Corner: {min_point}\n")
+        file.write(f"Upper Right Corner: {max_point}\n")
         file.write(f"Points Generated: {points_generated}\n")
         file.write(f"Street View Locations Found: {street_view_found}\n")
         

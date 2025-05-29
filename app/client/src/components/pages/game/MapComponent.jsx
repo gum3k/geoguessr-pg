@@ -47,7 +47,7 @@ const center = {
   lng: 0,
 };
 
-const MapComponent = ({ onLocationSelect, handleGuess }) => {
+const MapComponent = ({ onLocationSelect, handleGuess, disabled = false, buttonLabel = "Guess Location" }) => {
   const [apiKey] = useApiKey();
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -86,7 +86,7 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     const loadGoogleMapsScript = () => {
       if (!window.google || !window.google.maps) {
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places&v=weekly`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback&libraries=places&v=weekly`;
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
@@ -111,9 +111,13 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
     setSelectedLocation({ lat, lng });
-    onLocationSelect({ lat, lng });
   };
 
+  const handleGuessClick = () => {
+    if(selectedLocation){
+      onLocationSelect(selectedLocation);
+    }
+  }
   // Handle mouse hover events for the map
   const handleMouseEnter = () => {
     setIsMapHovered(true);
@@ -175,10 +179,11 @@ const MapComponent = ({ onLocationSelect, handleGuess }) => {
         onMouseLeave={() => setIsButtonHovered(false)}
       >
         <button
-          style={buttonStyle(!!selectedLocation)}
-          onClick={selectedLocation ? handleGuess : null}
+          style={buttonStyle(!!selectedLocation && !disabled)}
+          onClick={handleGuessClick}
+          disabled={!selectedLocation || disabled}
         >
-          Guess Location
+          {buttonLabel}
         </button>
       </div>
     </div>

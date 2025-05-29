@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import ContainerComponent from "../../theme/ContainerComponent";
 import RoundButtonComponent from "../../theme/RoundButtonComponent";
 import { useNavigate } from "react-router-dom";
+import LeaderboardTable from "./LeaderboardTable";
+import socket from "../../../socket";
 
 const mapContainerStyle = {
   width: "100%",
@@ -27,41 +29,76 @@ const mapOptions = {
   fullscreenControl: false,
 };
 
-const GameSummaryComponent = ({ roundInfo = [] }) => {
+const GameSummaryComponent = ({ roundInfo = [], guesses = [], lobbyId }) => {
   const navigate = useNavigate();
+  const mapRef = useRef(null);
+  const bottomBarRef = useRef(null);
 
   const mainMenu = () => {
     navigate("/");
   };
 
-  const totalPoints = roundInfo.reduce((acc, round) => acc + (round.points || 0), 0);
+  const onMapLoad = useCallback(
+    (map) => {
+      mapRef.current = map;
 
-  const defaultCenter = {
-    lat: roundInfo[0]?.playerLocation?.lat || 0,
-    lng: roundInfo[0]?.playerLocation?.lng || 0,
-  };
+      const bounds = new window.google.maps.LatLngBounds();
+      roundInfo.forEach(({ playerLocation, targetLocation }) => {
+        if (playerLocation) bounds.extend(playerLocation);
+        if (targetLocation) bounds.extend(targetLocation);
+      });
 
+      if (!bounds.isEmpty()) {
+        const barHeight = bottomBarRef.current?.clientHeight || 0;
+        map.fitBounds(bounds, {
+          top: 30,
+          right: 30,
+          left: 30,
+          bottom: barHeight,
+        });
+      }
+    },
+    [roundInfo]
+  );
+  
+  const totalPoints = roundInfo
+    .filter(round => !round?.playerId || round.playerId === socket.id)
+    .reduce((acc, { points = 0 }) => acc + points, 0);
+  
   return (
     <ContainerComponent>
       <div
         className="map-wrapper mt-4"
-        style={{ position: "relative", height: "100vh", backgroundColor: "white" }}
+        style={{ position: "relative", height: "100vh", backgroundColor: "white", overflow: "hidden" }}
       >
+      {lobbyId && (
+        <LeaderboardTable
+          guesses={guesses} 
+          allRounds={roundInfo}
+          showRoundColumn={false}
+          lobbyId={lobbyId}
+        />
+      )}
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          center={defaultCenter}
-          zoom={4}
+          center={{ lat: 0, lng: 0 }}
+          zoom={2}
           options={mapOptions}
+          onLoad={onMapLoad}
         >
-          {/* rysowanie markerów i linii dla wszystkich rund */}
-          {roundInfo.map((round, index) => (
-            <React.Fragment key={index}>
+          {roundInfo.map((round, i) => (
+            <React.Fragment key={i}>
               {round.playerLocation && (
                 <Marker
                   position={round.playerLocation}
+                  label={{
+                    text: round.playerName || `Player`,
+                    className: "guess-label"
+                  }}
                   icon={{
-                    url: "usericon.png",
+                    url: process.env.PUBLIC_URL + "/usericon.png",
                     scaledSize: new window.google.maps.Size(40, 40),
+                    labelOrigin: new window.google.maps.Point(20, -10)
                   }}
                 />
               )}
@@ -69,7 +106,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
                 <Marker
                   position={round.targetLocation}
                   icon={{
-                    url: "locationicon.png",
+                    url: process.env.PUBLIC_URL + "/locationicon.png",
                     scaledSize: new window.google.maps.Size(40, 40),
                   }}
                 />
@@ -78,20 +115,19 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
                 <Polyline
                   path={[round.playerLocation, round.targetLocation]}
                   options={{
-                    strokeColor: "#FF0000",
+                    strokeColor: round.playerId === socket.id ? "#FF0000" : "#000000",
                     strokeOpacity: 0,
                     strokeWeight: 2,
                     icons: [
                       {
                         icon: {
-                          path: "M 0,-1 0,1", 
+                          path: "M 0,-1 0,1",
                           strokeOpacity: 0.8,
                           scale: 4,
                         },
                         offset: "0%",
-                        repeat: "20px", 
-       
-                      }
+                        repeat: "20px",
+                      },
                     ],
                   }}
                 />
@@ -101,6 +137,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
         </GoogleMap>
 
         <div
+          ref={bottomBarRef}
           style={{
             position: "absolute",
             bottom: 0,
@@ -112,7 +149,7 @@ const GameSummaryComponent = ({ roundInfo = [] }) => {
             justifyContent: "space-between",
             alignItems: "center",
             zIndex: 2,
-            borderRadius: "10px 10px 0 0", // zaokrąglone rogi
+            borderRadius: "10px 10px 0 0",
           }}
         >
           <div
