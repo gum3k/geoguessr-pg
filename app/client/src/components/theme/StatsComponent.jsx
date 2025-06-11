@@ -36,7 +36,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'center',
         borderRadius: '20px',
-        backgroundColor: 'rgb(90, 22, 134)',
+        backgroundColor: 'rgb(24, 53, 134)',
         color: '#fff',
         width: '100%',
     },

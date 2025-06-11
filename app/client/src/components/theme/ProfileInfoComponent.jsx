@@ -186,7 +186,7 @@ const styles = {
         alignItems: 'center',
         padding: '1em',
         borderRadius: '20px',
-        backgroundColor: 'rgb(90, 22, 134)',
+        backgroundColor: 'rgb(24, 53, 134)',
         color: '#fff',
     },
     wrapper: {
